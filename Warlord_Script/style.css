@@ -788,3 +788,67 @@ body[test] {
 [_1]:not([_3]) .script__body .__items .__item.__fight > .__slot[viewing] {
 	background: linear-gradient(90deg, #444 0%, var(--background-secondary) 100%);
 }
+
+.Profile__column {
+	--script--border_radius: var(--vkui--size_border_radius_paper--regular, 8px);
+}
+[dir] .Profile__column .script__ {
+	position: relative;
+	box-shadow: unset;
+	margin-top: 0;
+	margin-bottom: 16px;
+}
+[dir] .Profile__column .script__::after {
+	content: "";
+	height: 100%;
+	pointer-events: none;
+	position: absolute;
+	top: 0;
+	width: 100%;
+	border-radius: var(--script--border_radius);
+	box-shadow: inset 0 0 0 var(--thin-border) var(--input_border);
+	z-index: 100;
+}
+.Profile__column .script__:not([friends]) .script__body,
+.Profile__column .script__body .__body {
+	border-radius: var(--script--border_radius);
+}
+.Profile__column .script__body .__body > .__banners {
+	border-radius: var(--script--border_radius) var(--script--border_radius) 0 0;
+}
+.Profile__column .script__body .__body > .__container {
+	border-radius: var(--script--border_radius) var(--script--border_radius) 0 0;
+}
+.Profile__column .script__body .__body > .__container:last-child {
+	border-radius: var(--script--border_radius);
+}
+.Profile__column .script__body .__body > .__container:last-child > .__items {
+	border-radius: 0 0 var(--script--border_radius) var(--script--border_radius);
+}
+body[scheme="vkcom_light"] .script__ {
+	--background-main: var(--background_content);
+	--background-secondary: var(--content_tint_background);
+	--color-main: var(--text_primary);
+	--color-secondary: var(--text_subhead);
+	--color-extra: #3f8ae0;
+	--gradient: linear-gradient(180deg,hsla(0,0%,96.1%,0),hsla(0,0%,96.1%,.02) 9%,hsla(0,0%,96.1%,.06) 19%,hsla(0,0%,96.1%,.12) 28%,hsla(0,0%,96.1%,.2) 38%,hsla(0,0%,96.1%,.29) 48%,hsla(0,0%,96.1%,.39) 57%,hsla(0,0%,96.1%,.5) 66%,hsla(0,0%,96.1%,.61) 74%,hsla(0,0%,96.1%,.71) 81%,hsla(0,0%,96.1%,.8) 88%,hsla(0,0%,96.1%,.88) 93%,hsla(0,0%,96.1%,.95) 97%,hsla(0,0%,96.1%,.98) 99%,#f5f5f5);
+}
+body[scheme="vkcom_dark"] .script__ {
+	--background-main: var(--background_content);
+	--background-secondary: var(--content_tint_background);
+	--color-main: var(--text_primary);
+	--color-secondary: var(--text_subhead);
+	--color-extra: #4da0ff;
+	--gradient: linear-gradient(0deg,#232324,rgba(30,30,31,.98),rgba(30,30,31,.94),rgba(30,30,31,.88),rgba(30,30,31,.8),rgba(30,30,31,.71),rgba(30,30,31,.61),rgba(30,30,31,.5),rgba(30,30,31,.39),rgba(30,30,31,.29),rgba(30,30,31,.2),rgba(30,30,31,.12),rgba(30,30,31,.06),rgba(30,30,31,.02),rgba(30,30,31,0));
+}
+body[scheme="vkcom_dark"] .script__:not([_3]) .script__body .__container > .__title::before {
+	background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 16" id="chevron_16"><g fill="none" fill-rule="evenodd"><path d="M0 0h12v16H0z"></path><path d="M7.227 8L3.864 4.636a.9.9 0 1 1 1.272-1.272l4 4a.9.9 0 0 1 0 1.272l-4 4a.9.9 0 1 1-1.272-1.272L7.227 8z" fill="%23fff"></path></g></svg>');
+}
+.script__:not([_3]) .script__body .__items .__item[hint]::before {
+	color: var(--vkui--color_text_contrast,#fff);
+	background-color: var(--vkui--color_background_contrast_inverse,#2d2d2e);
+	box-shadow: var(--vkui--elevation3,0 0 2px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.08));
+}
+.Profile__column .script__body .__items .__item[hint]:hover::before {
+	opacity: 1;
+}

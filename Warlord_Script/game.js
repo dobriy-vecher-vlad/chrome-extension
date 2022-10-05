@@ -1,14 +1,15 @@
 let ScriptName = "warlord";
 let ScriptTitle = "Warlord";
-let ScriptVersion = "2.2.16";
+let ScriptVersion = "2.3.0";
+let isNew = false;
 ScriptRun('event');
 ScriptRun('load');
 
-async function ScriptProfileLoad(name, myID, uID) {
+const ScriptProfileLoad = async(name, myID, uID) => {
 	log(`Script try load user: ${uID}.`);
 	let script_body = document.querySelector(`.script__body[script__${uID}]`);
 	try {
-		script_body.innerHTML = '<div class="script__text loader__"><br><br>Обновляем настройки скрипта</div>';
+		script_body.firstChild.innerText = '\n\nОбновляем настройки скрипта';
 		let script_ = script_body.parentElement;
 		let script__settings = ScriptUpdateSettings(name);
 		script__settings._1 == true ? script_.setAttribute('_1', '') : script_.removeAttribute('_1');
@@ -17,41 +18,37 @@ async function ScriptProfileLoad(name, myID, uID) {
 		let my_id = Number(myID);
 		let u_id = Number(uID);
 		let content_id = 0;
-		function builder(body) {
-			let code = '';
-			code += `<div class="__container"><input type="checkbox" id="${name}_${content_id}_${u_id}" ${content_id!==0?'checked':''}/><label class="__title" for="${name}_${content_id}_${u_id}">${body.title}</label><div class="__items">`;
-				body.cards.forEach((item) => {
-					code += `<div class="__item" ${item.hint == false ? '' : 'hint="'+item.hint+'"'} ${item.style == false ? '' : 'style="'+item.style+'"'}><div class="__text">${item.text}</div><div class="__title">${item.title}</div></div>`;
-				});
-			code += `</div></div>`;
-			content_id += 1;
-			return code;
-		}
-		function banners(body) {
-			let code = `<div class="__item" ${body.background !== false ? 'style="background-image: url('+body.background+');"' : ''}>${body.text}</div>`;
-			return code;
-		}
-		function fight_slot(body) {
-			let code = `<a href="http://vk.com/id${body.id}" target="_blank" class="__slot" ${body.type}><span>${body.n}</span><span>${body.id}</span><span>${body.name}</span><span>${body.dmg}</span></a>`;
-			return code;
-		}
+		const builder = (body) => {
+			content_id++;
+			return `
+				<div class="__container">
+					<input type="checkbox" id="${name}_${content_id}_${u_id}" ${content_id!==0?'checked':''}/>
+					<label class="__title" for="${name}_${content_id}_${u_id}">${body.title}</label>
+					<div class="__items">
+						${body.cards.map(item => `<div class="__item" ${item.hint == false ? '' : 'hint="'+item.hint+'"'} ${item.style == false ? '' : 'style="'+item.style+'"'}><div class="__text">${item.text}</div><div class="__title">${item.title}</div></div>`).join('')}
+					</div>
+				</div>
+			`;
+		};
+		const banners = (body) => `<div class="__item" ${body.background !== false ? 'style="background-image: url('+body.background+');"' : ''}>${body.text}</div>`;
+		const fight_slot = (body) => `<a href="http://vk.com/id${body.id}" target="_blank" class="__slot" ${body.type}><span>${body.n}</span><span>${body.id}</span><span>${body.name}</span><span>${body.dmg}</span></a>`;
 		if (name == ScriptName) {
 			script_body.firstChild.innerText = '\n\nВыбираем сервер игры';
 			let server = await getData('xml', `https://tmp1-fb.geronimo.su/gameHub/index.php?api_uid=${uID}&api_type=vk`);
 			let server_more = [];
-			if (server === null) {
+			if (server == null) {
 				script_body.innerHTML = `<div class="script__text error__"><br><br>Ошибка при выборе сервера игры</div>`;
 				return;
 			} else {
-				server.s.forEach((item) => {
+				for (let item of server.s) {
 					if (Number(item._uid) !== 0 && Number(item._id) !== script__settings[name]._9) {
 						server_more.push(item);
 					}
-				});
+				}
 				server = server.s[script__settings[name]._9-1];
 			}
-			if (server && server._uid && Number(server._uid) == 0) {
-				script_body.innerHTML = `<div class="script__text error__"><br><br>Персонаж не зарегистрирован в игре</div>${server_more.map((item) => `<div class="script__text banners__"><div class="__item">Имеет аккаунт на сервере ${item._n}<br>${item._un}, ${item._ulvl} уровень</div></div>`)}`;
+			if (Number(server?._uid) == 0) {
+				script_body.innerHTML = `<div class="script__text error__"><br><br>Персонаж не зарегистрирован в игре</div>${server_more.map((item) => `<div class="script__text banners__"><div class="__item">Имеет аккаунт на сервере ${item._n}<br>${item._un}, ${item._ulvl} уровень</div></div>`).join('')}`;
 				return;
 			}
 			script_body.firstChild.innerText = '\n\nПолучаем статусы игроков';
@@ -68,7 +65,7 @@ async function ScriptProfileLoad(name, myID, uID) {
 			} else {
 				script_body.firstChild.innerText = '\n\nПолучаем информацию игрока';
 				let profile = await getData('xml', `https://${server._url}udata.php?user=${uID}`);
-				if (profile === 'Персонаж не зарегистрирован в игре.') {
+				if (/зарегистрирован/.exec(profile)) {
 					script_body.innerHTML = `<div class="script__text error__"><br><br>Персонаж не зарегистрирован в игре</div>`;
 					return;
 				} if (profile === null) {
@@ -79,13 +76,13 @@ async function ScriptProfileLoad(name, myID, uID) {
 					if (profile.u._clan_id !== '0' && (script__settings[name]._2 || script__settings[name]._3 || script__settings[name]._4 || script__settings[name]._5 || script__settings[name]._11)) {
 						script_body.firstChild.innerText = '\n\nПолучаем информацию гильдии';
 						clan = await getData('xml', `https://${server._url}game.php?api_uid=${status.clan_id}&UID=${status.clan_id}&api_type=vk&api_id=${status.api_id}&auth_key=${status.clan_auth}&i=49&t1=${profile.u._clan_id}`);
-						if (clan && clan.clan) {
+						if (clan?.clan) {
 							clan = clan.clan;
 							typeof clan.mmbrs.u.length == 'undefined' ? clan.mmbrs.u = [clan.mmbrs.u] : '';
 							clan = {
 								...clan,
 								_leader: clan.mmbrs.u.find(user => Number(user._clan_r) == 1),
-								mmbrs: clan.mmbrs.u
+								mmbrs: clan.mmbrs.u,
 							};
 						} else {
 							script_body.innerHTML = `<div class="script__text error__"><br><br>Ошибка при чтении данных гильдии</div>`;
@@ -124,7 +121,7 @@ async function ScriptProfileLoad(name, myID, uID) {
 						let profile_clan_rang_array = ["Лидер гильдии", "Генерал гильдии", "Офицер гильдии", "Ветеран гильдии", "Рядовой гильдии", "Рекрут гильдии"];
 						let profile_clan_rang = profile._clan_id !== '0' ? profile_clan_rang_array[profile._clan_r-1] : 'нет';
 						let profile_clan_days = profile._clan_id !== '0' ? numberSpaces(Math.floor(Number(profile._clan_d) / 60 / 60 / 24)) + ' дн.' : "нет";
-						let profile_date = function (ms = 0, format = 'big') {
+						let profile_date = (ms = 0, format = 'big') => {
 							let date = new Date(new Date() - (Number(ms) * 1000));
 							return format === 'big' ? date.toLocaleString("ru", {
 								timezone: 'UTC',
@@ -382,9 +379,7 @@ async function ScriptProfileLoad(name, myID, uID) {
 							let bannersCode = '';
 							status.scriptUPDATE != ScriptVersion ? bannersCode += banners({'background': false, 'text': `Вы используете неактуальную версию скрипта<br>Ваша версия: ${ScriptVersion}, актуальная: ${status.scriptUPDATE}`}) : '';
 							status.Alert != 'off' ? bannersCode += banners({'background': false, 'text': status.Alert}) : '';
-							server_more.forEach((item) => {
-								bannersCode += banners({'background': false, 'text': `Имеет аккаунт на сервере ${item._n}<br>${item._un}, ${item._ulvl} уровень`});
-							});
+							for (let item of server_more) bannersCode += banners({'background': false, 'text': `Имеет аккаунт на сервере ${item._n}<br>${item._un}, ${item._ulvl} уровень`});
 							status.statusRED.includes(u_id) ? bannersCode += banners({'background': 'https://i.yapx.ru/MPz2R.gif', 'text': `<span style="color: #fff;">Имеет дело в суде<br><a style="text-decoration: underline;" href="https://vk.com/wall-133931816?q=${u_id}" target="_blank">запись в суде</a></span>`}) : '';
 							status.statusGREEN.includes(u_id) ? bannersCode += banners({'background': 'https://i.yapx.ru/MP0H1.gif', 'text': `<span style="color: #fff;">Доверенное и подтверждённое лицо</span>`}) : '';
 							status.statusORANGE.includes(u_id) ? bannersCode += banners({'background': 'https://i.yapx.ru/MP0OL.gif', 'text': `<span style="color: #fff;">Имеет дело в суде, но претензии сняты<br><a style="text-decoration: underline;" href="https://vk.com/wall-133931816?q=${u_id}" target="_blank">запись в суде</a></span>`}) : '';
@@ -416,19 +411,17 @@ async function ScriptProfileLoad(name, myID, uID) {
 								let clan_all_dmg = 0;
 								let clan_all_hp = 0;
 								let clan_all_lvl = 0;
-								clan.mmbrs.sort(function(a, b) {
-									return Number(script__settings[name]._10) === 1 ?
-										Number(b._clan_r) < Number(a._clan_r) ? 1 : -1 :
-										Number(script__settings[name]._10) === 2 ?
-										Number(b._dmgi) < Number(a._dmgi) ? -1 : 1 :
-										Number(script__settings[name]._10) === 3 ?
-										Number(b._end)+Number(b._endi) < Number(a._end)+Number(a._endi) ? -1 : 1 :
-										Number(script__settings[name]._10) === 4 ?
-										Number(b._l_t) < Number(a._l_t) ? 1 : -1 :
-										Number(b._clan_r) < Number(a._clan_r) ? 1 : -1
-									;
-								});
-								clan.mmbrs.forEach((item, x) => {
+								clan.mmbrs.sort((a, b) => Number(script__settings[name]._10) === 1 ?
+									Number(b._clan_r) < Number(a._clan_r) ? 1 : -1 :
+									Number(script__settings[name]._10) === 2 ?
+									Number(b._dmgi) < Number(a._dmgi) ? -1 : 1 :
+									Number(script__settings[name]._10) === 3 ?
+									Number(b._end)+Number(b._endi) < Number(a._end)+Number(a._endi) ? -1 : 1 :
+									Number(script__settings[name]._10) === 4 ?
+									Number(b._l_t) < Number(a._l_t) ? 1 : -1 :
+									Number(b._clan_r) < Number(a._clan_r) ? 1 : -1
+								);
+								for (let [x, item] of clan.mmbrs.entries()) {
 									clan_all_dmg += Number(item._dmgi);
 									clan_all_hp += (Number(item._end) + Number(item._endi)) * 15;
 									clan_all_lvl += Number(item._lvl);
@@ -440,7 +433,7 @@ async function ScriptProfileLoad(name, myID, uID) {
 										<div class="__item" style="grid-column-start: span 2; text-align: center;"><div class="__title">${numberSpaces(item._dmgi)}</div></div>
 										<div class="__item" style="grid-column-start: span 3; text-align: center;"><div class="__title">${profile_date(item._l_t, 'big')}</div></div>
 									`;
-								});
+								}
 								html_1 += `</div>`;
 								html += `
 									<div class="__container"><input type="checkbox" id="${name}_clan2_${u_id}" checked/><label class="__title" for="${name}_clan2_${u_id}">${structure[4].title}</label><div class="__items">
@@ -461,7 +454,7 @@ async function ScriptProfileLoad(name, myID, uID) {
 								clan.hist == undefined ? clan.hist = {h: []} : '';
 								typeof clan.hist.h.length == 'undefined' ? clan.hist.h = [clan.hist.h] : '';
 								let data_hist = [];
-								clan.hist.h.forEach((item) => {
+								for (let [x, item] of clan.hist.h.entries()) {
 									if (item._t == 0) {
 										data_hist.push([item._d, `Новый участник гильдии <a href="http://vk.com/id${item._v1}" target="_blank">Player${item._v1}</a>`]);
 									}
@@ -488,7 +481,7 @@ async function ScriptProfileLoad(name, myID, uID) {
 											item._v2 == 287 ? 'Северный Гоблин' : 'Неизвестно'
 										}`]);
 									}
-								});
+								}
 								data_hist.map((item, x) => {
 									html_2 += `
 										<div class="__item" style="grid-column-start: span 1; text-align: center;"><div class="__title">${x+1}</div></div>
@@ -539,43 +532,51 @@ async function ScriptProfileLoad(name, myID, uID) {
 									week_top: [getUserTreasury(clan_treasury_week_m1), getUserTreasury(clan_treasury_week_m3)]
 								};
 								let html_3 = `<div class="__list">`;
-								clan.info1.c.sort(function(a, b) {
-									return b._t - a._t || b._v - a._v;
-								});
-								clan.info1.c.forEach((item, x) => {
+								clan.info1.c.sort((a, b) => b._t - a._t || b._v - a._v);
+								for (let [x, item] of clan.info1.c.entries()) {
 									item._t == 1 ? clan_treasury.m1[0] += Number(item._v) : clan_treasury.m3[0] += Number(item._v);
 									html_3 += `
 										<div class="__item" style="grid-column-start: span 1; text-align: center;"><div class="__title">${x+1}</div></div>
 										<div class="__item" style="grid-column-start: span 8;"><div class="__title"><a href="http://vk.com/id${item._id}" target="_blank">${item._name == '' ? `Player${item._id}` : item._name}</a> пополнил казну ${item._t == 1 ? 'серебром' : 'золотом'}</div></div>
 										<div class="__item" style="grid-column-start: span 3; text-align: center;"><div class="__title">${numberSpaces(item._v)} ${item._t == 1 ? 'серебра' : 'золота'}</div></div>
 									`;
-								});
+								}
 								html_3 += `</div>`;
 								let html_4 = `<div class="__list">`;
-								clan.info7.c.sort(function(a, b) {
-									return b._t - a._t || b._v - a._v;
-								});
-								clan.info7.c.forEach((item, x) => {
+								clan.info7.c.sort((a, b) => b._t - a._t || b._v - a._v);
+								for (let [x, item] of clan.info7.c.entries()) {
 									item._t == 1 ? clan_treasury.m1[1] += Number(item._v) : clan_treasury.m3[1] += Number(item._v);
 									html_4 += `
 										<div class="__item" style="grid-column-start: span 1; text-align: center;"><div class="__title">${x+1}</div></div>
 										<div class="__item" style="grid-column-start: span 8;"><div class="__title"><a href="http://vk.com/id${item._id}" target="_blank">${item._name == '' ? `Player${item._id}` : item._name}</a> пополнил казну ${item._t == 1 ? 'серебром' : 'золотом'}</div></div>
 										<div class="__item" style="grid-column-start: span 3; text-align: center;"><div class="__title">${numberSpaces(item._v)} ${item._t == 1 ? 'серебра' : 'золота'}</div></div>
 									`;
-								});
+								}
 								html_4 += `</div>`;
 								html += `
 									<div class="__container"><input type="checkbox" id="${name}_clan4_${u_id}" checked/><label class="__title" for="${name}_clan4_${u_id}">${structure[6].title}</label>
 										<div class="__items">
 											${clan.info1.c.length !== 0 ? `<div class="__item" style="grid-column-start: span 3;"><div class="__text">${numberSpaces(clan_treasury.m1[0])}</div><div class="__title">СЕРЕБРА ЗА ДЕНЬ</div></div>
 											<div class="__item" style="grid-column-start: span 3;"><div class="__text">${numberSpaces(clan_treasury.m3[0])}</div><div class="__title">ЗОЛОТА ЗА ДЕНЬ</div></div>
-											<div class="__item" style="grid-column-start: span 3;" hint="${numberSpaces(clan_treasury.day_top[0][2])} серебра"><div class="__text"><a href="http://vk.com/id${clan_treasury.day_top[0][0]}" target="_blank">${clan_treasury.day_top[0][1]}</a></div><div class="__title">ВНЁС СЕРЕБРА БОЛЬШЕ ВСЕХ</div></div>
-											<div class="__item" style="grid-column-start: span 3;" hint="${numberSpaces(clan_treasury.day_top[1][2])} золота"><div class="__text"><a href="http://vk.com/id${clan_treasury.day_top[1][0]}" target="_blank">${clan_treasury.day_top[1][1]}</a></div><div class="__title">ВНЁС ЗОЛОТА БОЛЬШЕ ВСЕХ</div></div>
+											${clan_treasury.day_top[0][1] ? 
+												`<div class="__item" style="grid-column-start: span 3;" hint="${numberSpaces(clan_treasury.day_top[0][2])} серебра"><div class="__text"><a href="http://vk.com/id${clan_treasury.day_top[0][0]}" target="_blank">${clan_treasury.day_top[0][1]}</a></div><div class="__title">ВНЁС СЕРЕБРА БОЛЬШЕ ВСЕХ</div></div>` : 
+												`<div class="__item" style="grid-column-start: span 3;"><div class="__text"></div><div class="__title"></div></div>`
+											}
+											${clan_treasury.day_top[1][1] ? 
+												`<div class="__item" style="grid-column-start: span 3;" hint="${numberSpaces(clan_treasury.day_top[1][2])} золота"><div class="__text"><a href="http://vk.com/id${clan_treasury.day_top[1][0]}" target="_blank">${clan_treasury.day_top[1][1]}</a></div><div class="__title">ВНЁС ЗОЛОТА БОЛЬШЕ ВСЕХ</div></div>` : 
+												`<div class="__item" style="grid-column-start: span 3;"><div class="__text"></div><div class="__title"></div></div>`
+											}
 											${html_3}` : '<div class="__item" style="grid-column-start: span 12;"><div class="__hint">Нет пополнений за текущий день</div></div>'}
 											${clan.info7.c.length !== 0 ? `<div class="__item" style="grid-column-start: span 3;"><div class="__text">${numberSpaces(clan_treasury.m1[1])}</div><div class="__title">СЕРЕБРА ЗА НЕДЕЛЮ</div></div>
 											<div class="__item" style="grid-column-start: span 3;"><div class="__text">${numberSpaces(clan_treasury.m3[1])}</div><div class="__title">ЗОЛОТА ЗА НЕДЕЛЮ</div></div>
-											<div class="__item" style="grid-column-start: span 3;" hint="${numberSpaces(clan_treasury.week_top[0][2])} серебра"><div class="__text"><a href="http://vk.com/id${clan_treasury.week_top[0][0]}" target="_blank">${clan_treasury.week_top[0][1]}</a></div><div class="__title">ВНЁС СЕРЕБРА БОЛЬШЕ ВСЕХ</div></div>
-											<div class="__item" style="grid-column-start: span 3;" hint="${numberSpaces(clan_treasury.week_top[1][2])} золота"><div class="__text"><a href="http://vk.com/id${clan_treasury.week_top[1][0]}" target="_blank">${clan_treasury.week_top[1][1]}</a></div><div class="__title">ВНЁС ЗОЛОТА БОЛЬШЕ ВСЕХ</div></div>
+											${clan_treasury.week_top[0][1] ? 
+												`<div class="__item" style="grid-column-start: span 3;" hint="${numberSpaces(clan_treasury.week_top[0][2])} серебра"><div class="__text"><a href="http://vk.com/id${clan_treasury.week_top[0][0]}" target="_blank">${clan_treasury.week_top[0][1]}</a></div><div class="__title">ВНЁС СЕРЕБРА БОЛЬШЕ ВСЕХ</div></div>` : 
+												`<div class="__item" style="grid-column-start: span 3;"><div class="__text"></div><div class="__title"></div></div>`
+											}
+											${clan_treasury.week_top[0][1] ? 
+												`<div class="__item" style="grid-column-start: span 3;" hint="${numberSpaces(clan_treasury.week_top[1][2])} золота"><div class="__text"><a href="http://vk.com/id${clan_treasury.week_top[1][0]}" target="_blank">${clan_treasury.week_top[1][1]}</a></div><div class="__title">ВНЁС ЗОЛОТА БОЛЬШЕ ВСЕХ</div></div>` : 
+												`<div class="__item" style="grid-column-start: span 3;"><div class="__text"></div><div class="__title"></div></div>`
+											}
 											${html_4}` : '<div class="__item" style="grid-column-start: span 12;"><div class="__hint">Нет пополнений за текущую неделю</div></div>'}
 										</div>
 									</div>
@@ -611,13 +612,11 @@ async function ScriptProfileLoad(name, myID, uID) {
 										</div>
 										<div class="__item __fight" style="grid-area: 2 / 2 / 2 / 12;">
 							`;
-							fight.users.sort(function(a, b) {
-								return Number(a._dd) < Number(b._dd) ? 1 : -1;
-							});
-							fight.users.forEach((item, x) => {
+							fight.users.sort((a, b) => Number(a._dd) < Number(b._dd) ? 1 : -1);
+							for (let [x, item] of fight.users.entries()) {
 								let id = Number(item._vkId);
 								html += fight_slot({type: status.statusRED.includes(id) ? 'jail' : id == fight_creator_id && id == u_id ? 'all' : id == fight_creator_id && id != u_id ? 'creator' : id != fight_creator_id && id == u_id ? 'viewing' : 'common', n: x+1, id: id, name: (status.nickBLOCK.includes(id) ? profile_name_bad : typeof status.nickCUSTOM[id] != 'undefined' ? status.nickCUSTOM[id] : item._n ? item._n : `Player${item.id}`).replace(/ /g, " "), dmg: numberSpaces(item._dd)});
-							})
+							}
 							html += '</div></div></div>';
 						}
 						html += `</div>`;
