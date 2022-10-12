@@ -1,14 +1,15 @@
 let ScriptName = "invasion";
 let ScriptTitle = "Invasion";
-let ScriptVersion = "2.1.2";
+let ScriptVersion = "2.2.0";
+let isNew = false;
 ScriptRun('event');
 ScriptRun('load');
 
-async function ScriptProfileLoad(name, myID, uID) {
+const ScriptProfileLoad = async(name, myID, uID) => {
 	log(`Script try load user: ${uID}.`);
 	let script_body = document.querySelector(`.script__body[script__${uID}]`);
 	try {
-		script_body.innerHTML = '<div class="script__text loader__"><br><br>Обновляем настройки скрипта</div>';
+		script_body.firstChild.innerText = '\n\nОбновляем настройки скрипта';
 		let script_ = script_body.parentElement;
 		let script__settings = ScriptUpdateSettings(name);
 		script__settings._1 == true ? script_.setAttribute('_1', '') : script_.removeAttribute('_1');
@@ -571,4 +572,4 @@ async function ScriptProfileLoad(name, myID, uID) {
 		script_body.innerHTML = `<div class="script__text error__"><br><br>Ошибка при обновлении настроек скрипта</div>`;
 		return;
 	}
-}
+};

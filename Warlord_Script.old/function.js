@@ -40,28 +40,7 @@ const getData = async(type, link) => {
 		return null;
 	}
 };
-const getDataChrome = async(link, body) => {
-	if (link && body) {
-		try {
-			let data = await new Promise((resolve) => chrome.runtime.sendMessage({
-				link: link,
-				body: body
-			}, data => {
-				resolve(data);
-			})).then(data => data);
-			try {
-				data = JSON.parse(data);
-			} catch (error) {
-				data = data.replace(/('(.+?|)??'|"(.+?|)??")/g, (match, p1, p2, p3, offset, string) => `"${(p3||p2||'').replace(/&/g, '&amp;').replace(/'/g, '&#039;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}"`);
-				data = await x2js.xml_str2json(data);
-			}
-			return data;
-		} catch (error) {
-			log(error);
-			return null;
-		}
-	}
-};
+const ScriptUpdateServer = (name) => document.querySelector(`.script__navigation > [${name}] .script__server`).innerHTML = `${['Эрмун', 'Антарес'][Number(ScriptUpdateSettings(name)[name]._9)-1]}`;
 const ScriptUpdateTabs = (tab) => {
 	for (let tab of document.querySelectorAll('.active__')) tab.classList.remove('active__');
 	try {
@@ -83,13 +62,15 @@ const ScriptUpdateSettings = (name) => {
 	if (name && !script__settings[name]) script__settings[name] = {
 		_1: true,
 		_2: true,
-		_3: true,
-		_4: 1,
-		_5: true,
+		_3: false,
+		_4: false,
+		_5: false,
 		_6: true,
 		_7: true,
-		_8: 1,
-		_9: true
+		_8: true,
+		_9: 1,
+		_10: 1,
+		_11: false
 	};
 	localStorage.setItem('script__settings', JSON.stringify(script__settings));
 	return script__settings;
@@ -99,7 +80,13 @@ const ScriptLoad = async(type, name, text, version) => {
 		if (document.querySelector('.script__head')) {
 			if (document.querySelector(`.script__head .head__button[${name}]`)) return;
 			let script__settings = ScriptUpdateSettings(name);
-			document.querySelector('.script__navigation').insertAdjacentHTML('beforeend', `<div class="head__button" ${name}>${text}<span>${version}</span></div>`);
+			document.querySelector('.script__navigation').insertAdjacentHTML('beforeend', `<div class="head__button" ${name}>${text}<span>${version}</span><span class="script__server">${['Эрмун', 'Антарес'][script__settings[name]._9-1]}</span></div>`);
+			document.querySelector(`.script__navigation > [${name}] .script__server`).addEventListener('click', () => {
+				if (document.querySelector(`.head__button[${name}]`).getAttribute('disabled') != null) return;
+				document.querySelector(`.script__settings`).click();
+				document.querySelector(`.settings__body .button__[${name}]`).click();
+				document.querySelectorAll(`.settings__body input[type="radio"][name="_9"]`)[Number(document.querySelector(`.settings__body input[type="radio"][name="_9"]`).checked)%2].click();
+			});
 			document.querySelector(`.script__navigation > [${name}]`).addEventListener('click', async(event) => {
 				try {
 					let tab = event.target.closest('.head__button');
@@ -146,23 +133,26 @@ const ScriptLoad = async(type, name, text, version) => {
 								<div class="settings__body">
 									<div data-text='Отображаемые блоки'>
 										<input type="checkbox" id="_1" ${script__settings[name]._1 == true ? 'checked' : ''}><label for="_1">Статусы<span>Блок со статусами пользователя</span></label>
-										<input type="checkbox" id="_6" ${script__settings[name]._6 == true ? 'checked' : ''}><label for="_6">Информация гильдии<span>Блок с информацией гильдии пользователя</span></label>
-										<input type="checkbox" id="_9" ${script__settings[name]._9 == true ? 'checked' : ''}><label for="_9">Улучшения гильдии<span>Блок с улучшениями гильдии пользователя</span></label>
-										<input type="checkbox" id="_7" ${script__settings[name]._7 == true ? 'checked' : ''}><label for="_7">Состав гильдии<span>Блок с составом гильдии пользователя</span></label>
-										<input type="checkbox" id="_2" ${script__settings[name]._2 == true ? 'checked' : ''}><label for="_2">Навыки игрока<span>Блок с навыками пользователя</span></label>
-										<input type="checkbox" id="_5" ${script__settings[name]._5 == true ? 'checked' : ''}><label for="_5">Миссии игрока<span>Блок с миссиями пользователя</span></label>
-										<input type="checkbox" id="_3" ${script__settings[name]._3 == true ? 'checked' : ''}><label for="_3">Характеристики игрока<span>Блок с характеристиками пользователя</span></label>
+										<input type="checkbox" id="_2" ${script__settings[name]._2 == true ? 'checked' : ''}><label for="_2">Информация гильдии<span>Блок с информацией гильдии пользователя</span></label>
+										<input type="checkbox" id="_11" ${script__settings[name]._11 == true ? 'checked' : ''}><label for="_11">Улучшения гильдии<span>Блок с улучшениями гильдии пользователя</span></label>
+										<input type="checkbox" id="_3" ${script__settings[name]._3 == true ? 'checked' : ''}><label for="_3">Состав гильдии<span>Блок с составом гильдии пользователя</span></label>
+										<input type="checkbox" id="_4" ${script__settings[name]._4 == true ? 'checked' : ''}><label for="_4">События гильдии<span>Блок с событиями гильдии пользователя</span></label>
+										<input type="checkbox" id="_5" ${script__settings[name]._5 == true ? 'checked' : ''}><label for="_5">Пополнения гильдии<span>Блок с пополнениями гильдии пользователя</span></label>
+										<input type="checkbox" id="_6" ${script__settings[name]._6 == true ? 'checked' : ''}><label for="_6">Навыки игрока<span>Блок с навыками пользователя</span></label>
+										<input type="checkbox" id="_7" ${script__settings[name]._7 == true ? 'checked' : ''}><label for="_7">Характеристики игрока<span>Блок с характеристиками пользователя</span></label>
+										<input type="checkbox" id="_8" ${script__settings[name]._8 == true ? 'checked' : ''}><label for="_8">Информация по боссу<span>Блок с информацией по боссу пользователя</span></label>
 									</div>
 								</div>
 								<div class="settings__body">
 									<div data-text='Сортировка состава'>
-										<input name="_8" type="radio" id="_8_1" value="1" ${script__settings[name]._8 == 1 ? 'checked' : ''}><label for="_8_1">Уровень<span>От большего к меньшему</span></label>
-										<input name="_8" type="radio" id="_8_2" value="4" ${script__settings[name]._8 == 2 ? 'checked' : ''}><label for="_8_2">Дата входа<span>От новой к старой</span></label>
+										<input name="_10" type="radio" id="_10_1" value="1" ${script__settings[name]._10 == 1 ? 'checked' : ''}><label for="_10_1">Ранг<span>От лидера до рекрута</span></label>
+										<input name="_10" type="radio" id="_10_2" value="2" ${script__settings[name]._10 == 2 ? 'checked' : ''}><label for="_10_2">Урон<span>От большего к меньшему</span></label>
+										<input name="_10" type="radio" id="_10_3" value="3" ${script__settings[name]._10 == 3 ? 'checked' : ''}><label for="_10_3">Здоровье<span>От большего к меньшему</span></label>
+										<input name="_10" type="radio" id="_10_4" value="4" ${script__settings[name]._10 == 4 ? 'checked' : ''}><label for="_10_4">Дата входа<span>От новой к старой</span></label>
 									</div>
 									<div data-text='Сервер игры'>
-										<input name="_4" type="radio" id="_4_1" value="1" ${script__settings[name]._4 == 1 ? 'checked' : ''}><label for="_4_1">Пламя<span>kahoxa.ru/s1</span></label>
-										<input name="_4" type="radio" id="_4_2" value="2" ${script__settings[name]._4 == 2 ? 'checked' : ''}><label for="_4_2">Лёд<span>kahoxa.ru/s2</span></label>
-										<input name="_4" type="radio" id="_4_3" value="3" ${script__settings[name]._4 == 3 ? 'checked' : ''}><label for="_4_3">Пустыня<span>kahoxa.ru/s3</span></label>
+										<input name="_9" type="radio" id="_9_1" value="1" ${script__settings[name]._9 == 1 ? 'checked' : ''}><label for="_9_1">Эрмун<span>geronimo.su/warlord_vk</span></label>
+										<input name="_9" type="radio" id="_9_2" value="2" ${script__settings[name]._9 == 2 ? 'checked' : ''}><label for="_9_2">Антарес<span>geronimo.su/warlord_vk2</span></label>
 									</div>
 								</div>
 							`;
@@ -176,6 +166,7 @@ const ScriptLoad = async(type, name, text, version) => {
 								let script__settings = ScriptUpdateSettings(name);
 								script__settings[name][event.target.name] = Number(event.target.value);
 								localStorage.setItem('script__settings', JSON.stringify(script__settings));
+								ScriptUpdateServer(name);
 							});
 						});
 					} else document.querySelector('.script__body').innerHTML = `<div class="script__text error__"><br><br>Ошибка при загрузке настроек</div>`;
@@ -235,6 +226,7 @@ const ScriptLoad = async(type, name, text, version) => {
 							let script__settings = ScriptUpdateSettings();
 							let keys = Object.keys(script__settings);
 							for (let [x, item] of keys.entries()) script__settings[item] == true ? script_.setAttribute(keys[x], '') : script_.removeAttribute(keys[x]);
+							ScriptUpdateServer(name);
 						});
 					} else body.innerHTML = `<div class="script__text error__"><br><br>Ошибка при загрузке настроек</div>`;
 				} catch (error) {

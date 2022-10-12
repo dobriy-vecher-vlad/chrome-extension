@@ -1,6 +1,7 @@
 let ScriptName = "heroesarena";
 let ScriptTitle = "HeroesArena";
-let ScriptVersion = "1.0.3";
+let ScriptVersion = "1.1.0";
+let isNew = false;
 ScriptRun('event');
 ScriptRun('load');
 
@@ -8,7 +9,7 @@ async function ScriptProfileLoad(name, myID, uID) {
 	log(`Script try load user: ${uID}.`);
 	let script_body = document.querySelector(`.script__body[script__${uID}]`);
 	try {
-		script_body.innerHTML = '<div class="script__text loader__"><br><br>Обновляем настройки скрипта</div>';
+		script_body.firstChild.innerText = '\n\nОбновляем настройки скрипта';
 		let script_ = script_body.parentElement;
 		let script__settings = ScriptUpdateSettings(name);
 		script__settings._1 == true ? script_.setAttribute('_1', '') : script_.removeAttribute('_1');
@@ -49,7 +50,7 @@ async function ScriptProfileLoad(name, myID, uID) {
 				return;
 			} else {
 				script_body.firstChild.innerText = '\n\nПолучаем номер игрока';
-				let pid = await getDataChrome(`https://kahoxa.ru/games/rpg/heroes_arena/load.php`, `target=getTopFriends&uid=${status.uid}&uids=${uID}&page=0&countFriends=1&pid=0&auth_key=${status.auth_key}&site=vk&s=s${[script__settings[name]._4]}`);
+				let pid = await getDataChrome(`http://kahoxa.ru/games/rpg/heroes_arena/load.php`, `target=getTopFriends&uid=${status.uid}&uids=${uID}&page=0&countFriends=1&pid=0&auth_key=${status.auth_key}&site=vk&s=s${[script__settings[name]._4]}`);
 				if (pid && pid.length && pid[0] && pid[0].id) {
 					pid = Number(pid[0].id);
 				} else {
@@ -57,7 +58,7 @@ async function ScriptProfileLoad(name, myID, uID) {
 					return;
 				}
 				script_body.firstChild.innerText = '\n\nПолучаем информацию игрока';
-				let profile = await getDataChrome(`https://kahoxa.ru/games/rpg/heroes_arena/reg.php`, `target=updateInfo&uid=${status.uid}&pid=${pid}&auth_key=${status.auth_key}&site=vk&s=s1`);
+				let profile = await getDataChrome(`http://kahoxa.ru/games/rpg/heroes_arena/reg.php`, `target=updateInfo&uid=${status.uid}&pid=${pid}&auth_key=${status.auth_key}&site=vk&s=s1`);
 				if (profile === null) {
 					script_body.innerHTML = `<div class="script__text error__"><br><br>Ошибка при чтении данных персонажа</div>`;
 					return;
@@ -65,7 +66,7 @@ async function ScriptProfileLoad(name, myID, uID) {
 					let clan = 0;
 					if (profile.guild !== '0' && (script__settings[name]._6 || script__settings[name]._7 || script__settings[name]._9)) {
 						script_body.firstChild.innerText = '\n\nПолучаем информацию гильдии';
-						clan = await getDataChrome(`https://kahoxa.ru/games/rpg/heroes_arena/load.php`, `target=myGuild&uid=${status.uid}&pid=${pid}&gid=${profile.guild}&auth_key=${status.auth_key}&site=vk&s=s1`);
+						clan = await getDataChrome(`http://kahoxa.ru/games/rpg/heroes_arena/load.php`, `target=myGuild&uid=${status.uid}&pid=${pid}&gid=${profile.guild}&auth_key=${status.auth_key}&site=vk&s=s1`);
 						if (clan && clan.members && clan.guild) {
 							clan = {
 								...clan.guild,
@@ -456,4 +457,4 @@ async function ScriptProfileLoad(name, myID, uID) {
 		script_body.innerHTML = `<div class="script__text error__"><br><br>Ошибка при обновлении настроек скрипта</div>`;
 		return;
 	}
-}
+};
