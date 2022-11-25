@@ -1,0 +1,32 @@
+{
+	"name": "Warlord Script",
+	"version": "1.0.0",
+	"scripts": {
+		"start": "cross-env PORT=10888 HTTPS=true react-scripts start",
+		"build": "node node_modules/react-scripts/scripts/build-script.js"
+	},
+	"devDependencies": {
+		"cross-env": "^7.0.3",
+		"react-hot-loader": "^4.13.0",
+		"react-scripts": "^5.0.1"
+	},
+	"dependencies": {
+		"@vkontakte/icons": "^1.197.0",
+		"@vkontakte/vkui": "^4.38.0",
+		"react": "^18.2.0",
+		"react-dom": "^18.2.0",
+		"xml-js": "^1.6.11"
+	},
+	"browserslist": {
+		"production": [
+			">0.2%",
+			"not dead",
+			"not op_mini all"
+		],
+		"development": [
+			"last 1 chrome version",
+			"last 1 firefox version",
+			"last 1 safari version"
+		]
+	}
+}
