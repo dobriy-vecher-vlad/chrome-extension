@@ -225,6 +225,9 @@ details > summary::-webkit-details-marker {
 }
 .dvvRoot .Popper .SimpleCell .SimpleCell__after {
 	margin-left: 12px;
+	display: flex;
+	align-items: center;
+	gap: 6px;
 }
 .dvvRoot .Popper .SimpleCell .SimpleCell__after .IconButton:last-child {
 	pointer-events: all;
@@ -233,8 +236,9 @@ details > summary::-webkit-details-marker {
 }
 .dvvRoot .Popper .SimpleCell .SimpleCell__after .Icon {
 	margin: 0;
+	padding: 6px;
 }
-.dvvRoot [data-popper-placement="top-start"] .PopperArrow {
+.dvvRoot [data-popper-placement='top-start'] .PopperArrow {
 	transform: translate(8px, 0px);
 }
 
@@ -299,6 +303,9 @@ details > summary::-webkit-details-marker {
 .dvvRoot details[open] summary > .SimpleCell:not(.TableCell) .Avatar .Icon {
 	color: var(--accent);
 }
+.dvvRoot .Link .IconButton .Icon[class] {
+	color: var(--button_secondary_foreground, var(--vkui--color_text_accent_themed));
+}
 
 .dvvRoot .CardGrid--xs .Card {
 	width: calc((100% - 3 * 8px) / 4);
@@ -327,6 +334,11 @@ details > summary::-webkit-details-marker {
 }
 .dvvDetails__content > *:first-child {
 	margin-top: 0!important;
+}
+.dvvRoot .Footer + .Separator {
+	width: 25%;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 .dvvRoot .TableCells {
@@ -398,6 +410,13 @@ details > summary::-webkit-details-marker {
 .dvvRoot .Tappable--hasActive,
 .dvvRoot .Tappable--hasHover {
 	cursor: pointer;
+}
+.dvvRoot .Panel__in > .Tappable--hasActive:nth-last-child(2),
+.dvvRoot .Panel__in > .Tappable--hasHover:nth-last-child(2),
+.dvvRoot .Panel__in > *:nth-last-child(2):not([open]) .Tappable--hasActive,
+.dvvRoot .Panel__in > *:nth-last-child(2):not([open]) .Tappable--hasHover,
+.dvvRoot .Panel__in > details:nth-last-child(2) {
+	border-radius: 0 0 var(--vkui--size_border_radius_paper--regular, 8px) var(--vkui--size_border_radius_paper--regular, 8px);
 }
 
 .PopperPortal .RichTooltip {
