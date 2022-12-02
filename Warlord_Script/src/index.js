@@ -14,24 +14,20 @@ import {
 import {
 	Icon16MenuOutline,
 } from '@vkontakte/icons';
-import '@vkontakte/vkui/dist/vkui.css';
-import '@vkontakte/vkui/dist/unstable.css';
-import './style.css';
+import { script } from './constants';
 import Script from './script';
+
+
+import raw_vkui from '!!raw-loader!@vkontakte/vkui/dist/vkui.css';
+import raw_unstable from '!!raw-loader!@vkontakte/vkui/dist/unstable.css';
+import raw_style from '!!raw-loader!./style.css';
+const styleSheetsReplace = (string) => string.replace(/(^|\,|\}|\{)\.vkui(?!bright_light|space_gray|vkcom_light|vkcom_dark|--vkBase--light|--vkBase--dark|--vkCom--light|--vkCom--dark|--vkIOS--light|--vkIOS--dark)/gm, '$1.dvvFrame .vkui').replace(/(\[scheme.*?\]|\:root|\.vkuibright_light|\.vkuispace_gray|\.vkuivkcom_light|\.vkuivkcom_dark|\.vkui--vkBase--light|\.vkui--vkBase--dark|\.vkui--vkCom--light|\.vkui--vkCom--dark|\.vkui--vkIOS--light|\.vkui--vkIOS--dark)/gm, '$1 .dvvFrame');
+const styleSheets = ({ raw_vkui: styleSheetsReplace(raw_vkui), raw_unstable: styleSheetsReplace(raw_unstable), raw_style });
 
 
 Object.defineProperty(Array, 'isObject', {
 	value: (array) => typeof array == 'object' && !Array.isArray(array),
 });
-const script = {
-	id: 'warlord',
-	title: 'Warlord',
-	version: '3.0.0 beta 3',
-	settings: {
-		showBanners: true,
-		server: 1,
-	},
-};
 const log = (data, ...other) => {
 	let {
 		logo = `[${script.version}]`,
@@ -57,7 +53,7 @@ const ScriptRoot = (props) => {
 	const [content, setContent] = useState(<>content</>);
 	useEffect(() => {
 		const start = async() => {
-			setPopout(<ScreenSpinner state='loading' />);
+			setPopout(<ScreenSpinner state='loading'/>);
 			let from = 0 || 153968505;
 			let to = 0 || 153968505;
 			try {
@@ -85,7 +81,7 @@ const ScriptRoot = (props) => {
 				setPanel,
 				setContent,
 			};
-			setPopout(<ScreenSpinner state='done' aria-label='Успешно' />);
+			setPopout(<ScreenSpinner state='done' aria-label='Успешно'/>);
 			setTimeout(clearPopout, 1000);
 		};
 		start();
@@ -96,14 +92,14 @@ const ScriptRoot = (props) => {
 				<SplitCol>
 					<div className='dvvEpic'>
 						<div className='dvvEpic__in'>
-							<div className='vkuiTabs Tabs vkuiTabs--ios Tabs--ios vkuiTabs--default Tabs--default vkuiTabs--sizeX-regular Tabs--sizeX-regular' role='tablist'>
-								<div className='vkuiTabs__in Tabs__in'>
+							<div className='Tabs Tabs--ios Tabs--default Tabs--sizeX-regular' role='tablist'>
+								<div className='Tabs__in'>
 								</div>
 							</div>
 							<div className='dvvEpic__in-after'>
 								<Button mode={panel == 'settings' ? 'secondary' : 'tertiary'} appearance='neutral' onClick={() => {
 									setContent(<>loaded</>);
-									setPanel('settings')
+									setPanel('settings');
 								}}><Icon16MenuOutline width={16} height={16} style={{ padding: 8 }}/></Button>
 							</div>
 						</div>
@@ -135,6 +131,7 @@ if (vk_root) {
 					script_root = script_frame.querySelector('.dvvRoot');
 					if (script_root) {
 						log('Render root');
+						for (const [key, style] of Object.entries(styleSheets)) script_frame.insertAdjacentHTML('beforeend', `<style type='text/css' id='${key}'>${style}</style>`);
 						ReactDOM.createRoot(script_root).render(<ScriptConfig><ScriptRoot root={script_root}/></ScriptConfig>);
 					}
 				}

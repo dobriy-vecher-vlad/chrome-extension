@@ -1,4 +1,4 @@
-:root {
+:root .dvvFrame {
 	--systemBlue: rgb(0, 122, 255);
 	--systemBrown: rgb(162, 132, 94);
 	--systemCyan: rgb(50, 173, 230);
@@ -18,7 +18,7 @@
 	--Skeleton_main: rgba(174, 183, 194, .12);
 	--Skeleton_secondary: rgba(174, 183, 194, .12);
 }
-[scheme=vkcom_dark] {
+[scheme=vkcom_dark] .dvvFrame {
 	--systemBlue: rgb(10, 132, 255);
 	--systemBrown: rgb(172, 142, 104);
 	--systemCyan: rgb(100, 210, 255);
@@ -38,36 +38,36 @@
 	--Skeleton_main: rgba(93, 95, 97, .12);
 	--Skeleton_secondary: rgba(93, 95, 97, .12);
 }
-details > summary {
+[dir] .dvvFrame details > summary {
 	list-style: none;
 }
-details > summary::-webkit-details-marker {
+[dir] .dvvFrame details > summary::-webkit-details-marker {
 	display: none;
 }
-.dvvRoot *::-webkit-scrollbar {
+[dir] .dvvFrame *::-webkit-scrollbar {
 	width: 6px;
 }
-.dvvRoot *::-webkit-scrollbar-thumb:vertical {
+[dir] .dvvFrame *::-webkit-scrollbar-thumb:vertical {
 	/* border: 6px solid rgba(0, 0, 0, 0); */
 	/* background-clip: padding-box; */
 	border-radius: 12px;
 	background-color: rgba(0,0,0,0.28);
 }
-[scheme=vkcom_dark] .dvvRoot *::-webkit-scrollbar-thumb:vertical {
+[scheme=vkcom_dark] .dvvFrame *::-webkit-scrollbar-thumb:vertical {
 	background-color: rgba(255,255,255,0.28);
 }
-.dvvRoot *::-webkit-scrollbar-thumb:vertical:hover {
+[dir] .dvvFrame *::-webkit-scrollbar-thumb:vertical:hover {
 	background-color: rgba(0,0,0,0.56);
 }
-[scheme=vkcom_dark] .dvvRoot *::-webkit-scrollbar-thumb:vertical:hover {
+[scheme=vkcom_dark] .dvvFrame *::-webkit-scrollbar-thumb:vertical:hover {
 	background-color: rgba(255,255,255,0.56);
 }
-.dvvRoot *::-webkit-scrollbar-track {
+[dir] .dvvFrame *::-webkit-scrollbar-track {
 	background: transparent;
 }
 
 
-[dir] .dvvRoot {
+[dir][lang] .dvvFrame .dvvRoot {
 	--rootHeight: 200px;
 	--headerHeight: 56px;
 	height: auto;
@@ -76,36 +76,36 @@ details > summary::-webkit-details-marker {
 	overflow: visible;
 	position: relative;
 }
-.dvvEpic {
+[dir] .dvvFrame .dvvEpic {
 	min-height: var(--headerHeight);
 }
-.dvvRoot,
-.dvvRoot .AppRoot,
-.dvvRoot .SplitLayout,
-.dvvRoot .SplitLayout__inner,
-.dvvRoot .SplitCol {
+[dir] .dvvFrame .dvvRoot,
+[dir] .dvvFrame .AppRoot,
+[dir] .dvvFrame .SplitLayout,
+[dir] .dvvFrame .SplitLayout__inner,
+[dir] .dvvFrame .SplitCol {
 	min-height: var(--rootHeight);
 }
-.dvvRoot .View,
-.dvvRoot .View__panels,
-.dvvRoot .View__panel,
-.dvvRoot .View__panel-in,
-.dvvRoot .Panel,
-.dvvRoot .Panel__in {
+[dir] .dvvFrame .View,
+[dir] .dvvFrame .View__panels,
+[dir] .dvvFrame .View__panel,
+[dir] .dvvFrame .View__panel-in,
+[dir] .dvvFrame .Panel,
+[dir] .dvvFrame .Panel__in {
 	min-height: calc(var(--rootHeight) - var(--headerHeight));
 }
-.dvvRoot .AppRoot,
-.dvvRoot .SplitLayout,
-.dvvRoot .SplitLayout__inner,
-.dvvRoot .SplitCol {
+[dir] .dvvFrame .AppRoot,
+[dir] .dvvFrame .SplitLayout,
+[dir] .dvvFrame .SplitLayout__inner,
+[dir] .dvvFrame .SplitCol {
 	min-height: inherit;
 }
-.dvvRoot .AppRoot {
+[dir] .dvvFrame .AppRoot {
 	background-color: var(--background_content, var(--vkui--color_background_content));
 	border-radius: var(--vkui--size_border_radius_paper--regular, 8px);
 	overflow: hidden;
 }
-.dvvRoot .AppRoot::after {
+[dir] .dvvFrame .AppRoot::after {
 	content: '';
 	height: 100%;
 	pointer-events: none;
@@ -115,23 +115,17 @@ details > summary::-webkit-details-marker {
 	border-radius: inherit;
 	box-shadow: inset 0 0 0 var(--thin-border) var(--input_border);
 	box-shadow: var(--page-block-shadow);
+	box-shadow: inset 0 0 0 var(--thin-border) var(--separator_common);
 	z-index: 100;
 }
-.dvvEpic {
-	/* position: absolute; */
-	/* top: -100px; */
-}
 
-.dvvRoot .SplitCol {
+[dir] .dvvFrame .SplitCol {
 	display: flex;
 	flex-direction: column;
 	flex-wrap: nowrap;
 	height: 100%;
 }
 
-.dvvEpic {
-
-}
 .dvvEpic__in {
 	display: flex;
 	align-items: center;
@@ -141,47 +135,47 @@ details > summary::-webkit-details-marker {
 .dvvEpic__in-after {
 	margin: 6px;
 }
-.dvvRoot .Tabs {
+[dir] .dvvFrame .Tabs {
 	padding: unset;
 	border-bottom: unset;
 	overflow: hidden;
 }
-.dvvRoot .TabsItem {
+[dir] .dvvFrame .TabsItem {
 	min-width: unset;
 }
-.dvvRoot .IconButton {
+[dir] .dvvFrame .IconButton {
 	height: unset;
 	color: var( --button_secondary_foreground,var(--vkui--color_text_accent_themed) );
 }
-[dir] .dvvRoot .dvvEpic .Button {
+[dir][lang] .dvvFrame .dvvEpic .Button {
 	width: min-content;
 	min-width: min-content;
 }
-[dir] .dvvRoot .dvvEpic .Button .Button__in {
+[dir][lang] .dvvFrame .dvvEpic .Button .Button__in {
 	width: min-content;
 	min-width: min-content;
 }
-[dir] .dvvRoot .dvvEpic .Button .Button__content {
+[dir][lang] .dvvFrame .dvvEpic .Button .Button__content {
 	padding: 0;
 }
 
-.dvvRoot .Panel__in .SimpleCell {
+[dir] .dvvFrame .Panel__in .SimpleCell {
 	border-radius: unset;
 }
-.dvvRoot .SimpleCell .SimpleCell__after .IconButton:last-child {
+[dir] .dvvFrame .SimpleCell .SimpleCell__after .IconButton:last-child {
 	margin-right: unset;
 	pointer-events: none;
 	user-select: none;
 }
 
-.dvvRoot details summary > .SimpleCell {
+[dir] .dvvFrame details summary > .SimpleCell {
 	user-select: none;
 }
-.dvvRoot details summary > .SimpleCell .IconButton svg {
+[dir] .dvvFrame details summary > .SimpleCell .IconButton svg {
 	color: var(--icon_outline_secondary);
 	transform: rotate(0deg);
 }
-.dvvRoot details[open] summary > .SimpleCell .IconButton svg {
+[dir] .dvvFrame details[open] summary > .SimpleCell .IconButton svg {
 	color: var(--accent);
 	transform: rotate(180deg);
 }
@@ -190,72 +184,86 @@ details > summary::-webkit-details-marker {
 	/* padding: 0 12px 12px 12px; */
 	padding: var(--vkui--size_base_padding_horizontal--regular) 16px;
 }
-.dvvRoot details[open] {
+[dir] .dvvFrame details[open] {
 	background: var( --content_tint_background,var(--vkui--color_background_secondary) );
 }
-[scheme=vkcom_dark] .dvvRoot details[open] {
+[scheme=vkcom_dark] .dvvFrame details[open] {
 	background: #19191a;
 }
 
-.dvvRoot details .Card {
+[dir] .dvvFrame details .Card {
 	background-color: var(--background_content, var(--vkui--color_background_content));
 	display: block!important;
 }
-.dvvRoot details .Card .SimpleCell__children {
+[dir] .dvvFrame details .Card .SimpleCell__children {
 	font-weight: 500;
 }
-.dvvRoot .Popper .SimpleCell__children {
+[dir] .dvvFrame .Popper .SimpleCell__children {
 	font-weight: 500;
 }
 
-.dvvRoot .Popper {
+[dir] .dvvFrame .Popper {
 	width: unset;
 	height: unset;
 	display: block;
 	z-index: 100;
 }
-.dvvRoot .Popper .SimpleCell {
+[dir] .dvvFrame .UserCard {
 	padding: 8px 12px;
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	gap: 8px;
+	min-width: 250px;
 }
-.dvvRoot .Popper .SimpleCell .Avatar {
-	margin: 0 12px 0 0;
+[dir] .dvvFrame .UserCard .ButtonGroup.ButtonGroup--stretched > * {
+	width: 100%;
 }
-.dvvRoot .Popper .SimpleCell .SimpleCell__main {
+[dir] .dvvFrame .UserCard .ButtonGroup.ButtonGroup--stretched > * {
+	width: 100%;
+}
+[dir] .dvvFrame .Popper .SimpleCell {
 	padding: 0;
 }
-.dvvRoot .Popper .SimpleCell .SimpleCell__after {
+[dir] .dvvFrame .Popper .SimpleCell .Avatar {
+	margin: 0 12px 0 0;
+}
+[dir] .dvvFrame .Popper .SimpleCell .SimpleCell__main {
+	padding: 0;
+}
+[dir] .dvvFrame .Popper .SimpleCell .SimpleCell__after {
 	margin-left: 12px;
 	display: flex;
 	align-items: center;
 	gap: 6px;
 }
-.dvvRoot .Popper .SimpleCell .SimpleCell__after .IconButton:last-child {
+[dir] .dvvFrame .Popper .SimpleCell .SimpleCell__after .IconButton:last-child {
 	pointer-events: all;
 	-webkit-user-select: unset;
 	user-select: unset;
 }
-.dvvRoot .Popper .SimpleCell .SimpleCell__after .Icon {
+[dir] .dvvFrame .Popper .SimpleCell .SimpleCell__after .Icon {
 	margin: 0;
 	padding: 6px;
 }
-.dvvRoot [data-popper-placement='top-start'] .PopperArrow {
+[dir] .dvvFrame [data-popper-placement='top-start'] .PopperArrow {
 	transform: translate(8px, 0px);
 }
 
-.dvvRoot details .Card .SimpleCell {
+[dir] .dvvFrame details .Card .SimpleCell {
 	position: relative;
 }
-.dvvRoot .SimpleCell .SimpleCell__badge,
-.dvvRoot details .Card .SimpleCell__after {
+[dir] .dvvFrame .SimpleCell .SimpleCell__badge,
+[dir] .dvvFrame details .Card .SimpleCell__after {
 	display: flex;
 	align-items: center;
 }
-.dvvRoot details .Card .SimpleCell__after {
+[dir] .dvvFrame details .Card .SimpleCell__after {
 	position: absolute;
 	top: 10px;
 	right: var(--vkui--size_base_padding_horizontal--regular,16px);
 }
-.dvvRoot details .Card .SimpleCell__after::after {
+[dir] .dvvFrame details .Card .SimpleCell__after::after {
 	content: '';
 	top: -5px;
 	left: -20px;
@@ -265,8 +273,8 @@ details > summary::-webkit-details-marker {
 	background: linear-gradient(270deg, var(--background_content, var(--vkui--color_background_content)) 50%, transparent);
 	z-index: 1;
 }
-.dvvRoot .SimpleCell .SimpleCell__badge .Icon,
-.dvvRoot details .Card .SimpleCell__after .Icon {
+[dir] .dvvFrame .SimpleCell .SimpleCell__badge .Icon,
+[dir] .dvvFrame details .Card .SimpleCell__after .Icon {
 	width: 16px;
 	height: 16px;
 	display: flex;
@@ -277,51 +285,51 @@ details > summary::-webkit-details-marker {
 	position: relative;
 	z-index: 2;
 }
-.dvvRoot .SimpleCell .SimpleCell__indicator {
+[dir] .dvvFrame .SimpleCell .SimpleCell__indicator {
 	display: flex;
 	align-items: center;
 }
-.dvvRoot .SimpleCell .Icon[class*=flash] {
+[dir] .dvvFrame .SimpleCell .Icon[class*=flash] {
 	color: var(--vkui--color_text_accent);
 }
-.dvvRoot .SimpleCell .Icon[class*=done] {
+[dir] .dvvFrame .SimpleCell .Icon[class*=done] {
 	color: var(--vkui--color_text_positive);
 }
-.dvvRoot .SimpleCell .Icon[class*=cancel] {
+[dir] .dvvFrame .SimpleCell .Icon[class*=cancel] {
 	color: var(--vkui--color_text_negative);
 }
-.dvvRoot .SimpleCell:not(.TableCell) .Icon[class*=user],
-.dvvRoot .SimpleCell:not(.TableCell) .Icon[class*=crown] {
+[dir] .dvvFrame .SimpleCell:not(.TableCell) .Icon[class*=user],
+[dir] .dvvFrame .SimpleCell:not(.TableCell) .Icon[class*=crown] {
 	color: var(--systemOrange);
 }
-.dvvRoot .SimpleCell:not(.TableCell) .Avatar {
+[dir] .dvvFrame .SimpleCell:not(.TableCell) .Avatar {
 	background-color: transparent;
 }
-.dvvRoot details summary > .SimpleCell:not(.TableCell) .Avatar .Icon {
+[dir] .dvvFrame details summary > .SimpleCell:not(.TableCell) .Avatar .Icon {
 	color: var(--icon_secondary, var(--vkui--color_icon_secondary));
 }
-.dvvRoot details[open] summary > .SimpleCell:not(.TableCell) .Avatar .Icon {
+[dir] .dvvFrame details[open] summary > .SimpleCell:not(.TableCell) .Avatar .Icon {
 	color: var(--accent);
 }
-.dvvRoot .Link .IconButton .Icon[class] {
+[dir] .dvvFrame .Link .IconButton .Icon[class] {
 	color: var(--button_secondary_foreground, var(--vkui--color_text_accent_themed));
 }
 
-.dvvRoot .CardGrid--xs .Card {
+[dir] .dvvFrame .CardGrid--xs .Card {
 	width: calc((100% - 3 * 8px) / 4);
 }
-.dvvRoot .CardGrid--xs .Card:nth-child(n + 5) {
+[dir] .dvvFrame .CardGrid--xs .Card:nth-child(n + 5) {
 	margin-top: var(--vkui--size_cardgrid_padding--regular);
 }
-.dvvRoot .CardGrid--xs .Card:nth-child(4n) {
+[dir] .dvvFrame .CardGrid--xs .Card:nth-child(4n) {
 	margin-right: 0;
 }
-.dvvRoot .CardGrid--m .SimpleCell__content,
-.dvvRoot .CardGrid--l .SimpleCell__content {
+[dir] .dvvFrame .CardGrid--m .SimpleCell__content,
+[dir] .dvvFrame .CardGrid--l .SimpleCell__content {
 	display: flex;
 	justify-content: center;
 }
-.dvvRoot .CardGrid--l .Card__in {
+[dir] .dvvFrame .CardGrid--l .Card__in {
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -335,19 +343,19 @@ details > summary::-webkit-details-marker {
 .dvvDetails__content > *:first-child {
 	margin-top: 0!important;
 }
-.dvvRoot .Footer + .Separator {
+[dir] .dvvFrame .Footer + .Separator {
 	width: 25%;
 	margin-left: auto;
 	margin-right: auto;
 }
 
-.dvvRoot .TableCells {
+[dir] .dvvFrame .TableCells {
 	--rows: 6;
 	overflow-x: hidden;
 	overflow-y: overlay;
 	max-height: calc(32px * var(--rows) + 8px * (var(--rows) - 1));
 }
-[dir] .dvvRoot .TableCell {
+[dir][lang] .dvvFrame .TableCell {
 	padding: 0 var(--vkui--size_base_padding_horizontal--regular, 16px);
 	margin: 0;
 	min-height: unset;
@@ -355,24 +363,24 @@ details > summary::-webkit-details-marker {
 	border-radius: var(--vkui--size_card_border_radius--regular, 8px);
 	overflow: hidden;
 }
-.dvvRoot .TableCell + .TableCell {
+[dir] .dvvFrame .TableCell + .TableCell {
 	margin-top: 8px;
 }
-.dvvRoot .TableCell .SimpleCell__main {
+[dir] .dvvFrame .TableCell .SimpleCell__main {
 	padding: 0;
 	margin: 0;
 }
-.dvvRoot .TableCell .SimpleCell__children {
+[dir] .dvvFrame .TableCell .SimpleCell__children {
 	width: -webkit-fill-available;
 }
-.dvvRoot .TableCell__content {
+[dir] .dvvFrame .TableCell__content {
 	display: grid;
 	align-items: center;
 }
-.dvvRoot .TableCell__row--count {
+[dir] .dvvFrame .TableCell__row--count {
 	color: var(--text_secondary);
 }
-.dvvRoot .TableCell__row {
+[dir] .dvvFrame .TableCell__row {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -380,7 +388,7 @@ details > summary::-webkit-details-marker {
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
-.dvvRoot .TableCell__row > span {
+[dir] .dvvFrame .TableCell__row > span {
 	text-overflow: ellipsis;
 	overflow: hidden;
 	-webkit-transform: translate3d(0, 0, 0);
@@ -388,38 +396,130 @@ details > summary::-webkit-details-marker {
 	font-size: 13px;
 	line-height: 20px;
 }
-.dvvRoot .TableCell__row > .Icon {
+[dir] .dvvFrame .TableCell__row > .Icon {
 	margin-left: 8px;
 }
-.dvvRoot .TableCell__row .TableCell__row-icons {
+[dir] .dvvFrame .TableCell__row .TableCell__row-icons {
 	display: flex;
 	align-items: center;
 	gap: 4px;
 	color: var(--text_secondary);
 }
 
-.dvvRoot .Placeholder {
+[dir] .dvvFrame .Placeholder {
 	position: relative;
 }
 
-.dvvRoot .Tappable[aria-disabled=true],
-.dvvRoot .Tappable[disabled] {
+[dir] .dvvFrame .Tappable[aria-disabled=true],
+[dir] .dvvFrame .Tappable[disabled] {
 	pointer-events: unset;
 	cursor: unset;
 }
-.dvvRoot .Tappable--hasActive,
-.dvvRoot .Tappable--hasHover {
+[dir] .dvvFrame .Tappable--hasActive,
+[dir] .dvvFrame .Tappable--hasHover {
 	cursor: pointer;
 }
-.dvvRoot .Panel__in > .Tappable--hasActive:nth-last-child(2),
-.dvvRoot .Panel__in > .Tappable--hasHover:nth-last-child(2),
-.dvvRoot .Panel__in > *:nth-last-child(2):not([open]) .Tappable--hasActive,
-.dvvRoot .Panel__in > *:nth-last-child(2):not([open]) .Tappable--hasHover,
-.dvvRoot .Panel__in > details:nth-last-child(2) {
+[dir] .dvvFrame .Panel__in > .Tappable--hasActive:nth-last-child(2),
+[dir] .dvvFrame .Panel__in > .Tappable--hasHover:nth-last-child(2),
+[dir] .dvvFrame .Panel__in > *:nth-last-child(2):not([open]) .Tappable--hasActive,
+[dir] .dvvFrame .Panel__in > *:nth-last-child(2):not([open]) .Tappable--hasHover,
+[dir] .dvvFrame .Panel__in > details:nth-last-child(2) {
 	border-radius: 0 0 var(--vkui--size_border_radius_paper--regular, 8px) var(--vkui--size_border_radius_paper--regular, 8px);
 }
 
-.PopperPortal .RichTooltip {
+
+[dir] .dvvFrame .ActionsGroup {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	flex-wrap: nowrap;
+	margin: var(--vkui--size_base_padding_horizontal--regular) 16px;
+	padding: 0;
+	position: relative;
+	border-radius: var(--vkui--size_border_radius--regular, 8px);
+	background-color: var( --content_tint_background,var(--vkui--color_background_secondary) );
+}
+[dir] .dvvFrame .ActionsGroup::before {
+	border: 1px solid rgba(0,0,0,.08);
+	border: var(--thin-border) solid var(--image_border, var(--vkui--color_image_border_alpha));
+	border-radius: inherit;
+	box-sizing: border-box;
+	content: "";
+	display: block;
+	height: 100%;
+	left: 0;
+	pointer-events: none;
+	position: absolute;
+	top: 0;
+	width: 100%;
+	z-index: 2;
+}
+[dir] .dvvFrame .ActionsGroup > * {
+	display: block;
+	text-decoration: none;
+}
+[dir] .dvvFrame .ActionsGroup .Banner {
+	padding: 0;
+	margin: 0;
+}
+[dir] .dvvFrame .ActionsGroup .Banner__in {
+	border-radius: 0;
+	background-color: transparent;
+}
+[dir] .dvvFrame .ActionsGroup > *:first-child .Banner__in {
+	border-radius: var(--vkui--size_border_radius--regular, 8px) var(--vkui--size_border_radius--regular, 8px) 0 0;
+}
+[dir] .dvvFrame .ActionsGroup > *:last-child .Banner__in {
+	border-radius: 0 0 var(--vkui--size_border_radius--regular, 8px) var(--vkui--size_border_radius--regular, 8px);
+}
+[dir] .dvvFrame .ActionsGroup .Banner__in::before {
+	display: none;
+}
+[dir] .dvvFrame .ActionsGroup .Chip {
+	margin: -22px 0;
+	height: 22px;
+}
+[dir] .dvvFrame .ActionsGroup .Chip__in {
+	padding: 0 6px;
+}
+
+
+[dir] .dvvFrame .BannerGroup {
+	margin: 0;
+	padding: 0;
+	background: var(--content_tint_background, var(--vkui--color_background_secondary));
+}
+[scheme=vkcom_dark] .dvvFrame .BannerGroup {
+	background: #19191a;
+}
+[dir] .dvvFrame .BannerGroup .Gallery__layer {
+	min-height: fit-content;
+}
+[dir] .dvvFrame .BannerGroup .Gallery__slide > * {
+	display: block;
+	text-decoration: none;
+}
+[dir] .dvvFrame .BannerGroup .Banner {
+	padding: 0;
+	margin: 0;
+}
+[dir] .dvvFrame .BannerGroup .Banner__in {
+	border-radius: 0;
+}
+[dir] .dvvFrame .BannerGroup .Banner__in::before {
+	display: none;
+}
+[dir] .dvvFrame .BannerGroup .Banner__content > * {
+	text-align: center;
+}
+
+
+.dvvFrame .Placeholder__icon {
+	margin-bottom: 6px;
+}
+
+
+[dir] .dvvFrame .PopperPortal .RichTooltip {
 	--vkui--gradient_tint: hsla(0,0%,98%,0) 0%,hsla(0,0%,98%,.036) 13%,hsla(0,0%,98%,.15) 27%,hsla(0,0%,98%,.79) 68%,hsla(0,0%,98%,.95) 84%,#f9f9f9 100%;
 	--vkui--colors_scheme: light;
 	--vkui--color_background_accent: #2688eb;

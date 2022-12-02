@@ -3,14 +3,17 @@
 		"deafaul_icon": "img/icon.png",
 		"defalut_title": "Warlord Script"
 	},
-	"content_scripts": [ 
+	"content_scripts": [
 		{
-			"matches": ["*://vk.com/*"],
-			"js": ["script.js"],
-			"css": ["style.css"]
+			"matches": [
+				"*://vk.com/*"
+			],
+			"js": [
+				"script.js"
+			]
 		}
 	],
-	"description": "Расширение для ВКонтакте, которое позволяет смотреть характеристики игроков игры «Warlord».",
+	"description": "Расширение для ВКонтакте, которое позволяет смотреть характеристики игроков игры «Warlord». Сборка 36c35bd1 от 02.12.22.",
 	"icons": {
 		"16": "img/icon.png",
 		"48": "img/icon-48.png",
@@ -18,7 +21,9 @@
 	},
 	"manifest_version": 3,
 	"name": "Warlord Script",
-	"host_permissions": ["*://tmp1-fb.geronimo.su/*"],
+	"host_permissions": [
+		"*://tmp1-fb.geronimo.su/*"
+	],
 	"update_url": "https://clients2.google.com/service/update2/crx",
 	"version": "3.0.0"
 }

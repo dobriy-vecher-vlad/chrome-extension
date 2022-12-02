@@ -110,22 +110,8 @@ checkBrowsers(paths.appPath, isInteractive)
 				WARN_AFTER_CHUNK_GZIP_SIZE
 			);
 			console.log();
-
-			const appPackage = require(paths.appPackageJson);
-			const publicUrl = paths.publicUrlOrPath;
-			const publicPath = config.output.publicPath;
-			const buildFolder = path.relative(process.cwd(), paths.appBuild);
-
 			paths.scriptBuild = paths.appPath + '\\script';
 			paths.scriptSource = paths.appPath + '\\source';
-			// console.log({
-			// 	paths,
-			// 	appPackage,
-			// 	publicUrl,
-			// 	publicPath,
-			// 	buildFolder
-			// });
-
 			return stats;
 		},
 		err => {
@@ -145,18 +131,44 @@ checkBrowsers(paths.appPath, isInteractive)
 		}
 	)
 	.then((stats) => {
-		fs.emptyDirSync(paths.scriptBuild);
-		fs.copySync(paths.scriptSource, paths.scriptBuild);
 		console.log('Creating script build...');
-		for (let file of Object.keys(stats.compilation.assets).filter(key => /(\.js|\.css)$/.exec(key)).map(key => ({
+		try {
+			fs.mkdirSync(paths.scriptBuild);
+		} catch (error) {
+			
+		}
+		fs.emptyDirSync(paths.scriptBuild);
+		fs.mkdirSync(`${paths.scriptBuild}\\img`);
+		for (const image of ['icon', 'icon-48', 'icon-128', 'icon-250']) {
+			fs.copyFileSync(`${paths.scriptSource}\\img\\${image}.png`, `${paths.scriptBuild}\\img\\${image}.png`);
+		}
+		// require('fs').writeFileSync('data/settings.json', JSON.stringify(fileData, null, '\t'));
+		let build = 0;
+		for (const file of Object.keys(stats.compilation.assets).filter(key => /(\.js|\.css)$/.exec(key)).map(key => ({
 			path: key,
 			name: /.*\/(.*)/.exec(key)[1],
 			type: ['css', 'js'].map(type => key.includes(`.${type}`) ? type : '').join(''),
 		}))) {
+			build = /\.(.*)\./.exec(file.name)[1];
 			fs.writeFileSync(`${paths.scriptBuild}/${({ css: 'style.css', js: 'script.js' })[file.type]}`, '');
 			fs.copyFileSync(`${paths.appBuild.replaceAll('\\', '/')}/${file.path}`, `${paths.scriptBuild}/${({ css: 'style.css', js: 'script.js' })[file.type]}`);
 		}
 		fs.rmSync(paths.appBuild, { recursive: true, force: true });
+		const { manifest } = require(`${paths.appSrc}\\constants`);
+		const formatDate = (date) => {
+			var dd = date.getDate();
+			if (dd < 10) dd = '0' + dd;
+
+			var mm = date.getMonth() + 1;
+			if (mm < 10) mm = '0' + mm;
+
+			var yy = date.getFullYear() % 100;
+			if (yy < 10) yy = '0' + yy;
+
+			return dd + '.' + mm + '.' + yy;
+		};
+		manifest.description = `${manifest.description} Сборка ${build} от ${formatDate(new Date())}.`;
+		fs.writeFileSync(`${paths.scriptBuild}\\manifest.json`, JSON.stringify(manifest, null, '\t'));
 		console.log(chalk.green('Compiled successfully.'));
 		console.log();
 		console.log('Creating script zip...');

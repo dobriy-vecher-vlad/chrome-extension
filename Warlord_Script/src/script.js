@@ -13,6 +13,12 @@ import {
 	Spinner,
 	TabsItem,
 	Counter,
+	ButtonGroup,
+	Button,
+	Banner,
+	Div,
+	Chip,
+	Gallery,
 } from '@vkontakte/vkui';
 import {
 	RichTooltip,
@@ -36,8 +42,7 @@ import {
 	Icon20Stars,
 	Icon20UserOutline,
 	Icon20Users3Outline,
-	Icon28MessagesOutline,
-	Icon28UserOutline,
+	Icon24SadFaceOutline,
 	Icon32ErrorCircleOutline
 } from '@vkontakte/icons';
 import X2JS from './xml2js.js';
@@ -69,29 +74,33 @@ const getData = async(type, link) => {
 		}
 	}
 }
+const tagEmoji = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐻‍❄️', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🦝', '🐺'];
 const arenaLeagues = ['Нет лиги', 'Лига Новичков', 'Лига Воинов I', 'Лига Воинов II', 'Лига Мастеров', 'Лига Рыцарей', 'Лига Чемпионов', 'Тёмная Лига', 'Кровавая Лига', 'Легендарная Лига'];
 const clanRangs = ['Лидер гильдии', 'Генерал гильдии', 'Офицер гильдии', 'Ветеран гильдии', 'Рядовой гильдии', 'Рекрут гильдии'];
 const pets = ['Нет питомца', 'Полярный Тигр', 'Северный Волк', 'Дух Воды', 'Панда', 'Грабоид'];
 const mapLocations = ['Южный Риверфорт', 'Риверфорт', 'Северный Риверфорт', 'Паучий лес', 'Лесной отшельник', 'Разбойничий лагерь', 'Руины древнего форта', 'Перевал мертвецов', 'Заброшенная деревня', 'Северный Растхельм', 'Крепость Растхельма', 'Южный Растхельм', 'Форт Надежда', 'Долина Тайн', 'Мыс Буря Запада', 'Город Шимерран', 'Южный тракт', 'Рыбацкая деревня', 'Перешеек дракона', 'Межводье', 'Рыбацкая деревня', 'Руины Мидгарда', 'Пустыня безмолвия', 'Оазис', 'Город Гримдрифт', 'Южная деревня', 'Тёмный лес', 'Руины отчаяния', 'Ястребиный мыс', 'Заброшенная тюрьма', 'Гринвол', 'Лесной перешеек', 'Разделённое ущелье', 'Серозимняя застава', 'Захваченный порт', 'Лесная дорога'];
 const rooms = ['Риверфорт', 'Башня Растхельма', 'Военный лагерь', 'Пустынная застава', 'Личные покои', 'Пиратский корабль'];
 const badName = 'Я - Клоун';
-const pathImages = 'https://raw.githubusercontent.com/dobriy-vecher-vlad/warlord-helper/main/media/images/';
+const pathImages = 'https://dobriy-vecher-vlad.github.io/warlord-helper/media/images/';
 const calcInitialsAvatarColor = (v) => v%6+1;
-const calcTag = async(name, reserve) => {
+const calcTag = async(name, id, reserve) => {
 	if (name) {
 		let search = /^(.+?) /.exec(name.replace(/{|}|\[|]|-|_/g, ' ').replace(/ +/g, ' ').replace(/^\s/g, ''));
 		if (search?.[1]?.length < 5) {
 			name = search[1];
-		} else name = reserve ? await this.calcTag(reserve) : name.slice(0, 1);
+		} else if (reserve) {
+			name = await this.calcTag(reserve, id);
+		} else name = tagEmoji[id%tagEmoji.length];
 	} else name = name.slice(0, 2);
-	return name;
+	return name.slice(0, 3);
 };
 const removeEmptyObject = async(object) => {
 	for (let prop of Object.getOwnPropertyNames(object)) if (object[prop] == false || object[prop] == null || object[prop] == undefined || String(object[prop]) == 'NaN' || (typeof object[prop] == 'object' && object[prop].includes(NaN))) delete object[prop];
 	return object;
 };
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
-const numberSpaces = (number, symbol = ' ') => ((typeof number == 'string' ? number : JSON.stringify(number)) || '').toString().replace(/\B(?=(\d{3})+(?!\d))/g, symbol);
+const numberRandom = (min = 1, max = 2) => Math.floor(Math.random() * (Math.floor(max) - Math.ceil(min) + 1)) + Math.ceil(min);
+const numberSpaces = (number, symbol = ' ') => ((typeof number == 'string' ? number : JSON.stringify(number)) || '').toString().replace(/\B(?=(\d{3})+(?!\d))/g, symbol) || 0;
 const numberForm = (number, titles) => {
 	number = Math.abs(number);
 	let cases = [2, 0, 1, 1, 1, 2];
@@ -288,7 +297,7 @@ const parseUser = async(user = {}, statuses = false) => {
 	}
 	user.isGeneral = user.rang == 2;
 	user.isLeader = user.rang == 1;
-	user.tag = await calcTag(user.name);
+	user.tag = await calcTag(user.name, user.id || 0);
 
 	// user.isVerified = true;
 	// user.isAdmin = true;
@@ -339,25 +348,55 @@ const getUserCell = (data) => {
 	</SimpleCell>);
 	return tooltip ? getRichTooltip(component, tooltip, key, placement) : component;
 };
-const getUserCard = (user) => (
+const getUserCard = (user) => (<div className='UserCard'>
 	<SimpleCell
 		disabled
 		before={user.avatar ? <Avatar src={`${pathImages}bot/arena/avatar_${user.avatar}.png`} mode='app' size={48}/> : <InitialsAvatar mode='app' gradientColor={calcInitialsAvatarColor(user.id)} size={48}>{user.tag}</InitialsAvatar>}
 		badgeAfterTitle={getUserIcons(user, true)}
-		after={<>
-			{getTextTooltip(<Link href={`https://vk.com/id${user.vkId}`} target='_blank'><IconButton><Icon28UserOutline/></IconButton></Link>, `Перейти в профиль`, true)}
-			{getTextTooltip(<Link href={`https://vk.com/im?sel=${user.vkId}`} target='_blank'><IconButton><Icon28MessagesOutline/></IconButton></Link>, `Перейти к диалогу`, true)}
-		</>}
 		subtitle={<Link href={`https://vk.com/id${user.vkId}`} target='_blank'>vk.com/id{user.vkId}</Link>}
 	>
 		{user.name}
 	</SimpleCell>
-);
+	<ButtonGroup mode='horizontal' gap='s' stretched>
+		<Button href={`https://vk.com/id${user.vkId}`} target='_blank' after={<Icon16ChevronOutline/>} appearance='accent' mode='secondary' size='m' stretched>Открыть</Button>
+		<Button href={`https://vk.com/im?sel=${user.vkId}`} target='_blank' after={<Icon16ChevronOutline/>} appearance='accent' mode='secondary' size='m' stretched>Написать</Button>
+	</ButtonGroup>
+</div>);
 const getTextTooltip = (component, tooltip, embedded) => <TextTooltip style={{maxWidth: 160}} text={tooltip} appearance={embedded?'black':'inversion'}>{component}</TextTooltip>;
 const getRichTooltip = (component, tooltip, key = 0, placement = 'top-start') => (<RichTooltip arrow={false} key={key} style={{maxWidth: 320}} content={tooltip} placement={placement} appearance='white'>{component}</RichTooltip>);
+const getBanner = (banner) => {
+	const renderMethod = (element, link = undefined) => link?.length ? <a href={link} target={link.slice(0, 1) == '?' ? '' : '_blank'}>{element}</a> : <span>{element}</span>;
+	return renderMethod(<Banner
+		mode={banner.image?.length ? 'image' : undefined}
+		header={banner.header || ' '}
+		subheader={banner.subheader || ' '}
+		asideMode={banner.link?.length && !banner.image?.length ? 'expand' : undefined}
+		background={banner.image?.length ? <div style={{ backgroundColor: '#000', backgroundImage: `url(${banner.image})`, backgroundPosition: 'center', backgroundSize: 'cover' }}/> : undefined}
+	/>, banner.link || undefined);
+};
+const getActions = (actions) => {
+	return (<>
+		<Div className='ActionsGroup'>
+			{actions.map((banner, key) => <React.Fragment key={key}>
+				{key != 0 && <Separator/>}
+				{getBanner(banner)}
+			</React.Fragment>)}
+		</Div>
+	</>)
+};
+const getBanners = (banners) => {
+	return (<>
+		<Gallery className='BannerGroup' align='center' isDraggable={true} showArrows={true}>
+			{banners.map((banner, key) => <React.Fragment key={key}>
+				{getBanner(banner)}
+			</React.Fragment>)}
+		</Gallery>
+	</>)
+};
 const Content = (props) => {
 	const { script } = props;
 	let { from, to, server, timestamp, setServer, setSelected } = props;
+	const { beforeLoad, afterLoad } = props;
 	const [hint, setHint] = useState('Загружаем данные');
 	const [error, setError] = useState(null);
 	const [dataStatuses, setDataStatuses] = useState(null);
@@ -366,7 +405,6 @@ const Content = (props) => {
 	const [dataClan, setDataClan] = useState(null);
 	const [dataFight, setDataFight] = useState(null);
 	const [loaded, setLoaded] = useState(false);
-	
 	useEffect(() => {
 		setSelected(true);
 		const reset = () => {
@@ -385,14 +423,12 @@ const Content = (props) => {
 				setHint('Получаем номер профиля');
 				if (!from && to) from = to;
 				if (!to && from) to = from;
-				// console.log(from, to, server);
 				if (!from || !to) return setError('Ошибка при получении номера профиля');
 				setHint('Получаем настройки');
-				// console.log(script);
-				if (typeof script != 'object') return setError('Ошибка при получении настроек');
+				if (!script || typeof script != 'object') return setError('Ошибка при получении настроек');
 				setHint('Получаем статусы');
-				let status = await getData(`https://raw.githubusercontent.com/dobriy-vecher-vlad/warlord/main/wl_status.json?${+new Date}`);
-				if (typeof status != 'object') return setError('Ошибка при получении статусов');
+				let status = await getData(`https://dobriy-vecher-vlad.github.io/warlord/wl_status.json?${+new Date}`);
+				if (!status || typeof status != 'object') return setError('Ошибка при получении статусов');
 				if (status.statusBLOCK.includes(from)) return setError('Для Вас доступ к скрипту ограничен');
 				if (status.statuses[server-1].statusINVISIBLE.includes(to) && from != to && !status.statuses[server-1].scriptADMIN.includes(from)) return setError('Информация пользователя скрыта');
 				status = {
@@ -402,7 +438,6 @@ const Content = (props) => {
 					clan_id: status.clan_id,
 					clan_auth: status.clan_auth,
 				};
-				setDataStatuses(status);
 				setHint('Выбираем сервер');
 				let servers = await getData(`https://tmp1-fb.geronimo.su/gameHub/index.php?api_uid=${to}&api_type=vk`);
 				if (!servers?.s) return setError('Ошибка при выборе сервера игры');
@@ -444,6 +479,45 @@ const Content = (props) => {
 				setDataFight(fight);
 				profile = await parseUser(profile.u, status);
 				setDataProfile(profile);
+				setDataStatuses({
+					actions: [
+						...status?.actions || [],
+						...status.scriptUPDATE != script.version ? [{
+							header: <>Устаревшая версия</>,
+							subheader: <>Вы используете <Chip removable={false}>{script.version}</Chip>, актуальная <Chip removable={false}>{status.scriptUPDATE}</Chip></>,
+						}] : [],
+					],
+					banners: [
+						...status.statusRED.includes(to) ? [{
+							header: <>Замечен в суде</>,
+							subheader: <>Посмотри запись в суде и будь осторожен с ним</>,
+							link: `https://vk.com/wall-133931816?q=${to}`,
+							image: `https://i.yapx.ru/MPz2R.gif`,
+						}] : [],
+						...status.statusGREEN.includes(to) ? [{
+							header: <>Порядочный игрок</>,
+							subheader: <>Доверенное и подтверждённое лицо</>,
+							image: `https://i.yapx.ru/MP0H1.gif`,
+						}] : [],
+						...status.statusORANGE.includes(to) ? [{
+							header: <>Замечен в суде, но претензии сняты</>,
+							subheader: <>Посмотри запись в суде и будь осторожен с ним</>,
+							link: `https://vk.com/wall-133931816?q=${to}`,
+							image: `https://i.yapx.ru/MP0OL.gif`,
+						}] : [],
+						...status.statusYELLOW.includes(to) ? [{
+							header: <>Неадекватное поведение</>,
+							subheader: <>Избегай контакта с ним</>,
+							image: `https://i.yapx.ru/MP0Wz.gif`,
+						}] : [],
+						...status.statusAnimate[to] ? [{
+							image: status.statusAnimate[to].href,
+						}] : [],
+						...(profile.guild && status.statusGUILD[profile.guild] && !status.statusGUILD_ban.includes(to)) ? [{
+							image: status.statusGUILD[profile.guild],
+						}] : [],
+					],
+				});
 				return setLoaded(true);
 			} catch (error) {
 				console.log(error);
@@ -451,15 +525,23 @@ const Content = (props) => {
 				return setLoaded(false);
 			}
 		};
-		load();
+		const start = async() => {
+			if (beforeLoad) beforeLoad();
+			await load();
+			if (afterLoad) afterLoad();
+		};
+		start();
 		return () => {
 			setSelected(false);
 			reset();
 		};
 	}, [to, server, timestamp]);
-
 	return (
 		loaded && dataProfile ? <>
+			{dataStatuses?.banners?.length ? getBanners(dataStatuses.banners) : false}
+			{dataStatuses?.actions?.length ? getActions(dataStatuses.actions) : false}
+
+
 			{dataServers?.length ? <>
 				{dataServers.map((server, key) => <SimpleCell
 					onClick={() => setServer(server.id)}
@@ -1138,7 +1220,7 @@ const Content = (props) => {
 				</details>
 			</>}
 		</>:<>
-			<Placeholder icon={error ? <Icon32ErrorCircleOutline/> : <Spinner size='medium'/>} stretched>{error || hint}</Placeholder>
+			<Placeholder icon={error ? <Icon24SadFaceOutline/> : <Spinner size='regular'/>} stretched>{error || hint}</Placeholder>
 			{error&&dataServers&&dataServers?.length ? <>
 				<Separator/>
 				{dataServers.map((server, key) => <SimpleCell
@@ -1158,15 +1240,14 @@ const Script = (props) => {
 	const [timestamp, setTimestamp] = useState(0);
 	const [server, setServer] = useState(0);
 	const [selected, setSelected] = useState(false);
-	const ref = useRef(null);
-
+	const [loaded, setLoaded] = useState(true);
 	useEffect(() => {
-		if (server != 0) {
-			setContent(<Content id={script.id} script={script} from={from} to={to} server={server} setServer={setServer} setSelected={setSelected} timestamp={timestamp}/>);
+		if (server != 0 && loaded) {
 			log('Render content', { from, to, timestamp, server });
+			setLoaded(false);
+			setContent(<Content id={script.id} script={script} from={from} to={to} server={server} setServer={setServer} setSelected={setSelected} afterLoad={() => setLoaded(true)} timestamp={timestamp}/>);
 		}
 	}, [server, timestamp]);
-
 	return (
 		<TabsItem
 			selected={selected}
@@ -1179,7 +1260,6 @@ const Script = (props) => {
 			status={<div className='vkuiTabsItem__status--count vkuiSubhead vkuiSubhead--sizeY-compact vkuiSubhead--w-2'>{script.version}</div>}
 			after={server?<Counter size='s' mode='primary'>{['Эрмун', 'Антарес'][server-1]}</Counter>:false}
 		>{script.title}</TabsItem>
-								
 	);
 };
 
