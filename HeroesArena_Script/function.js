@@ -111,7 +111,24 @@ const ScriptLoad = async(type, name, text, version) => {
 						let u_id = 0;
 						try {
 							if (isNew) {
-								u_id = Number(/ProfileWrapper.*?data-exec.*?(\d+).*?hashes/gim.exec(await (await fetch(window.location.href)).text())[1]);
+								try {
+									u_id = await (await fetch(window.location.href)).text();
+									try {
+										u_id = Number(/ProfileWrapper.*?data-exec.*?(\d+).*?hashes/gim.exec(u_id)[1]);
+									} catch (error) {
+										try {
+											u_id = Number(/ownerId":(\d+).*?,/gim.exec(u_id)[1]);
+										} catch (error) {
+											try {
+												u_id = Number(/user_id":(\d+).*?,"/gim.exec(u_id)[1]);
+											} catch (error) {
+												u_id = Number(/"loc":"\?id=(\d+).*?"/gim.exec(u_id)[1]);
+											}
+										}
+									}
+								} catch (error) {
+									u_id = document.querySelector('[data-task-click="ProfileAction/abuse"]').getAttribute('data-user_id');
+								}
 							} else u_id = document.querySelector('[data-task-click="ProfileAction/abuse"]').getAttribute('data-user_id');
 						} catch (error) {
 							if (document.querySelector('.profile_deleted_text > br') !== null) {

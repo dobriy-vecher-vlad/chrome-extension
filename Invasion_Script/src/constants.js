@@ -1,8 +1,8 @@
 const script = {
-	id: 'warlord',
-	title: 'Warlord',
+	id: 'invasion',
+	title: 'Invasion',
 	version: '3.0.0',
-	statuses: 'https://dobriy-vecher-vlad.github.io/warlord/wl_status.json',
+	statuses: 'https://dobriy-vecher-vlad.github.io/warlord/inv_status.json',
 	logos: [
 		'https://dobriy-vecher-vlad.github.io/warlord/media/label_wl.jpg',
 		'https://dobriy-vecher-vlad.github.io/warlord/media/label_inv.jpg',
@@ -10,9 +10,9 @@ const script = {
 		'https://dobriy-vecher-vlad.github.io/warlord/media/label_tt.jpg',
 	],
 	group: {
-		title: 'WARLORD: База Знаний',
-		logo: 'https://dobriy-vecher-vlad.github.io/warlord/media/label_wl.jpg',
-		link: 'https://vk.com/wiki.warlord',
+		title: 'НАШЕСТВИЕ: База Знаний',
+		logo: 'https://dobriy-vecher-vlad.github.io/warlord/media/label_inv.jpg',
+		link: 'https://vk.com/wiki.invasion',
 	},
 	settings: {
 		selectedServer: 1,

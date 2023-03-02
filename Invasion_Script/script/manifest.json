@@ -1,18 +1,18 @@
 {
 	"manifest_version": 3,
-	"name": "Warlord Script",
+	"name": "Invasion Script",
 	"version": "3.0.0",
 	"action": {
 		"deafaul_icon": "img/icon.png",
-		"defalut_title": "Warlord Script"
+		"defalut_title": "Invasion Script"
 	},
-	"description": "Расширение для ВКонтакте, которое позволяет смотреть характеристики игроков игры «Warlord».",
+	"description": "Расширение для ВКонтакте, которое позволяет смотреть характеристики игроков игры «Invasion».",
 	"icons": {
 		"16": "img/icon.png",
 		"48": "img/icon-48.png",
 		"128": "img/icon-128.png"
 	},
-	"author": "https://vk.com/wiki.warlord",
+	"author": "https://vk.com/wiki.invasion",
 	"content_scripts": [
 		{
 			"matches": [
@@ -27,6 +27,6 @@
 	"host_permissions": [
 		"*://tmp1-fb.geronimo.su/*"
 	],
-	"version_name": "3.0.0 (a0cb04f4)",
+	"version_name": "3.0.0 (34b1f9b2)",
 	"update_url": "https://clients2.google.com/service/update2/crx"
 }

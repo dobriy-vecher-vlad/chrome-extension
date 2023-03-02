@@ -1,6 +1,6 @@
 let ScriptName = "warlord";
 let ScriptTitle = "Warlord";
-let ScriptVersion = "2.3.1";
+let ScriptVersion = "2.3.2";
 let isNew = false;
 ScriptRun('event');
 ScriptRun('load');
@@ -64,7 +64,7 @@ const ScriptProfileLoad = async(name, myID, uID) => {
 				return;
 			} else {
 				script_body.firstChild.innerText = '\n\nПолучаем информацию игрока';
-				let profile = await getFakeData('xml', `https://${server._url}udata.php?user=${uID}`);
+				let profile = await getData('xml', `https://${server._url}udata.php?user=${uID}`);
 				if (/зарегистрирован/.exec(profile)) {
 					script_body.innerHTML = `<div class="script__text error__"><br><br>Персонаж не зарегистрирован в игре</div>`;
 					return;

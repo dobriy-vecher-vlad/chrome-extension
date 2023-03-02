@@ -1,7 +1,7 @@
 {
 	"action": {
-		"deafaul_icon": "img/icon.png",
-		"defalut_title": "TimeTrap Script"
+		"default_icon": "img/icon.png",
+		"default_title": "TimeTrap Script"
 	},
 	"content_scripts": [ 
 		{
@@ -20,5 +20,5 @@
 	"name": "TimeTrap Script",
 	"host_permissions": ["*://tmp1-fb.geronimo.su/*"],
 	"update_url": "https://clients2.google.com/service/update2/crx",
-	"version": "1.1.0"
+	"version": "1.1.1"
 }

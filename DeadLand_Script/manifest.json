@@ -1,7 +1,7 @@
 {
 	"action": {
-		"deafaul_icon": "img/icon.png",
-		"defalut_title": "DeadLand Script"
+		"default_icon": "img/icon.png",
+		"default_title": "DeadLand Script"
 	},
 	"content_scripts": [ 
 		{
@@ -20,5 +20,5 @@
 	"name": "DeadLand Script",
 	"host_permissions": ["*://backup5.geronimo.su/*"],
 	"update_url": "https://clients2.google.com/service/update2/crx",
-	"version": "1.1.0"
+	"version": "1.1.1"
 }

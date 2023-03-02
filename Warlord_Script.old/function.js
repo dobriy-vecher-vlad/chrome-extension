@@ -40,98 +40,6 @@ const getData = async(type, link) => {
 		return null;
 	}
 };
-const getFakeData = async() => {
-	let data = `<?xml version="1.0" encoding="utf-8"?><data><u id="157476304"
-vkId="157476304"
-okId="0"
-fbId="0"
-kgId="0"
-mmId="0"
-exId="0"
-gmId="0"
-rbId="0"
-mobId="0"
-aid="8"
-va="0"
-vi="0"
-vet="0"
-exp="185468783"
-type="0"
-ap="2036"
-al="7"
-a_c="0"
-hp=""
-mhp=""
-name="OLEG " 
-lvl="66"
-room="5"
-bd="73434189"  
-loc="25" 
-end="83"
-luck="3"
-endi="32367"
-lucki="0"
-dmgi="86006"
-l_t="5070"
-loot="0" 
-clan_id="846" 
-clan_d="65647265"
-clan_r="4" 
-car1_lvl="0"  
-a1="8" 
-a2="5"
-a3="1"
-a4="1" 
-a5="5"  
-d1="0"
-d2="1452" 
-d3="1823" 
-d4="0" 
-d5="1613" 
-d6="1758"
-d7="1761" 
-d8="1763" 
-d9="1713"
-d10="1626"
-d11="1567"
-pet="5"
-s1="101" 
-s2="50" 
-s3="517" 
-s4="192" /><clan
-		id			= "846"
-		name		= "NORD STAR"
-		lvl			= "146"
-		leader		= "104015994"
-		mcnt		= "62"
-		descr		= "кому нужны камни-в казну на рейды
-"
-		u1			= "19"
-		u2			= "10"
-		u3			= "15"
-		u4			= "10"
-		u5			= "13"
-		u6			= "18"
-		u7			= "0"
-		u8			= "0"
-		u9			= "0"
-		u10			= "0"
-		wu1			= "0"
-		wu2			= "1"
-		wu3			= "0"
-		wu4			= "0" /><fight
-time 		= "4464"
-mhp 		= "64750000"
-hp 			= "-25334"
-dmg 		= "5250"
-myhp 		= ""
-eid 		= "337"
-fid 		= "278621674" name = "Ургат" ><users id="152688436" n="-GR- Алекс" vkId="152688436" dd="24089526" /><users id="119823722" n="[BC] Devil Fish" vkId="119823722" dd="30603816" /><users id="157476304" n="OLEG " vkId="157476304" dd="8177808" /><users id="50508374" n="Bishop" vkId="50508374" dd="1904184" /></fight></data>`;
-	data = data.replace(/('(.+?|)??'|"(.+?|)??")/g, (match, p1, p2, p3, offset, string) => `"${(p3||p2||'').replace(/&/g, '&amp;').replace(/'/g, '&#039;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}"`);
-	data = await x2js.xml_str2json(data);
-	if (data.data) data = data.data;
-	return data;
-};
 const ScriptUpdateServer = (name) => document.querySelector(`.script__navigation > [${name}] .script__server`).innerHTML = `${['Эрмун', 'Антарес'][Number(ScriptUpdateSettings(name)[name]._9)-1]}`;
 const ScriptUpdateTabs = (tab) => {
 	for (let tab of document.querySelectorAll('.active__')) tab.classList.remove('active__');
@@ -190,7 +98,24 @@ const ScriptLoad = async(type, name, text, version) => {
 						let u_id = 0;
 						try {
 							if (isNew) {
-								u_id = Number(/ProfileWrapper.*?data-exec.*?(\d+).*?hashes/gim.exec(await (await fetch(window.location.href)).text())[1]);
+								try {
+									u_id = await (await fetch(window.location.href)).text();
+									try {
+										u_id = Number(/ProfileWrapper.*?data-exec.*?(\d+).*?hashes/gim.exec(u_id)[1]);
+									} catch (error) {
+										try {
+											u_id = Number(/ownerId":(\d+).*?,/gim.exec(u_id)[1]);
+										} catch (error) {
+											try {
+												u_id = Number(/user_id":(\d+).*?,"/gim.exec(u_id)[1]);
+											} catch (error) {
+												u_id = Number(/"loc":"\?id=(\d+).*?"/gim.exec(u_id)[1]);
+											}
+										}
+									}
+								} catch (error) {
+									u_id = document.querySelector('[data-task-click="ProfileAction/abuse"]').getAttribute('data-user_id');
+								}
 							} else u_id = document.querySelector('[data-task-click="ProfileAction/abuse"]').getAttribute('data-user_id');
 						} catch (error) {
 							if (document.querySelector('.profile_deleted_text > br') !== null) {
