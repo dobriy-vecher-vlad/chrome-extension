@@ -126,7 +126,7 @@ export default function(props) {
 						<FormItem
 							top={<Header mode='secondary' size='regular'>Import</Header>}
 						>
-							<Button size='m' appearance='neutral' mode='secondary' stretched onClick={() => readFile((file) => {
+							<Button size='l' mode='secondary' stretched onClick={() => readFile((file) => {
 								if (islocalStorage) {
 									try {
 										const save = JSON.parse(file);
@@ -180,7 +180,7 @@ export default function(props) {
 							top={<Header mode='secondary' size='regular'>Export</Header>}
 						>
 							<ButtonGroup mode='horizontal' gap='m' stretched>
-								<Button size='m' appearance='neutral' mode='secondary' stretched onClick={() => {
+								<Button size='l' mode='secondary' stretched onClick={() => {
 									if (islocalStorage) {
 										try {
 											saveFile(JSON.stringify({
@@ -204,7 +204,7 @@ export default function(props) {
 								}}>
 									All
 								</Button>
-								<Button size='m' appearance='neutral' mode='secondary' stretched onClick={() => {
+								<Button size='l' mode='secondary' stretched onClick={() => {
 									if (islocalStorage) {
 										try {
 											saveFile(JSON.stringify({
@@ -227,7 +227,7 @@ export default function(props) {
 								}}>
 									Bookmarks
 								</Button>
-								<Button size='m' appearance='neutral' mode='secondary' stretched onClick={() => {
+								<Button size='l' mode='secondary' stretched onClick={() => {
 									if (islocalStorage) {
 										try {
 											saveFile(JSON.stringify({
@@ -256,7 +256,7 @@ export default function(props) {
 							top={<Header mode='secondary' size='regular'>Delete</Header>}
 						>
 							<ButtonGroup mode='horizontal' gap='m' stretched>
-								<Button size='m' appearance='neutral' mode='secondary' stretched onClick={() => {
+								<Button size='l' mode='secondary' stretched onClick={() => {
 									if (islocalStorage) {
 										try {
 											[...Object.keys(localStorage).filter(key => key.includes('fave_'))].map(key => localStorage.removeItem(key));
@@ -280,7 +280,7 @@ export default function(props) {
 								}}>
 									All
 								</Button>
-								<Button size='m' appearance='neutral' mode='secondary' stretched onClick={() => {
+								<Button size='l' mode='secondary' stretched onClick={() => {
 									if (islocalStorage) {
 										try {
 											[...Object.keys(localStorage).filter(key => key.includes('fave_'))].map(key => localStorage.removeItem(key));
@@ -303,7 +303,7 @@ export default function(props) {
 								}}>
 									Bookmarks
 								</Button>
-								<Button size='m' appearance='neutral' mode='secondary' stretched onClick={() => {
+								<Button size='l' mode='secondary' stretched onClick={() => {
 									if (islocalStorage) {
 										try {
 											[...Object.keys(localStorage).filter(key => key.includes('faves_'))].map(key => localStorage.removeItem(key));
@@ -344,7 +344,7 @@ export default function(props) {
 							top={<Header mode='secondary' size='regular'>Root theme</Header>}
 						>
 							<SegmentedControl
-								size='m'
+								size='l'
 								name='type'
 								defaultValue={appearance}
 								options={['Auto', 'Light', 'Dark'].map(color => ({
@@ -358,7 +358,7 @@ export default function(props) {
 							top={<Header mode='secondary' size='regular'>Bookmarks size</Header>}
 						>
 							<SegmentedControl
-								size='m'
+								size='l'
 								name='type'
 								defaultValue={bookmarksSize}
 								options={[{
