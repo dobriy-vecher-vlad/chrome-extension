@@ -1,17 +1,17 @@
 # Chrome Extension
 Различные расширения для социальной сети ВКонтакте и не только.
 
-- :skull: **Warlord Script**.  
+- :skull: **Warlord Script**  
 Расширение для ВКонтакте, которое позволяет смотреть характеристики игроков игры «Warlord».
-- :skull: **Invasion Script**.  
+- :skull: **Invasion Script**  
 Расширение для ВКонтакте, которое позволяет смотреть характеристики игроков игры «Invasion».
-- :skull: **DeadLand Script**.  
+- :skull: **DeadLand Script**  
 Расширение для ВКонтакте, которое позволяет смотреть характеристики игроков игры «DeadLand».
-- :skull: **TimeTrap Script**.  
+- :skull: **TimeTrap Script**  
 Расширение для ВКонтакте, которое позволяет смотреть характеристики игроков игры «TimeTrap».
-- :skull: **HeroesArena Script**.  
+- :skull: **HeroesArena Script**  
 Расширение для ВКонтакте, которое позволяет смотреть характеристики игроков игры «HeroesArena».
-- :bookmark: **Bookmarks**.  
+- :bookmark: **Bookmarks**  
 Расширение для создания и хранения закладок (ссылок) в красивом и удобном виде. Заменяет главный экран браузера.
 
 ## Полезные ссылки
