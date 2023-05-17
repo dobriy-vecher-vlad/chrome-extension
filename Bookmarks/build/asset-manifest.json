@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/static/css/main.a874b156.css",
+    "main.js": "/static/js/main.6c231c91.js",
+    "static/media/VKSansDisplay-DemiBold.ttf": "/static/media/VKSansDisplay-DemiBold.35d217715e5b7bd4200f.ttf",
+    "static/media/VKSansDisplay-Bold.ttf": "/static/media/VKSansDisplay-Bold.50b10c4432b08a7dd008.ttf",
+    "static/media/VKSansDisplay-Medium.ttf": "/static/media/VKSansDisplay-Medium.5dae08a30b1f173f7639.ttf",
+    "index.html": "/index.html",
+    "main.a874b156.css.map": "/static/css/main.a874b156.css.map",
+    "main.6c231c91.js.map": "/static/js/main.6c231c91.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.a874b156.css",
+    "static/js/main.6c231c91.js"
+  ]
+}

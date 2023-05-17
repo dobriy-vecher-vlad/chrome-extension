@@ -1,0 +1,19 @@
+{
+	"manifest_version": 3,
+	"name": "Bookmarks",
+	"version": "1.0.0",
+	"description": "Keep your links in a beautiful and convenient way.",
+	"action": {
+		"deafaul_icon": "icon.png",
+		"defalut_title": "Bookmarks"
+	},
+	"icons": {
+		"16": "icon.png",
+		"48": "icon-48.png",
+		"128": "icon-128.png"
+	},
+	"chrome_url_overrides" : {
+		"newtab": "index.html"
+	},
+	"update_url": "https://clients2.google.com/service/update2/crx"
+}
