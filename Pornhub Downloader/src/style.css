@@ -1,0 +1,78 @@
+@charset "utf-8";
+@font-face {
+	font-family: "VKSansDisplay-Medium";
+	src: url("./fonts/VKSansDisplay-Medium.ttf");
+}
+@font-face {
+	font-family: "VKSansDisplay-DemiBold";
+	src: url("./fonts/VKSansDisplay-DemiBold.ttf");
+}
+@font-face {
+	font-family: "VKSansDisplay-Bold";
+	src: url("./fonts/VKSansDisplay-Bold.ttf");
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+*::-webkit-scrollbar,
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb,
+*::-webkit-scrollbar-thumb {
+	width: 0;
+}
+body {
+	overflow: hidden;
+	font-family: 'VKSansDisplay-Medium';
+	font-weight: 400;
+	font-size: 14px;
+	width: 600px;
+	max-width: 600px;
+	min-width: 600px;
+	min-height: 400px;
+	padding: 12px!important;
+	border-radius: 12px;
+	box-sizing: border-box;
+}
+#root {
+	position: relative;
+	border-radius: inherit;
+	overflow: hidden;
+}
+.vkuiAppRoot {
+	z-index: 1;
+	position: relative;
+}
+#root::after {
+	border: 1px solid rgba(0,0,0,.08);
+	border: var(--vkui_internal--thin_border) solid var(--vkui--color_image_border_alpha);
+	border-radius: inherit;
+	box-sizing: border-box;
+	content: "";
+	display: block;
+	height: 100%;
+	left: 0;
+	pointer-events: none;
+	position: absolute;
+	top: 0;
+	width: 100%;
+	z-index: 2;
+}
+[tabindex] {
+	outline: none;
+}
+.vkuiDiv,
+.vkuiList {
+	overflow: overlay;
+}
+.vkuiSimpleCell .vkuiSimpleCell__after,
+.vkuiSimpleCell .vkuiSimpleCell__before {
+	color: var(--vkui--color_text_primary);
+}
+.vkuiPanelHeader__content-in {
+	display: flex;
+	align-items: flex-start;
+	justify-content: center;
+}
+.vkuiSnackbar {
+	width: 50%;
+	bottom: 12px;
+}

@@ -1,0 +1,16 @@
+<html>
+	<script>
+		window.addEventListener('message', async(event) => {
+			let data;
+			try {
+				data = eval(event.data);
+			} catch (error) {
+				data = {
+					event: event.data,
+					error: error,
+				};
+			}
+			event.source.window.postMessage(data, event.origin)
+		});
+	</script>
+</html>

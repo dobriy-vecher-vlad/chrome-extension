@@ -1,0 +1,32 @@
+{
+	"manifest_version": 3,
+	"name": "Pornhub Downloader",
+	"version": "1.0.0",
+	"description": "Save and copy any video from Pornhub.",
+	"action": {
+		"default_icon": "icon.png",
+		"default_title": "Pornhub Downloader",
+		"default_popup": "index.html"
+	},
+	"permissions": [
+		"activeTab", "scripting", "downloads"
+	],
+	"sandbox": {
+		"pages": ["sandbox.html"]
+	},
+	"content_scripts": [
+		{
+			"matches": [
+				"https://*.pornhub.com/view_video.php?viewkey=*",
+				"https://*.pornhubpremium.com/view_video.php?viewkey=*"
+			],
+			"js": ["content-script.js"]
+		}
+	],
+	"icons": {
+		"16": "icon.png",
+		"48": "icon-48.png",
+		"128": "icon-128.png"
+	},
+	"update_url": "https://clients2.google.com/service/update2/crx"
+}

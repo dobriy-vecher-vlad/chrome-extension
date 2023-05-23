@@ -13,6 +13,8 @@
 Расширение для ВКонтакте, которое позволяет смотреть характеристики игроков игры «HeroesArena».
 - :bookmark: **Bookmarks**  
 Расширение для создания и хранения закладок (ссылок) в красивом и удобном виде. Заменяет главный экран браузера.
+- :cd: **Pornhub Downloader**  
+Расширение для скачивания видеороликов с сайта Pornhub в удобном виде.
 
 ## Полезные ссылки
 1. [Warlord Script](https://chrome.google.com/webstore/detail/warlord-script/lnohbnecjodgkjkfcfaamadbeiapofoa)
@@ -21,3 +23,4 @@
 4. [TimeTrap Script](https://chrome.google.com/webstore/detail/timetrap-script/kiidpdifmhnobdpodmkcmonhokmplldj)
 5. [HeroesArena Script](https://chrome.google.com/webstore/detail/heroesarena-script/kdgdhfahfeacfebajodpkkijopmobpkn)
 6. [Bookmarks](https://chrome.google.com/webstore/detail/*)
+7. [Pornhub Downloader](https://chrome.google.com/webstore/detail/*)
