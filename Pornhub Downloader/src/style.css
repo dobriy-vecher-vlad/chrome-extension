@@ -67,6 +67,19 @@ body {
 .vkuiSimpleCell .vkuiSimpleCell__before {
 	color: var(--vkui--color_text_primary);
 }
+.VideoLink .vkuiSimpleCell__content .vkuiSimpleCell__children {
+	display: grid;
+	grid-template-columns: 33% 33% 1fr;
+	align-items: center;
+	grid-gap: 8px;
+	width: 100%;
+}
+.VideoLink .vkuiSimpleCell__content .vkuiSimpleCell__children span {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	justify-content: flex-start;
+}
 .vkuiPanelHeader__content-in {
 	display: flex;
 	align-items: flex-start;
@@ -75,4 +88,29 @@ body {
 .vkuiSnackbar {
 	width: 50%;
 	bottom: 12px;
+}
+body .vkuiSimpleCell .vkuiSimpleCell__after .vkuiIconButton:last-child {
+	margin-right: unset;
+}
+.VideoCard .vkuiImageBase {
+	--size: 12px;
+	width: calc(16 * var(--size))!important;
+	height: calc(9 * var(--size))!important;
+}
+.VideoCard .vkuiSimpleCell {
+	align-items: stretch;
+}
+.VideoCard .vkuiSimpleCell__main {
+	display: flex;
+	flex-direction: column;
+	padding: 4px 0;
+}
+.VideoCard .vkuiSimpleCell__content:not(:first-child) {
+	margin-top: 4px;
+}
+.VideoCard .vkuiSimpleCell__extraSubtitle {
+	margin-top: auto;
+	margin-bottom: 0;
+	display: flex;
+	gap: 8px;
 }

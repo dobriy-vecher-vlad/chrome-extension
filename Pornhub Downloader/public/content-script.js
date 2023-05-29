@@ -8,22 +8,29 @@
 		const i = Math.floor(Math.log(bytes) / Math.log(k))
 		return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`
 	}
-	chrome.runtime.onMessage.addListener((url, sender, sendResponse) => {
+	chrome.runtime.onMessage.addListener((data, sender, sendResponse) => {
 		(async() => {
-			let links = [];
-			try {
-				const request = await (await fetch(url))?.json();
-				for (const link of request) {
-					await fetch(link.videoUrl).then(response => links.push({
+			if (typeof data == 'string') {
+				let links = [];
+				try {
+					const request = await (await fetch(data))?.json();
+					for (const link of request) links.push({
 						link: link.videoUrl,
 						quality: Number(link.quality),
-						size: getFormatFromBytes(response.headers.get('content-length'))
-					}))
+						size: false,
+					});
+					sendResponse(links);
+				} catch (error) {
+					links = [];
+					sendResponse(links);
 				}
-			} catch (error) {
-				links = [];
+			} else {
+				try {
+					await fetch(data.link).then(response => sendResponse(getFormatFromBytes(response.headers.get('content-length'))));
+				} catch (error) {
+					sendResponse(data);
+				}
 			}
-			sendResponse(links);
 		})();
 		return true;
 	});

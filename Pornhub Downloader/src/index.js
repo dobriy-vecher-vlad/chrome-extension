@@ -16,7 +16,9 @@ import {
 	IconButton,
 	Snackbar,
 	Avatar,
-	Footer,
+	Counter,
+	Separator,
+	Spacing,
 } from '@vkontakte/vkui';
 import {  Icon16Done, Icon24CopyOutline, Icon24DownloadOutline, Icon56VideoOutline } from '@vkontakte/icons';
 import '@vkontakte/vkui/dist/vkui.css';
@@ -55,6 +57,10 @@ const App = () => {
 	const [isLoading, setIsLoading] = useState(true);
 	const [video, setVideo] = useState(undefined);
 	const [snackbar, setSnackbar] = useState(null);
+	const quality = {
+		720: 'HD',
+		1080: 'FHD',
+	};
 	useEffect(() => {
 		const open = async() => {
 			if (!chrome?.tabs) return setVideo(false);
@@ -71,7 +77,6 @@ const App = () => {
 					video.author = documentElement.querySelector('.userInfo .bolded').innerText;
 				}
 				video.id = documentElement.querySelector('#player').getAttribute('data-video-id');
-				video.image = documentElement.querySelector('link[as="image"]').href;
 				const data = await new Promise((resolve, reject) => {
 					try {
 						const getData = (event) => {
@@ -86,11 +91,21 @@ const App = () => {
 					}
 				});
 				if (data?.mediaDefinitions) {
-					video.title = data.video_title.length >= 50 ? data.video_title.substr(0, 50-3) + '...' : data.video_title;
+					video.id = data.playbackTracking.video_id;
+					video.title = data.video_title;
+					video.tags = data.actionTags;
+					video.image = data.image_url;
+					video.duration = Math.floor(data.video_duration/60) + ':' + data.video_duration%60;
 					chrome.tabs.sendMessage(tab.id, data.mediaDefinitions.find(media => media.format == 'mp4').videoUrl, (links) => {
 						if (links?.length) {
 							video.links = links;
 							setVideo(video);
+							for (const link of video.links) {
+								chrome.tabs.sendMessage(tab.id, link, (size) => {
+									link.size = size;
+									setVideo({...video});
+								});
+							}
 						} else {
 							setVideo(true);
 						}
@@ -134,29 +149,41 @@ const App = () => {
 								</svg>
 							</PanelHeader>
 							{!isLoading ? video ? video.links?.length ? <>
+								<Cell
+									className='VideoCard'
+									disabled
+									multiline
+									extraSubtitle={[...new Set(video.tags.split(',').map(tag => tag.split(':')[0]))].map((tag, key) => <Counter key={key} size='s' mode='secondary'>{tag}</Counter>)}
+									subtitle={<>{video.author}, {video.duration}</>}
+									before={<Image src={video.image}/>}
+								>
+									{video.title}
+								</Cell>
+								<Separator/>
+								<Spacing size={4}/>
 								<List>
 									{video.links.map((link, key) => <Cell
+										className='VideoLink'
 										disabled
 										key={key}
-										subtitle={`${link.size}`}
-										before={<Image size={44}>{link.quality}</Image>}
 										after={<>
 											<ButtonGroup gap='none'>
 												<IconButton onClick={() => {
 													copyFile(link.link);
-													setSnackbar(<Snackbar onClose={() => setSnackbar(null)} before={<Avatar size={24} style={{ background: '#FF9000' }}><Icon16Done fill="#000" width={14} height={14}/></Avatar>}>Link copied</Snackbar>);
+													setSnackbar(<Snackbar onClose={() => setSnackbar(null)} before={<Avatar size={24} style={{ background: '#FF9000' }}><Icon16Done fill='#000' width={14} height={14}/></Avatar>}>Link copied</Snackbar>);
 												}}><Icon24CopyOutline/></IconButton>
 												<IconButton onClick={() => {
 													saveFile(link.link, `${video.author} (${video.id}).mp4`, 'mp4');
-													setSnackbar(<Snackbar onClose={() => setSnackbar(null)} before={<Avatar size={24} style={{ background: '#FF9000' }}><Icon16Done fill="#000" width={14} height={14}/></Avatar>}>Upload video started</Snackbar>);
+													setSnackbar(<Snackbar onClose={() => setSnackbar(null)} before={<Avatar size={24} style={{ background: '#FF9000' }}><Icon16Done fill='#000' width={14} height={14}/></Avatar>}>Upload video started</Snackbar>);
 												}}><Icon24DownloadOutline/></IconButton>
 											</ButtonGroup>
 										</>}
 									>
-										{video.title}
+										<span>{link.quality}{Object.keys(quality).includes(String(link.quality)) && <Counter size='s' mode='prominent'>{quality[link.quality]}</Counter>}</span>
+										<span className="vkuiSimpleCell__text vkuiSimpleCell__subtitle vkuiFootnote">mp4</span>
+										<span className="vkuiSimpleCell__text vkuiSimpleCell__subtitle vkuiFootnote">{link.size ? link.size : <Spinner size='small'/>}</span>
 									</Cell>)}
 								</List>
-								<Footer>{video.links.length} links</Footer>
 							</> : video.length == 0 ? <>
 								<Placeholder stretched icon={<Icon56VideoOutline/>}>Couldn't find the sources of this video</Placeholder>
 							</> : <>

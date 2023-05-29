@@ -1,0 +1,11 @@
+[id^="age-verification"],
+[id^="age-verification"] * {
+	display: none!important;
+	opacity: 0!important;
+	visibility: hidden!important;
+	pointer-events: none!important;
+	user-select: none!important;
+	position: absolute!important;
+	z-index: -1000!important;
+	top: -1000!important;
+}

@@ -16,11 +16,9 @@
 	},
 	"content_scripts": [
 		{
-			"matches": [
-				"https://*.pornhub.com/view_video.php?viewkey=*",
-				"https://*.pornhubpremium.com/view_video.php?viewkey=*"
-			],
-			"js": ["content-script.js"]
+			"matches": ["https://*.pornhub.com/view_video.php?viewkey=*"],
+			"js": ["content-script.js"],
+			"css": ["style.css"]
 		}
 	],
 	"icons": {
