@@ -16,7 +16,7 @@
 	},
 	"content_scripts": [
 		{
-			"matches": ["https://*.pornhub.com/view_video.php?viewkey=*"],
+			"matches": ["https://*.pornhub.com/*"],
 			"js": ["content-script.js"],
 			"css": ["style.css"]
 		}
