@@ -1,5 +1,7 @@
 [id^="age-verification"],
-[id^="age-verification"] * {
+[id^="age-verification"] *,
+#pb_template,
+#pb_template * {
 	display: none!important;
 	opacity: 0!important;
 	visibility: hidden!important;

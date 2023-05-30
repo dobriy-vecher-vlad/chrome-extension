@@ -76,6 +76,8 @@ const App = () => {
 				} catch (error) {
 					video.author = documentElement.querySelector('.userInfo .bolded').innerText;
 				}
+				video.categories = [...documentElement.querySelectorAll('.categoriesWrapper > a')]?.map(tag => tag.innerText) || false;
+				video.tags = [...documentElement.querySelectorAll('.tagsWrapper > a')]?.map(tag => tag.innerText) || false;
 				video.id = documentElement.querySelector('#player').getAttribute('data-video-id');
 				const data = await new Promise((resolve, reject) => {
 					try {
@@ -93,7 +95,6 @@ const App = () => {
 				if (data?.mediaDefinitions) {
 					video.id = data.playbackTracking.video_id;
 					video.title = data.video_title;
-					video.tags = data.actionTags;
 					video.image = data.image_url;
 					video.duration = Math.floor(data.video_duration/60) + ':' + data.video_duration%60;
 					chrome.tabs.sendMessage(tab.id, data.mediaDefinitions.find(media => media.format == 'mp4').videoUrl, (links) => {
@@ -153,7 +154,7 @@ const App = () => {
 									className='VideoCard'
 									disabled
 									multiline
-									extraSubtitle={[...new Set(video.tags.split(',').map(tag => tag.split(':')[0]))].map((tag, key) => <Counter key={key} size='s' mode='secondary'>{tag}</Counter>)}
+									extraSubtitle={(video.tags || video.categories) && (video.tags || video.categories).map((tag, key) => <Counter key={key} size='s' mode='secondary'>{tag}</Counter>)}
 									subtitle={<>{video.author}, {video.duration}</>}
 									before={<Image src={video.image}/>}
 								>

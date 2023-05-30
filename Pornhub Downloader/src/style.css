@@ -103,7 +103,8 @@ body .vkuiSimpleCell .vkuiSimpleCell__after .vkuiIconButton:last-child {
 .VideoCard .vkuiSimpleCell__main {
 	display: flex;
 	flex-direction: column;
-	padding: 4px 0;
+	padding: 0;
+	margin: 4px 0;
 }
 .VideoCard .vkuiSimpleCell__content:not(:first-child) {
 	margin-top: 4px;
@@ -112,5 +113,13 @@ body .vkuiSimpleCell .vkuiSimpleCell__after .vkuiIconButton:last-child {
 	margin-top: auto;
 	margin-bottom: 0;
 	display: flex;
+	flex-wrap: nowrap;
+	flex-direction: row;
 	gap: 8px;
+	overflow: overlay;
+}
+.VideoCard .vkuiCounter {
+	white-space: nowrap;
+	text-transform: lowercase;
+	min-width: fit-content;
 }
