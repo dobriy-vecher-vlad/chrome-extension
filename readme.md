@@ -15,6 +15,8 @@
 Расширение для создания и хранения закладок (ссылок) в красивом и удобном виде. Заменяет главный экран браузера.
 - :cd: **Pornhub Downloader**  
 Расширение для скачивания видеороликов с сайта Pornhub в удобном виде.
+- :cd: **YouTube Avatars**  
+Возвращает аватары на YouTube без дополнительных действий.
 
 ## Полезные ссылки
 1. [Warlord Script](https://chrome.google.com/webstore/detail/warlord-script/lnohbnecjodgkjkfcfaamadbeiapofoa)

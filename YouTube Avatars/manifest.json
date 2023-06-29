@@ -1,0 +1,28 @@
+{
+	"manifest_version": 3,
+	"name": "YouTube Avatars",
+	"version": "1.0.0",
+	"description": "Returns avatars to YouTube without additional actions.",
+	"action": {
+		"deafaul_icon": "icon.png",
+		"defalut_title": "YouTube Avatars"
+	},
+	"icons": {
+		"16": "icon.png",
+		"48": "icon-48.png",
+		"128": "icon-128.png"
+	},
+	"background": {
+		"service_worker": "index.js"
+	},
+	"host_permissions": [
+		"*://yt3.ggpht.com/*",
+		"*://yt4.ggpht.com/*",
+		"*://*.youtube.com/*"
+	],
+	"permissions": [
+		"declarativeNetRequest",
+		"declarativeNetRequestFeedback"
+	],
+	"update_url": "https://clients2.google.com/service/update2/crx"
+}
