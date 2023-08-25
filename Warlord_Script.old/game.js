@@ -1,6 +1,6 @@
 let ScriptName = "warlord";
 let ScriptTitle = "Warlord";
-let ScriptVersion = "2.3.2";
+let ScriptVersion = "2.3.3";
 let isNew = false;
 ScriptRun('event');
 ScriptRun('load');
@@ -63,6 +63,11 @@ const ScriptProfileLoad = async(name, myID, uID) => {
 				script_body.innerHTML = `<div class="script__text error__"><br><br>Информация пользователя скрыта</div>`;
 				return;
 			} else {
+				status = {
+					...status,
+					...status.statuses[script__settings[name]._9-1],
+				};
+				console.warn(status);
 				script_body.firstChild.innerText = '\n\nПолучаем информацию игрока';
 				let profile = await getData('xml', `https://${server._url}udata.php?user=${uID}`);
 				if (/зарегистрирован/.exec(profile)) {
@@ -75,7 +80,7 @@ const ScriptProfileLoad = async(name, myID, uID) => {
 					let clan = 0;
 					if (profile.u._clan_id !== '0' && (script__settings[name]._2 || script__settings[name]._3 || script__settings[name]._4 || script__settings[name]._5 || script__settings[name]._11)) {
 						script_body.firstChild.innerText = '\n\nПолучаем информацию гильдии';
-						clan = await getData('xml', `https://${server._url}game.php?api_uid=${status.clan_id}&UID=${status.clan_id}&api_type=vk&api_id=${status.api_id}&auth_key=${status.clan_auth}&i=49&t1=${profile.u._clan_id}`);
+						clan = await getData('xml', `https://${server._url}game.php?api_uid=${status.api_vk_id}&UID=${status.api_vk_uid}&api_type=vk&api_id=${status.api_id}&auth_key=${status.api_vk_auth_key}&i=49&t1=${profile.u._clan_id}&sslt=${status.api_vk_sslt}`);
 						if (clan?.clan) {
 							clan = clan.clan;
 							typeof clan.mmbrs.u.length == 'undefined' ? clan.mmbrs.u = [clan.mmbrs.u] : '';
@@ -92,8 +97,6 @@ const ScriptProfileLoad = async(name, myID, uID) => {
 					try {
 						fight = profile.fight;
 						profile = profile.u;
-						status.statuses[script__settings[name]._9-1]['scriptUPDATE'] = status.scriptUPDATE;
-						status = status.statuses[script__settings[name]._9-1];
 						let profile_id = Number(u_id);
 						let profile_name_bad = 'Я - Клоун';
 						let profile_name = (status.nickBLOCK.includes(profile_id) ? profile_name_bad : typeof status.nickCUSTOM[profile_id] != 'undefined' ? status.nickCUSTOM[profile_id] : profile._name ? profile._name : `Player${profile._id}`).replace(/ /g, " ");

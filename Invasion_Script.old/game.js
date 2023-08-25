@@ -1,6 +1,6 @@
 let ScriptName = "invasion";
 let ScriptTitle = "Invasion";
-let ScriptVersion = "2.2.1";
+let ScriptVersion = "2.2.2";
 let isNew = false;
 ScriptRun('event');
 ScriptRun('load');

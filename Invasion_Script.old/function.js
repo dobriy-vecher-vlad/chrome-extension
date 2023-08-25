@@ -180,9 +180,17 @@ const log = (title) => console.log(`[${new Date().toLocaleTimeString()}] — [${
 const ScriptRun = (type) => {
 	if (type == 'event' && document.querySelector('#page_body')) {
 		log('Script run Mutation event.');
-		document.querySelector('#page_body').addEventListener('DOMNodeInserted', (event) => {
-			if (event.relatedNode.id == 'wrap3' || event.relatedNode.id == 'list_content' || event.relatedNode.querySelector('.Profile__column')) ScriptRun('load');
-		}, false);
+		new MutationObserver(mutations => {
+			for(let mutation of mutations) {
+				for(let node of mutation.addedNodes) {
+					if (!(node instanceof HTMLElement)) continue;
+					if (node.id == 'wrap3' || node.id == 'list_content' || node.querySelector('.Profile__column') || node.querySelector('[id*="friends_user"]') || node.querySelector('[class*="friends_user"]')) ScriptRun('load');
+				}
+			}
+		}).observe(document.querySelector('#page_body'), {
+			childList: true,
+			subtree: true,
+		});
 	} else if (type == 'load' && document.querySelector('.profile_content')) {
 		if (document.querySelector('.profile_deleted_text > br')) {
 			log('Script run on delete page.');
@@ -209,7 +217,7 @@ const getData = async(type, link) => {
 			data = data.replace(/('(.+?|)??'|"(.+?|)??")/g, (match, p1, p2, p3, offset, string) => `"${(p3||p2||'').replace(/&/g, '&amp;').replace(/'/g, '&#039;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}"`);
 			data = await x2js.xml_str2json(data);
 		}
-		if (data?.data) data = data.data;
+		if (data?.data != undefined) data = data.data;
 		return data;
 	} catch (error) {
 		log(error);

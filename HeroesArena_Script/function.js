@@ -4,9 +4,17 @@ const log = (title) => console.log(`[${new Date().toLocaleTimeString()}] — [${
 const ScriptRun = (type) => {
 	if (type == 'event' && document.querySelector('#page_body')) {
 		log('Script run Mutation event.');
-		document.querySelector('#page_body').addEventListener('DOMNodeInserted', (event) => {
-			if (event.relatedNode.id == 'wrap3' || event.relatedNode.id == 'list_content' || event.relatedNode.querySelector('.Profile__column')) ScriptRun('load');
-		}, false);
+		new MutationObserver(mutations => {
+			for(let mutation of mutations) {
+				for(let node of mutation.addedNodes) {
+					if (!(node instanceof HTMLElement)) continue;
+					if (node.id == 'wrap3' || node.id == 'list_content' || node.querySelector('.Profile__column') || node.querySelector('[id*="friends_user"]') || node.querySelector('[class*="friends_user"]')) ScriptRun('load');
+				}
+			}
+		}).observe(document.querySelector('#page_body'), {
+			childList: true,
+			subtree: true,
+		});
 	} else if (type == 'load' && document.querySelector('.profile_content')) {
 		if (document.querySelector('.profile_deleted_text > br')) {
 			log('Script run on delete page.');
