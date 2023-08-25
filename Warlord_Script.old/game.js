@@ -67,7 +67,6 @@ const ScriptProfileLoad = async(name, myID, uID) => {
 					...status,
 					...status.statuses[script__settings[name]._9-1],
 				};
-				console.warn(status);
 				script_body.firstChild.innerText = '\n\nПолучаем информацию игрока';
 				let profile = await getData('xml', `https://${server._url}udata.php?user=${uID}`);
 				if (/зарегистрирован/.exec(profile)) {
