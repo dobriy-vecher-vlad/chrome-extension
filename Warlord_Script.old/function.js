@@ -85,6 +85,7 @@ const ScriptUpdateSettings = (name) => {
 }
 const ScriptLoad = async(type, name, text, version) => {
 	if (type == 'page') {
+		const isNew = document.querySelector('.Profile__column');
 		if (document.querySelector('.script__head')) {
 			if (document.querySelector(`.script__head .head__button[${name}]`)) return;
 			let script__settings = ScriptUpdateSettings(name);
@@ -105,35 +106,39 @@ const ScriptLoad = async(type, name, text, version) => {
 						let my_id = /id: (.*),/gim.exec(document.documentElement.innerHTML)[1];
 						let u_id = 0;
 						try {
-							if (isNew) {
-								try {
-									u_id = await (await fetch(window.location.href)).text();
+							u_id = Number(/(\d+)/gim.exec([...document.querySelector('.script__body').attributes].filter(attribute => attribute.name.includes('script__'))[0].name)[1]);
+						} catch (error) {
+							try {
+								if (isNew) {
 									try {
-										u_id = Number(/ProfileWrapper.*?data-exec.*?(\d+).*?hashes/gim.exec(u_id)[1]);
-									} catch (error) {
+										u_id = await (await fetch(window.location.href)).text();
 										try {
-											u_id = Number(/ownerId":(\d+).*?,/gim.exec(u_id)[1]);
+											u_id = Number(/ProfileWrapper.*?data-exec.*?(\d+).*?hashes/gim.exec(u_id)[1]);
 										} catch (error) {
 											try {
-												u_id = Number(/user_id":(\d+).*?,"/gim.exec(u_id)[1]);
+												u_id = Number(/ownerId":(\d+).*?,/gim.exec(u_id)[1]);
 											} catch (error) {
-												u_id = Number(/"loc":"\?id=(\d+).*?"/gim.exec(u_id)[1]);
+												try {
+													u_id = Number(/user_id":(\d+).*?,"/gim.exec(u_id)[1]);
+												} catch (error) {
+													u_id = Number(/"loc":"\?id=(\d+).*?"/gim.exec(u_id)[1]);
+												}
 											}
 										}
+									} catch (error) {
+										u_id = document.querySelector('[data-task-click="ProfileAction/abuse"]').getAttribute('data-user_id');
 									}
-								} catch (error) {
-									u_id = document.querySelector('[data-task-click="ProfileAction/abuse"]').getAttribute('data-user_id');
-								}
-							} else u_id = document.querySelector('[data-task-click="ProfileAction/abuse"]').getAttribute('data-user_id');
-						} catch (error) {
-							if (document.querySelector('.profile_deleted_text > br') !== null) {
-								try {
-									let vk = await getData('json', `https://api.vk.com/method/utils.resolveScreenName?screen_name=${location.pathname.slice(1)}&access_token=27af1df427af1df427af1df46e27c552ac227af27af1df47b67845e29d5bbda714938b8&v=5.131`);
-									u_id = vk.response.object_id;
-								} catch (error) {
-									u_id = my_id;
-								}
-							} else u_id = my_id;
+								} else u_id = document.querySelector('[data-task-click="ProfileAction/abuse"]').getAttribute('data-user_id');
+							} catch (error) {
+								if (document.querySelector('.profile_deleted_text > br') !== null) {
+									try {
+										let vk = await getData('json', `https://api.vk.com/method/utils.resolveScreenName?screen_name=${location.pathname.slice(1)}&access_token=27af1df427af1df427af1df46e27c552ac227af27af1df47b67845e29d5bbda714938b8&v=5.131`);
+										u_id = vk.response.object_id;
+									} catch (error) {
+										u_id = my_id;
+									}
+								} else u_id = my_id;
+							}
 						}
 						document.querySelector('.script__body').setAttribute(`script__${u_id}`, '');
 						await ScriptProfileLoad(name, my_id, u_id);
@@ -203,7 +208,6 @@ const ScriptLoad = async(type, name, text, version) => {
 		} else {
 			let script__settings = ScriptUpdateSettings();
 			let date = new Date();
-			isNew = document.querySelector('.Profile__column');
 			document.querySelector(isNew ? '.Profile__column' : '.wide_column_wrap .page_block').insertAdjacentHTML(isNew ? 'afterbegin' : 'afterend', `
 				<div class="page_block script__"${script__settings._1 == true ? ' _1' : ''}${script__settings._2 == true ? ' _2' : ''}${script__settings._4 == true ? ' _4' : ''}>
 					<div class="script__head${date.getMonth() == 11 || date.getMonth() == 0 ? ' new_year__' : ''}${date.getMonth() == 1 && date.getDate() >= 16 && date.getDate() <= 30 ? ' defender_day__' : ''}${date.getMonth() == 2 && date.getDate() >= 1 && date.getDate() <= 15 ? ' women_day__' : ''}${date.getMonth() == 3 && date.getDate() >= 24 || date.getMonth() == 4 && date.getDate() <= 8 ? ' labor_day__' : ''}${date.getMonth() == 4 && date.getDate() >= 2 && date.getDate() <= 16 ? ' victory_day__' : ''}${date.getMonth() == 9 && date.getDate() >= 24 || date.getMonth() == 10 && date.getDate() <= 7 ? ' halloween_day' : ''}">

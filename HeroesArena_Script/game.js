@@ -1,6 +1,6 @@
 let ScriptName = "heroesarena";
 let ScriptTitle = "HeroesArena";
-let ScriptVersion = "1.1.2";
+let ScriptVersion = "1.1.3";
 let isNew = false;
 ScriptRun('event');
 ScriptRun('load');
