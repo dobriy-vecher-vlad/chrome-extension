@@ -18,13 +18,13 @@ const script = {
 		selectedServer: 1,
 		showBanners: true,
 		showServers: true,
-		showSkills: false,
+		showSkills: true,
 		showExtra: true,
 		showGuild: true,
-		showGuildUpgrades: false,
-		showGuildPersonnel: false,
-		showGuildEvents: false,
-		showGuildDeposits: false,
+		showGuildUpgrades: true,
+		showGuildPersonnel: true,
+		showGuildEvents: true,
+		showGuildDeposits: true,
 		showFight: true,
 		sortingGuildPersonnel: 1,
 		constructor: {
@@ -105,7 +105,7 @@ const script = {
 const manifest = {
 	// Required
 	manifest_version: 3,
-	name: `${script.title} Script`,
+	name: `${script.title} Script (beta)`,
 	version: script.version,
 
 	// Recommended

@@ -198,13 +198,13 @@ const ScriptRoot = (props) => {
 		};
 		const start = async() => {
 			setLoaded(false);
-			let from = 0 || 84002556;
-			let to = 0 || 84002556;
+			let from = 0;
+			let to = 0;
 			try {
 				from = Number(/id: (\d+),/gim.exec(document.documentElement.innerHTML)[1]);
 			} catch (error) { }
 			try {
-				to = Number(/ProfileWrapper.*?data-exec.*?(\d+).*?hashes/gim.exec(await (await fetch(window.location.href)).text())[1]);
+				to = Number(/initReactApplication.*?ownerId.*?(\d+)/gim.exec(await (await fetch(window.location.href)).text())[1]);
 			} catch (error) {
 				try {
 					to = Number(document.querySelector(`[data-task-click='ProfileAction/abuse']`).getAttribute('data-user_id'));
