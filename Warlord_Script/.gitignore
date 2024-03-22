@@ -12,8 +12,6 @@ package-lock.json
 .npm
 
 # Prod Bundle
-# /build
-build.zip
 
 .vscode
 .idea
