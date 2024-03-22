@@ -1,7 +1,7 @@
 const script = {
 	id: 'warlord',
 	title: 'Warlord',
-	version: '3.0.0',
+	version: '3.0.1',
 	statuses: 'https://dobriy-vecher-vlad.github.io/warlord/wl_status.json',
 	logos: [
 		'https://dobriy-vecher-vlad.github.io/warlord/media/label_wl.jpg',

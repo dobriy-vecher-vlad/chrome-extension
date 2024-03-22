@@ -1,7 +1,7 @@
 {
 	"manifest_version": 3,
 	"name": "Warlord Script (beta)",
-	"version": "3.0.0",
+	"version": "3.0.1",
 	"action": {
 		"deafaul_icon": "img/icon.png",
 		"defalut_title": "Warlord Script"
@@ -27,6 +27,6 @@
 	"host_permissions": [
 		"*://tmp1-fb.geronimo.su/*"
 	],
-	"version_name": "3.0.0 (2463aa68)",
+	"version_name": "3.0.1 (4715fbeb)",
 	"update_url": "https://clients2.google.com/service/update2/crx"
 }

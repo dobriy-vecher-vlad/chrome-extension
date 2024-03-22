@@ -44,16 +44,16 @@ import {
 	Icon20Users3Outline,
 	Icon24SadFaceOutline,
 } from '@vkontakte/icons';
+import BOSSESS from './bosses.json';
+import PETS from './pets.json';
+import ROOMS from './rooms.json';
+import REGIONS from './regions.json';
+import RANGS from './rangs.json';
+import LEAGUES from './leagues.json';
 
 
-const tagEmoji = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐻‍❄️', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🦝', '🐺'];
-const arenaLeagues = ['Нет лиги', 'Лига Новичков', 'Лига Воинов I', 'Лига Воинов II', 'Лига Мастеров', 'Лига Рыцарей', 'Лига Чемпионов', 'Тёмная Лига', 'Кровавая Лига', 'Легендарная Лига'];
-const clanRangs = ['Лидер гильдии', 'Генерал гильдии', 'Офицер гильдии', 'Ветеран гильдии', 'Рядовой гильдии', 'Рекрут гильдии'];
-const pets = ['Нет питомца', 'Полярный Тигр', 'Северный Волк', 'Дух Воды', 'Панда', 'Грабоид'];
-const mapLocations = ['Южный Риверфорт', 'Риверфорт', 'Северный Риверфорт', 'Паучий лес', 'Лесной отшельник', 'Разбойничий лагерь', 'Руины древнего форта', 'Перевал мертвецов', 'Заброшенная деревня', 'Северный Растхельм', 'Крепость Растхельма', 'Южный Растхельм', 'Форт Надежда', 'Долина Тайн', 'Мыс Буря Запада', 'Город Шимерран', 'Южный тракт', 'Рыбацкая деревня', 'Перешеек дракона', 'Межводье', 'Рыбацкая деревня', 'Руины Мидгарда', 'Пустыня безмолвия', 'Оазис', 'Город Гримдрифт', 'Южная деревня', 'Тёмный лес', 'Руины отчаяния', 'Ястребиный мыс', 'Заброшенная тюрьма', 'Гринвол', 'Лесной перешеек', 'Разделённое ущелье', 'Серозимняя застава', 'Захваченный порт', 'Лесная дорога', 'Глиндейл', 'Северный перевал', 'Руины Мион', 'Цитадель Эльоддура'];
-const rooms = ['Риверфорт', 'Башня Растхельма', 'Военный лагерь', 'Пустынная застава', 'Личные покои', 'Пиратский корабль'];
-const badName = 'Я - Клоун';
-const pathImages = 'https://dobriy-vecher-vlad.github.io/warlord-helper/media/images/';
+const BAD_NAME = 'Я - Клоун';
+const PATH_IMAGES = 'https://dobriy-vecher-vlad.github.io/warlord-helper/media/images/';
 const calcInitialsAvatarColor = (v) => v%6+1;
 const calcTag = async(name, id, reserve) => {
 	if (name) {
@@ -62,7 +62,7 @@ const calcTag = async(name, id, reserve) => {
 			name = search[1];
 		} else if (reserve) {
 			name = await this.calcTag(reserve, id);
-		} else name = tagEmoji[id%tagEmoji.length];
+		} else name = '';
 	} else name = name.slice(0, 2);
 	return name.slice(0, 3);
 };
@@ -172,11 +172,15 @@ const parseClan = async(clan = {}, statuses = false) => {
 			})), // боссы
 			wars: {
 				to: clan.hist.h.filter(hist => Number(hist?.t) == 18).map(hist => ({
+					id: Number(hist.v2),
+					guild: Number(hist.v1) != 0, // гильдия
 					title: hist.v4, // название
 					win: Number(hist.v3) != 0, // победа
 					time: Number(hist.d.replace(/(\d\d).(\d\d).(\d\d)/, (match, p1, p2, p3) => new Date(`20${p3}`, Number(p2)-1, Number(p1)).getTime())), // время, миллисекунды
 				})), // нападение
 				from: clan.hist.h.filter(hist => Number(hist?.t) == 19).map(hist => ({
+					id: Number(hist.v2),
+					guild: Number(hist.v1) != 0, // гильдия
 					title: hist.v4, // название
 					win: Number(hist.v3) == 0, // победа
 					time: Number(hist.d.replace(/(\d\d).(\d\d).(\d\d)/, (match, p1, p2, p3) => new Date(`20${p3}`, Number(p2)-1, Number(p1)).getTime())), // время, миллисекунды
@@ -235,10 +239,52 @@ const parseClan = async(clan = {}, statuses = false) => {
 	clan.leader = clan.members.find(user => user.id == clan.leader) || 0;
 	return clan;
 };
+const parseClanWar = async(war = {}, statuses = false) => {
+	if (!war?.u) war.u = [];
+	if (!war.u.length) war.u = [...Array.isObject(war.u) ? [war.u] : war.u];
+	war = {
+		id: Number(war.id), // номер
+		name: war.en, // название
+		involved: [...war.u.filter(user => user.side == 1 && user.type == 5)].length, // количество людей в набеге
+		treasury: [
+			Number(war.l1),
+			Number(war.l3),
+		], // казна
+		reward: [
+			Math.floor(Number(war.l1) / [...war.u.filter(user => user.side == 1 && user.type == 5)].length),
+			Math.floor(Number(war.l3) / [...war.u.filter(user => user.side == 1 && user.type == 5)].length),
+		], // награда на одного участника
+		members: [[...war.u.filter(user => user.side == 1).map((user) => user.type == 5 ? ({
+			id: user.id,
+			name: user.n,
+			aid: user.ava,
+			constants: {
+				dmg: user.dd,
+			},
+		}) : ({
+			...BOSSESS.find(boss => boss.id == user.id),
+			dmg: user.dd,
+			bot: true,
+		}))], [...war.u.filter(user => user.side == 2).map((user) => user.type == 5 ? ({
+			id: user.id,
+			name: user.n,
+			aid: user.ava,
+			constants: {
+				dmg: user.dd,
+			},
+		}) : ({
+			...BOSSESS.find(boss => boss.id == user.id),
+			dmg: user.dd,
+			bot: true,
+		}))]], // участники
+	};
+	for (let [side, members] of Object.entries(war.members)) for (let [key, user] of Object.entries(members)) war.members[side][key] = !user.bot ? await parseUser(user, statuses) : user;
+	return war;
+};
 const parseUser = async(user = {}, statuses = false) => {
 	user = {
 		id: Number(user.id), // номер игрового профиля
-		vkId: Number(user.vkId), // номер профиля
+		vkId: Number(user.vkId) || Number(user.id), // номер профиля
 		exp: Number(user.exp), // опыт
 		lvl: Number(user.lvl), // уровень
 		name: user.name || user.n, // имя
@@ -256,10 +302,11 @@ const parseUser = async(user = {}, statuses = false) => {
 		league: Number(user.al), // номер лиги арены
 		cups: Number(user.ap), // кубки арены
 		chest: Number(user.a_c) || false, // сундук арены
+		...user.constants,
 	};
 	user.name = (user.name || '').replace(/\s/g, '').length ? user.name.trim() : `Player${user.id}`;
 	if (statuses) {
-		user.name = statuses.nickBLOCK.includes(user.vkId) ? badName : user.name;
+		user.name = statuses.nickBLOCK.includes(user.vkId) ? BAD_NAME : user.name;
 		user.name = Object.keys(statuses.nickCUSTOM).map(key => parseInt(key)).includes(user.vkId) ? statuses.nickCUSTOM[user.vkId] : user.name;
 		user.isVerified = statuses.statusGREEN.includes(user.vkId);
 		user.isAdmin = statuses.scriptADMIN.includes(user.vkId);
@@ -293,6 +340,7 @@ const getUserCell = (data) => {
 		key = 0,
 		rows = [],
 		tooltip = false,
+		tooltipSize = 320,
 		placement = 'top-start',
 	} = data || {};
 	let sizes = {
@@ -305,16 +353,16 @@ const getUserCell = (data) => {
 	let component = (<SimpleCell key={key} {...{href: user.vkId&&`https://vk.com/id${user.vkId}`, target: user.vkId&&'_blank'}} className='TableCell'>
 		<div className='TableCell__content' style={{display: 'grid', alignItems: 'center', gridTemplateColumns: sizes.columns, gridGap: `${sizes.gap}px`, minHeight: `${sizes.avatar}px`}}>
 			<div className='TableCell__row TableCell__row--count' title={String(key)}><span>{key}</span></div>
-			{typeof user.avatar != 'undefined'&&<div className='TableCell__row TableCell__row--avatar' title={`avatar_${user.avatar}.png`}>{String(user.avatar).length?<Avatar src={`${pathImages}bot/arena/avatar_${user.avatar}.png`} mode='app' size={sizes.avatar}/>:<InitialsAvatar mode='app' gradientColor={calcInitialsAvatarColor(user.vkId || user.id || 0)} size={sizes.avatar}>{user.tag || '#'}</InitialsAvatar>}</div>}
+			{typeof user.avatar != 'undefined' && <div className='TableCell__row TableCell__row--avatar' title={`avatar_${user.avatar}.png`}>{String(user.avatar).length?<Avatar src={`${PATH_IMAGES}bot/arena/avatar_${user.avatar}.png`} mode='app' size={sizes.avatar}/>:<InitialsAvatar mode='app' gradientColor={calcInitialsAvatarColor(user.vkId || user.id || 0)} size={sizes.avatar}>{user.tag || '#'}</InitialsAvatar>}</div>}
 			{rows.map((row, x) => <div key={x} className='TableCell__row' title={typeof row.title == 'string' ? row.title : undefined} style={{justifyContent: row.right ? 'flex-end' : 'space-between'}}><span>{row.title}</span></div>)}
 		</div>
 	</SimpleCell>);
-	return tooltip ? getRichTooltip(component, tooltip, key, placement) : component;
+	return tooltip ? getRichTooltip({ component, tooltip, tooltipSize, key, placement }) : component;
 };
 const getUserCard = (user) => (<div className='UserCard'>
 	<SimpleCell
 		disabled
-		before={user.avatar ? <Avatar src={`${pathImages}bot/arena/avatar_${user.avatar}.png`} mode='app' size={48}/> : <InitialsAvatar mode='app' gradientColor={calcInitialsAvatarColor(user.vkId || user.id || 0)} size={48}>{user.tag}</InitialsAvatar>}
+		before={user.avatar ? <Avatar src={`${PATH_IMAGES}bot/arena/avatar_${user.avatar}.png`} mode='app' size={48}/> : <InitialsAvatar mode='app' gradientColor={calcInitialsAvatarColor(user.vkId || user.id || 0)} size={48}>{user.tag}</InitialsAvatar>}
 		badgeAfterTitle={getUserIcons(user, true)}
 		subtitle={<Link href={`https://vk.com/id${user.vkId}`} target='_blank'>vk.com/id{user.vkId}</Link>}
 	>
@@ -325,8 +373,76 @@ const getUserCard = (user) => (<div className='UserCard'>
 		<Button href={`https://vk.com/im?sel=${user.vkId}`} target='_blank' after={<Icon16ChevronOutline/>} appearance='accent' mode='secondary' size='m' stretched>Написать</Button>
 	</ButtonGroup>
 </div>);
+const getRaidCard = (data) => (<div className='RaidCard'>
+	<CardGrid size='m' className='RaidCard__head'>
+		<Card>
+			<SimpleCell
+				disabled
+				subtitle='атакующие'
+			>{buildPhrase({ number: data.involved, after: ['участник', 'участника', 'участников'] })}</SimpleCell>
+		</Card>
+		<Card>
+			<SimpleCell
+				disabled
+				subtitle='обороняющиеся'
+			>{buildPhrase({ number: data.members[1].length, after: ['участник', 'участника', 'участников'] })}</SimpleCell>
+		</Card>
+	</CardGrid>
+	<div className='RaidCard__sides'>
+		<div className='RaidCard__side'>
+			<div className='TableCells'>
+				{data.members[0].sort((a, b) => b.dmg - a.dmg).map((member, x) => getUserCell({ user: {...member, avatar: member.bot ? 'boss_' + member.id : member.avatar}, key: x+1, rows: [{
+						title: member.name
+					}, {
+						title: numberSpaces(member.dmg, ' '),
+				}], tooltip: !member.bot ? getUserCard(member) : false }))}
+			</div>
+		</div>
+		<div className='RaidCard__side'>
+			<div className='TableCells'>
+				{data.members[1].sort((a, b) => b.dmg - a.dmg).map((member, x) => getUserCell({ user: {...member, avatar: member.bot ? 'boss_' + member.id : member.avatar}, key: x+1, rows: [{
+						title: member.name
+					}, {
+						title: numberSpaces(member.dmg, ' '),
+				}] }))}
+			</div>
+		</div>
+	</div>
+	<CardGrid size='m' className='RaidCard__footer'>
+		<Card>
+			<SimpleCell
+				disabled
+				subtitle='общая казна'
+			>{buildPhrase({ number: data.treasury[0], after: ['серебро', 'серебра', 'серебра'] })} и {buildPhrase({ number: data.treasury[1], after: ['золото', 'золота', 'золота'] })}</SimpleCell>
+		</Card>
+		<Card>
+			<SimpleCell
+				disabled
+				subtitle='доля каждого'
+			>{buildPhrase({ number: data.reward[0], after: ['серебро', 'серебра', 'серебра'] })} и {buildPhrase({ number: data.reward[1], after: ['золото', 'золота', 'золота'] })}</SimpleCell>
+		</Card>
+	</CardGrid>
+</div>);
 const getTextTooltip = (component, tooltip, embedded) => <TextTooltip style={{maxWidth: 160}} text={tooltip} appearance={embedded?'black':'inversion'}>{component}</TextTooltip>;
-const getRichTooltip = (component, tooltip, key = 0, placement = 'top-start') => (<RichTooltip arrow={false} key={key} style={{maxWidth: 320}} content={tooltip} placement={placement} appearance='white'>{component}</RichTooltip>);
+const getRichTooltip = (props) => {
+	const {
+		component,
+		tooltip,
+		tooltipSize = 320,
+		key = 0,
+		placement = 'top-start',
+	} = props || {};
+	return (<RichTooltip
+		arrow={false}
+		key={key}
+		style={{ maxWidth: tooltipSize }}
+		content={tooltip}
+		placement={placement}
+		appearance='white'
+	>
+		{component}
+	</RichTooltip>);
+};
 const getBanner = (banner) => {
 	const renderMethod = (element, link = undefined) => link?.length ? <a href={link} target={link.slice(0, 1) == '?' ? '' : '_blank'}>{element}</a> : <span>{element}</span>;
 	return renderMethod(<Banner
@@ -436,6 +552,18 @@ const Content = (props) => {
 						clan = await getData(`https://${server.link}game.php?api_uid=${status.api_vk_id}&UID=${status.api_vk_uid}&api_type=vk&api_id=${status.api_id}&auth_key=${status.api_vk_auth_key}&i=49&t1=${profile.u.clan_id}&sslt=${status.api_vk_sslt}`);
 						if (!clan?.clan) return setError('Ошибка при чтении данных гильдии');
 						clan = await parseClan(clan.clan, status);
+						if (clan?.actions?.wars?.to?.length) {
+							setHint('Получаем информацию набегов');
+							for (const war of clan.actions.wars.to.filter(war => !war.guild && war.win)) {
+								try {
+									let warData = await getData(`https://${server.link}game.php?api_uid=${status.api_vk_id}&UID=${status.api_vk_uid}&api_type=vk&api_id=${status.api_id}&auth_key=${status.api_vk_auth_key}&i=106&t=${war.id}&sslt=${status.api_vk_sslt}`);
+									if (warData?.cwar) warData = await parseClanWar(warData.cwar, status);
+									if (warData?.id) war.data = warData;
+								} catch (error) {
+									console.log(error);
+								}
+							}
+						}
 					}
 				}
 				setDataClan(clan);
@@ -514,7 +642,7 @@ const Content = (props) => {
 					key={key}
 					after={<IconButton aria-label='Перейти'><Icon16ChevronOutline width={16} height={16} style={{ padding: 8, color: 'var(--accent)' }}/></IconButton>}
 					subtitle={`Профиль на сервере ${server.title}`}
-					before={<InitialsAvatar mode='app' gradientColor={calcInitialsAvatarColor(server.user.vkId || server.user.id || 0)} size={32}>{server.user.tag}</InitialsAvatar>}
+					before={<Avatar src={`${PATH_IMAGES}bot/arena/avatar_1.png`} mode='app' size={32}/>}
 				>{server.user.name}, {server.user.lvl || 0} уровень</SimpleCell>)}
 				<Separator/>
 			</> : false}
@@ -529,14 +657,14 @@ const Content = (props) => {
 				<div className='dvvDetails__content'>
 					<CardGrid size='s'>
 						<Card>
-							{getRichTooltip(
-								<SimpleCell
+							{getRichTooltip({
+								component: (<SimpleCell
 									disabled
 									subtitle='номер профиля'
 									after={getUserIcons(dataProfile)}
-								><Link href={`https://vk.com/id${dataProfile.vkId}`} target='_blank'>{dataProfile.id}</Link></SimpleCell>,
-								getUserCard(dataProfile)
-							)}
+								><Link href={`https://vk.com/id${dataProfile.vkId}`} target='_blank'>{dataProfile.id}</Link></SimpleCell>),
+								tooltip: getUserCard(dataProfile),
+							})}
 						</Card>
 						<Card>
 							<SimpleCell
@@ -565,7 +693,7 @@ const Content = (props) => {
 							>{numberSpaces(dataProfile.hp*15)}</SimpleCell>
 						</Card>
 						<Card>
-							<TextTooltip text={dataProfile.guild?<span>Ранг — {clanRangs[dataProfile.rang-1].toLowerCase()}<br/>Стаж — {buildPhrase({ number: Math.floor(Number(dataProfile.date[2]) / 1000 / 60 / 60 / 24), after: ['день', 'дня', 'дней'] })}</span>:<span>Игрок не состоит в гильдии</span>} placement={'top'} appearance='inversion'>
+							<TextTooltip text={dataProfile.guild?<span>Ранг — {RANGS[dataProfile.rang-1]?.title?.toLowerCase()}<br/>Стаж — {buildPhrase({ number: Math.floor(Number(dataProfile.date[2]) / 1000 / 60 / 60 / 24), after: ['день', 'дня', 'дней'] })}</span>:<span>Игрок не состоит в гильдии</span>} placement={'top'} appearance='inversion'>
 								<SimpleCell
 									disabled
 									subtitle={dataProfile.guild ? dataClan ? 'гильдия' : 'номер гильдии' : 'гильдия'}
@@ -681,21 +809,21 @@ const Content = (props) => {
 								<SimpleCell
 									disabled
 									subtitle='установленный фон'
-								>{rooms[dataProfile.room-1] || 'Не установлен'}</SimpleCell>
+								>{ROOMS[dataProfile.room-1]?.title || 'Не установлен'}</SimpleCell>
 							</Card>
 							<Card>
-								<TextTooltip text={<span>Номер локации — {dataProfile.location} из {mapLocations.length}</span>} placement={'top'} appearance='inversion'>
+								<TextTooltip text={<span>Номер локации — {dataProfile.location} из {REGIONS.length}</span>} placement={'top'} appearance='inversion'>
 									<SimpleCell
 										disabled
 										subtitle='текущая локация'
-									>{mapLocations[dataProfile.location-1]}</SimpleCell>
+									>{REGIONS[dataProfile.location-1]?.title}</SimpleCell>
 								</TextTooltip>
 							</Card>
 							<Card>
 								<SimpleCell
 									disabled
 									subtitle='активный питомец'
-								>{pets[dataProfile.pet] || 'Не установлен'}</SimpleCell>
+								>{[{ title: 'Нет питомца' }, ...PETS][dataProfile.pet]?.title || 'Не установлен'}</SimpleCell>
 							</Card>
 							<Card>
 								<TextTooltip text={<span>Номер подписки — {Number(dataProfile.premium) || 0}</span>} placement={'top'} appearance='inversion'>
@@ -712,11 +840,11 @@ const Content = (props) => {
 								>{numberSpaces(dataProfile.cups || 0)}</SimpleCell>
 							</Card>
 							<Card>
-								<TextTooltip text={<span>Сундук — {dataProfile.chest ? 'не собран' : 'собран'}<br/>Уровень лиги — {dataProfile.league} из {arenaLeagues.length-1}</span>} placement={'top'} appearance='inversion'>
+								<TextTooltip text={<span>Сундук — {dataProfile.chest ? 'не собран' : 'собран'}<br/>Уровень лиги — {dataProfile.league} из {LEAGUES.length-1}</span>} placement={'top'} appearance='inversion'>
 									<SimpleCell
 										disabled
 										subtitle='лига арены'
-									>{arenaLeagues[dataProfile.league]}</SimpleCell>
+									>{[{ title: 'Нет лиги' }, ...LEAGUES][dataProfile.league]?.title}</SimpleCell>
 								</TextTooltip>
 							</Card>
 						</CardGrid>
@@ -737,14 +865,14 @@ const Content = (props) => {
 						<div className='dvvDetails__content'>
 							<CardGrid size='s'>
 								<Card>
-									{getRichTooltip(
-										<SimpleCell
+									{getRichTooltip({
+										component: (<SimpleCell
 											disabled
 											subtitle='лидер'
 											after={getUserIcons(dataClan.leader)}
-										><Link href={`https://vk.com/id${dataClan.leader?.vkId}`} target='_blank'>{dataClan.leader?.name}</Link></SimpleCell>,
-										getUserCard(dataClan.leader)
-									)}
+										><Link href={`https://vk.com/id${dataClan.leader?.vkId}`} target='_blank'>{dataClan.leader?.name}</Link></SimpleCell>),
+										tooltip: getUserCard(dataClan.leader),
+									})}
 								</Card>
 								<Card>
 									<SimpleCell
@@ -977,7 +1105,7 @@ const Content = (props) => {
 										{dataClan.members.sort((a, b) => a.rang - b.rang).map((member, x) => getUserCell({ user: member, key: x+1, rows: [{
 												title: member.name
 											}, {
-												title: clanRangs[member.rang-1].toLowerCase(),
+												title: RANGS[member.rang-1]?.title?.toLowerCase(),
 											}, {
 												title: `${numberSpaces(member.dmg, ' ')} DMG`,
 											}, {
@@ -1029,6 +1157,7 @@ const Content = (props) => {
 									...dataClan.actions.wars.to.map(item => ({
 										time: item.time,
 										text: `${item.win ? 'успешный набег' : 'безуспешный набег'} на ${item.title}`,
+										tooltip: item.data ? getRaidCard(item.data) : false,
 									})),
 									...dataClan.actions.wars.from.map(item => ({
 										time: item.time,
@@ -1042,7 +1171,7 @@ const Content = (props) => {
 												title: dateForm(action.time, 'large'),
 											}, {
 												title: action.text,
-										}] }))}
+										}], tooltip: action.tooltip ? action.tooltip : false, tooltipSize: 640 }))}
 									</div>
 								</React.Fragment>);
 							})}
@@ -1110,13 +1239,13 @@ const Content = (props) => {
 										<Card>
 											<SimpleCell
 												disabled
-												subtitle={numberForm(m1, ['серебро за день', 'серебра за день', 'серебра за день'])}
+												subtitle={numberForm(m1, ['серебро за неделю', 'серебра за неделю', 'серебра за неделю'])}
 											>{numberSpaces(m1)}</SimpleCell>
 										</Card>
 										<Card>
 											<SimpleCell
 												disabled
-												subtitle={numberForm(m3, ['золото за день', 'золота за день', 'золота за день'])}
+												subtitle={numberForm(m3, ['золото за неделю', 'золота за неделю', 'золота за неделю'])}
 											>{numberSpaces(m3)}</SimpleCell>
 										</Card>
 									</CardGrid>
@@ -1171,7 +1300,7 @@ const Content = (props) => {
 										</Card>
 									</CardGrid>
 									<div className='TableCells'>
-										{dataFight.members.sort((a, b) => b.dmg - a.dmg).map((member, x) => getUserCell({ user: {...member, avatar: ''}, key: x+1, rows: [{
+										{dataFight.members.sort((a, b) => b.dmg - a.dmg).map((member, x) => getUserCell({ user: member, key: x+1, rows: [{
 												title: member.name
 											}, {
 												title: [0].map(() => <span className='TableCell__row-icons' key={0}>
@@ -1199,7 +1328,7 @@ const Content = (props) => {
 						key={key}
 						after={<IconButton aria-label='Перейти'><Icon16ChevronOutline width={16} height={16} style={{ padding: 8, color: 'var(--accent)' }}/></IconButton>}
 						subtitle={`Профиль на сервере ${server.title}`}
-						before={<InitialsAvatar mode='app' gradientColor={calcInitialsAvatarColor(server.user.vkId || server.user.id || 0)} size={32}>{server.user.tag}</InitialsAvatar>}
+						before={<Avatar src={`${PATH_IMAGES}bot/arena/avatar_1.png`} mode='app' size={32}/>}
 					>{server.user.name}, {server.user.lvl || 0} уровень</SimpleCell>)}
 				</> : false}
 			</> : false}

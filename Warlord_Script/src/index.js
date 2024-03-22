@@ -179,7 +179,8 @@ const ScriptSettings = (props) => {
 const ScriptRoot = (props) => {
 	const defaultContent = (<Placeholder
 		action={<UsersStack
-			photos={[...new Set([script.group.logo, ...script.logos])]}
+			// photos={[...new Set([script.group.logo, ...script.logos])]}
+			photos={[...new Set([script.group.logo])]}
 			visibleCount={4}
 			size='m'
 		><span style={{ display: 'block', textAlign: 'left' }}>Проект<br/><Link href={script.group.link} target='_blank'>{script.group.title}</Link></span></UsersStack>}
@@ -227,11 +228,11 @@ const ScriptRoot = (props) => {
 		};
 		start();
 	}, []);
-	useEffect(() => {
-		if (panel == 'home' && loaded) {
-			setContent(defaultContent);
-		}
-	}, [panel]);
+	// useEffect(() => {
+	// 	if (panel == 'home' && loaded) {
+	// 		setContent(defaultContent);
+	// 	}
+	// }, [panel]);
 	return (<>
 		<AppRoot mode='embedded' portalRoot={props.root} scroll='contain'>
 			<SplitLayout>
@@ -243,12 +244,8 @@ const ScriptRoot = (props) => {
 									<div className='vkuiTabs__in'/>
 								</div>
 								<div className='dvvEpic__in-after'>
-									<Button id='trigger' mode={panel == 'settings' ? 'secondary' : 'tertiary'} appearance='neutral' onClick={() => {
-										if (panel == 'home') {
-											setPanel('settings');
-											setTimeout(() => setContent(false), 0);
-										} else setPanel('home');
-									}}>{panel == 'home' ? <Icon16MenuOutline width={16} height={16} style={{ padding: 8 }}/> : <Icon16Cancel width={16} height={16} style={{ padding: 8 }}/>}</Button>
+									<div id='trigger'></div>
+									{(JSON.stringify(content || {}) != JSON.stringify(defaultContent || {})) && loaded && <Button mode="tertiary" appearance='neutral' onClick={() => setContent(defaultContent)}><Icon16Cancel width={16} height={16} style={{ padding: 8 }}/></Button>}
 								</div>
 							</div>
 						</div>
@@ -258,8 +255,8 @@ const ScriptRoot = (props) => {
 								<div className='vkuiTabs vkuiTabs--ios vkuiTabs--default vkuiTabs--sizeX-regular' role='tablist'>
 									<div className='vkuiTabs__in'>
 										<Skeleton height={44} width={150}/>
-										<Skeleton height={44} width={75}/>
-										<Skeleton height={44} width={125}/>
+										{/* <Skeleton height={44} width={75}/> */}
+										{/* <Skeleton height={44} width={125}/> */}
 									</div>
 								</div>
 								<div className='dvvEpic__in-after'>
