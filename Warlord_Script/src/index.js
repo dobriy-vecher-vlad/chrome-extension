@@ -286,50 +286,57 @@ const ScriptRoot = (props) => {
 };
 const vk_root = document.querySelector('#page_body');
 if (vk_root) {
-	vk_root.addEventListener('DOMNodeInserted', (event) => {
-		const target = event.target || null;
-		let vk_portal = vk_root.querySelector('.Profile__column');
-		if (vk_portal && target?.closest) {
-			let script_frame = vk_portal.querySelector('.dvvFrame');
-			let script_root = script_frame?.querySelector('.dvvRoot');
-			if (!script_frame) {
-				vk_portal.insertAdjacentHTML('afterbegin', `<div class='dvvFrame'><div class='dvvRoot'></div></div>`);
-				script_frame = vk_portal.querySelector('.dvvFrame');
-				if (script_frame) {
-					script_root = script_frame.querySelector('.dvvRoot');
-					if (script_root) {
-						log('Render root');
-						for (const [key, style] of Object.entries(styleSheets)) script_frame.insertAdjacentHTML('beforeend', `<style type='text/css' id='${key}'>${style}</style>`);
-						ReactDOM.createRoot(script_root).render(<ScriptConfig><ScriptRoot root={script_root}/></ScriptConfig>);
-					}
+	const vk_script_root = new MutationObserver((mutationList, observer) => {
+		for (let mutation of mutationList) {
+			const target = mutation.target || null;
+			if (target && target.classList?.contains('dvvDetails')) {
+				if (target.getAttribute('open') == '') {
+					for (let details of target.closest('.dvvRoot').querySelectorAll('.dvvDetails')) details.removeAttribute('open');
+					target.setAttribute('open', 'true');
 				}
-			} else script_root = script_frame.querySelector('.dvvRoot');
-			if (target.id == 'trigger') {
-				const script_tabs = script_root.querySelector('.vkuiTabs__in');
-				if (script_tabs) {
-					const renderMethod = (root, element) => script_tabs.innerHTML == '' ? ReactDOM.createRoot(root).render(element) : ReactDOM.hydrateRoot(root, element);
-					if (!script_tabs.querySelector(`.vkuiTabsItem#${script.id}`)) {
-						log('Render button', script);
-						renderMethod(script_tabs, <ScriptConfig><Script script={script} log={log} getData={getData} getSettings={getSettings} setSettings={setSettings}/></ScriptConfig>);
+			}
+		}
+	});
+	const vk_root_callback = new MutationObserver((mutationList, observer) => {
+		for (let mutation of mutationList) {
+			const target = mutation.target || null;
+			let vk_portal = vk_root.querySelector('.Profile__column');
+			if (vk_portal && target?.closest) {
+				let script_frame = vk_portal.querySelector('.dvvFrame');
+				let script_root = script_frame?.querySelector('.dvvRoot');
+				if (!script_frame) {
+					vk_portal.insertAdjacentHTML('afterbegin', `<div class='dvvFrame'><div class='dvvRoot'></div></div>`);
+					script_frame = vk_portal.querySelector('.dvvFrame');
+					if (script_frame) {
+						script_root = script_frame.querySelector('.dvvRoot');
+						if (script_root) {
+							log('Render root');
+							for (const [key, style] of Object.entries(styleSheets)) script_frame.insertAdjacentHTML('beforeend', `<style type='text/css' id='${key}'>${style}</style>`);
+							ReactDOM.createRoot(script_root).render(<ScriptConfig><ScriptRoot root={script_root}/></ScriptConfig>);
+						}
 					}
-				}
-			} else {
-				if (target.closest('.vkuiTabs__in') && !target.classList.contains('TabsItem')) {
+				} else script_root = script_frame.querySelector('.dvvRoot');
+				if (target.querySelector('#trigger')) {
 					const script_tabs = script_root.querySelector('.vkuiTabs__in');
 					if (script_tabs) {
-						// ReactDOM.hydrateRoot(script_tabs, <ScriptConfig><Script script={script} log={log} getData={getData} getSettings={getSettings} setSettings={setSettings}/></ScriptConfig>);
+						const renderMethod = (root, element) => script_tabs.innerHTML == '' ? ReactDOM.createRoot(root).render(element) : ReactDOM.hydrateRoot(root, element);
+						if (!script_tabs.querySelector(`.vkuiTabsItem#${script.id}`)) {
+							log('Render button', script);
+							renderMethod(script_tabs, <ScriptConfig><Script script={script} log={log} getData={getData} getSettings={getSettings} setSettings={setSettings}/></ScriptConfig>);
+							vk_root_callback.disconnect();
+							vk_script_root.observe(script_root, { attributes: true, childList: true, subtree: true });
+						}
+					}
+				} else {
+					if (target.closest('.vkuiTabs__in') && !target.classList.contains('TabsItem')) {
+						const script_tabs = script_root.querySelector('.vkuiTabs__in');
+						if (script_tabs) {
+							// ReactDOM.hydrateRoot(script_tabs, <ScriptConfig><Script script={script} log={log} getData={getData} getSettings={getSettings} setSettings={setSettings}/></ScriptConfig>);
+						}
 					}
 				}
 			}
-			script_root.addEventListener('DOMSubtreeModified', (event) => {
-				if (event?.target?.classList?.contains('dvvDetails')) {
-					if (event.target.getAttribute('open') == '') {
-						for (let details of script_root.querySelectorAll('.dvvDetails')) details.removeAttribute('open');
-						event.target.setAttribute('open', 'true');
-					}
-				}
-			}, false);
 		}
-	}, false);
-	vk_root.dispatchEvent(new Event('DOMNodeInserted'));
+	});
+	vk_root_callback.observe(vk_root, { attributes: true, childList: true, subtree: true });
 }
