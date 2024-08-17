@@ -18,6 +18,7 @@ html::-webkit-scrollbar-thumb,
 body::-webkit-scrollbar-thumb,
 *::-webkit-scrollbar-thumb {
 	width: 0;
+	display: none;
 }
 body {
 	overflow: hidden;
@@ -61,7 +62,7 @@ body {
 }
 .vkuiDiv,
 .vkuiList {
-	overflow: overlay;
+	overflow: auto;
 }
 .vkuiSimpleCell .vkuiSimpleCell__after,
 .vkuiSimpleCell .vkuiSimpleCell__before {
@@ -116,7 +117,7 @@ body .vkuiSimpleCell .vkuiSimpleCell__after .vkuiIconButton:last-child {
 	flex-wrap: nowrap;
 	flex-direction: row;
 	gap: 8px;
-	overflow: overlay;
+	overflow: auto;
 }
 .VideoCard .vkuiCounter {
 	white-space: nowrap;

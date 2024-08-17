@@ -118,7 +118,7 @@ const App = () => {
 				setVideo(false);
 			}
 		};
-		open();
+		setTimeout(() => open(), 1000);
 	}, []);
 	useEffect(() => setIsLoading(video == undefined), [video]);
 	return (
