@@ -1300,7 +1300,7 @@ const Content = (props) => {
 										</Card>
 									</CardGrid>
 									<div className='TableCells'>
-										{dataFight.members.sort((a, b) => b.dmg - a.dmg).map((member, x) => getUserCell({ user: member, key: x+1, rows: [{
+										{dataFight.members.sort((a, b) => b.dmg - a.dmg).map((member, x) => getUserCell({ user: {...member, avatar: ''}, key: x+1, rows: [{
 												title: member.name
 											}, {
 												title: [0].map(() => <span className='TableCell__row-icons' key={0}>
