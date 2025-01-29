@@ -1,0 +1,61 @@
+@charset "utf-8";
+
+
+@font-face {
+	font-family: "VKSansDisplay-Medium";
+	src: url("./fonts/VKSansDisplay-Medium.ttf");
+}
+@font-face {
+	font-family: "VKSansDisplay-DemiBold";
+	src: url("./fonts/VKSansDisplay-DemiBold.ttf");
+}
+@font-face {
+	font-family: "VKSansDisplay-Bold";
+	src: url("./fonts/VKSansDisplay-Bold.ttf");
+}
+
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+*::-webkit-scrollbar,
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb,
+*::-webkit-scrollbar-thumb {
+	width: 0;
+}
+
+
+body {
+	/* overflow: hidden; */
+	font-family: 'VKSansDisplay-Medium';
+	font-weight: 400;
+	font-size: 14px;
+}
+
+
+:root,
+#root {
+	--vkui--size_popup_small--regular: 560px;
+}
+.Body {
+	--vkui--color_text_primary: #000000;
+}
+.vkui--vkIOS--dark .Body {
+	--vkui--color_text_primary: #ffffff;
+}
+[tabindex] {
+	outline: none;
+}
+
+.vkuiPanelHeader {
+	z-index: 12;
+}
+.vkuiSplitLayout--ios .vkuiSplitLayout__inner--header, .vkuiSplitLayout__inner--header {
+	margin-top: unset;
+}
+.vkuiSplitCol#navigation .vkuiSplitCol__fixedInner {
+	background: var(--vkui--color_background_tertiary);
+	border-right: 1px solid var(--vkui--color_image_border_alpha);
+	padding: 0 var(--vkui--size_split_col_padding_horizontal--regular);
+	box-sizing: border-box;
+}
