@@ -15,11 +15,11 @@ body[test] {
 }
 .script__ {
 	--border-radius: 8px;
-	--background-main: #fff;
-	--background-secondary: #f5f5f5;
-	--color-main: #000;
-	--color-secondary: #818c99;
-	--color-extra: #3f8ae0;
+	--background-main: #ffffff;
+	--background-secondary: #f0f1f3;
+	--color-main: #000000;
+	--color-secondary: #626d7a;
+	--color-extra: #3770b1;
 	--gradient: linear-gradient(180deg,hsla(0,0%,96.1%,0),hsla(0,0%,96.1%,.02) 9%,hsla(0,0%,96.1%,.06) 19%,hsla(0,0%,96.1%,.12) 28%,hsla(0,0%,96.1%,.2) 38%,hsla(0,0%,96.1%,.29) 48%,hsla(0,0%,96.1%,.39) 57%,hsla(0,0%,96.1%,.5) 66%,hsla(0,0%,96.1%,.61) 74%,hsla(0,0%,96.1%,.71) 81%,hsla(0,0%,96.1%,.8) 88%,hsla(0,0%,96.1%,.88) 93%,hsla(0,0%,96.1%,.95) 97%,hsla(0,0%,96.1%,.98) 99%,#f5f5f5);
 	--transition: 0s;
 	border-radius: 4px;
@@ -139,7 +139,7 @@ body[test] {
 	opacity: 1;
 }
 .active__:not(.script__settings)::after {
-	background-color: #3f8ae0;
+	background-color: var(--color-extra);
 }
 .script__settings {
 	transition: var(--transition);
@@ -280,7 +280,7 @@ body[test] {
 }
 .script__body > .script__text.settings__ .button__.game__[heroesarena]::before {
 	width: 16px;
-	content: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0.0025053024291992188 0.00350189208984375 511.9916687011719 511.9864807128906'><path fill='%233f8ae0' d='M507.31 462.06L448 402.75l31.64-59.03c3.33-6.22 2.2-13.88-2.79-18.87l-17.54-17.53c-6.25-6.25-16.38-6.25-22.63 0L420 324 112 16 18.27.16C8.27-1.27-1.42 7.17.17 18.26l15.84 93.73 308 308-16.69 16.69c-6.25 6.25-6.25 16.38 0 22.62l17.53 17.54a16 16 0 0 0 18.87 2.79L402.75 448l59.31 59.31c6.25 6.25 16.38 6.25 22.63 0l22.62-22.62c6.25-6.25 6.25-16.38 0-22.63zm-149.36-76.01L60.78 88.89l-5.72-33.83 33.84 5.72 297.17 297.16-28.12 28.11zm65.17-325.27l33.83-5.72-5.72 33.84L340.7 199.43l33.94 33.94L496.01 112l15.84-93.73c1.43-10-7.01-19.69-18.1-18.1l-93.73 15.84-121.38 121.36 33.94 33.94L423.12 60.78zM199.45 340.69l-45.38 45.38-28.12-28.12 45.38-45.38-33.94-33.94-45.38 45.38-16.69-16.69c-6.25-6.25-16.38-6.25-22.62 0l-17.54 17.53a16 16 0 0 0-2.79 18.87L64 402.75 4.69 462.06c-6.25 6.25-6.25 16.38 0 22.63l22.62 22.62c6.25 6.25 16.38 6.25 22.63 0L109.25 448l59.03 31.64c6.22 3.33 13.88 2.2 18.87-2.79l17.53-17.54c6.25-6.25 6.25-16.38 0-22.63L188 420l45.38-45.38-33.93-33.93z'></path></svg>");
+	content: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0.0025053024291992188 0.00350189208984375 511.9916687011719 511.9864807128906'><path fill='%233770b1' d='M507.31 462.06L448 402.75l31.64-59.03c3.33-6.22 2.2-13.88-2.79-18.87l-17.54-17.53c-6.25-6.25-16.38-6.25-22.63 0L420 324 112 16 18.27.16C8.27-1.27-1.42 7.17.17 18.26l15.84 93.73 308 308-16.69 16.69c-6.25 6.25-6.25 16.38 0 22.62l17.53 17.54a16 16 0 0 0 18.87 2.79L402.75 448l59.31 59.31c6.25 6.25 16.38 6.25 22.63 0l22.62-22.62c6.25-6.25 6.25-16.38 0-22.63zm-149.36-76.01L60.78 88.89l-5.72-33.83 33.84 5.72 297.17 297.16-28.12 28.11zm65.17-325.27l33.83-5.72-5.72 33.84L340.7 199.43l33.94 33.94L496.01 112l15.84-93.73c1.43-10-7.01-19.69-18.1-18.1l-93.73 15.84-121.38 121.36 33.94 33.94L423.12 60.78zM199.45 340.69l-45.38 45.38-28.12-28.12 45.38-45.38-33.94-33.94-45.38 45.38-16.69-16.69c-6.25-6.25-16.38-6.25-22.62 0l-17.54 17.53a16 16 0 0 0-2.79 18.87L64 402.75 4.69 462.06c-6.25 6.25-6.25 16.38 0 22.63l22.62 22.62c6.25 6.25 16.38 6.25 22.63 0L109.25 448l59.03 31.64c6.22 3.33 13.88 2.2 18.87-2.79l17.53-17.54c6.25-6.25 6.25-16.38 0-22.63L188 420l45.38-45.38-33.93-33.93z'></path></svg>");
 }
 .script__body > .script__text.settings__ .button__.game__::after {
 	width: 7px;
@@ -301,13 +301,13 @@ body[test] {
 	content: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='2 2 16 16'><path fill-rule='evenodd' clip-rule='evenodd' d='M4.046 2.534C4.788 2.138 5.517 2 7.128 2h5.744c1.61 0 2.34.138 3.082.534.65.348 1.164.862 1.512 1.512.396.742.534 1.471.534 3.082v5.744c0 1.61-.138 2.34-.534 3.082a3.644 3.644 0 01-1.512 1.512c-.742.396-1.472.534-3.082.534H7.128c-1.61 0-2.34-.138-3.082-.534a3.644 3.644 0 01-1.512-1.512C2.138 15.212 2 14.482 2 12.872V7.128c0-1.61.138-2.34.534-3.082a3.645 3.645 0 011.512-1.512zm3.082.966c-1.531 0-1.962.136-2.374.357a2.145 2.145 0 00-.897.897c-.22.412-.357.843-.357 2.374v5.744c0 1.531.136 1.962.357 2.374.208.389.508.69.897.897.412.22.843.357 2.374.357h5.744c1.531 0 1.962-.136 2.374-.357.389-.208.69-.508.897-.897.22-.412.357-.843.357-2.374V7.128c0-1.531-.136-1.962-.357-2.374a2.145 2.145 0 00-.897-.897c-.412-.22-.843-.357-2.374-.357H7.128z' fill='%23818c99'></path></svg>");
 }
 .script__body > .script__text.settings__ input[type="checkbox"]:checked + label::before {
-	content: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='2 2 16 16'><path fill-rule='evenodd' clip-rule='evenodd' d='M2.436 4.184C2 5.04 2 6.16 2 8.4v3.2c0 2.24 0 3.36.436 4.216a4 4 0 001.748 1.748C5.04 18 6.16 18 8.4 18h3.2c2.24 0 3.36 0 4.216-.436a4 4 0 001.748-1.748C18 14.96 18 13.84 18 11.6V8.4c0-2.24 0-3.36-.436-4.216a4 4 0 00-1.748-1.748C14.96 2 13.84 2 11.6 2H8.4c-2.24 0-3.36 0-4.216.436a4 4 0 00-1.748 1.748zm12.2 3.803a.9.9 0 10-1.272-1.274l-4.673 4.665-2.055-2.052A.9.9 0 005.364 10.6l2.691 2.687a.9.9 0 001.272 0l5.309-5.3z' fill='%233f8ae0'></path></svg>");
+	content: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='2 2 16 16'><path fill-rule='evenodd' clip-rule='evenodd' d='M2.436 4.184C2 5.04 2 6.16 2 8.4v3.2c0 2.24 0 3.36.436 4.216a4 4 0 001.748 1.748C5.04 18 6.16 18 8.4 18h3.2c2.24 0 3.36 0 4.216-.436a4 4 0 001.748-1.748C18 14.96 18 13.84 18 11.6V8.4c0-2.24 0-3.36-.436-4.216a4 4 0 00-1.748-1.748C14.96 2 13.84 2 11.6 2H8.4c-2.24 0-3.36 0-4.216.436a4 4 0 00-1.748 1.748zm12.2 3.803a.9.9 0 10-1.272-1.274l-4.673 4.665-2.055-2.052A.9.9 0 005.364 10.6l2.691 2.687a.9.9 0 001.272 0l5.309-5.3z' fill='%233770b1'></path></svg>");
 }
 .script__body > .script__text.settings__ input[type="radio"] + label::before {
 	content: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='11 11 22 22'><path fill-rule='evenodd' clip-rule='evenodd' d='M22 11c6.075 0 11 4.925 11 11s-4.925 11-11 11-11-4.925-11-11 4.925-11 11-11zm0 2a9 9 0 100 18 9 9 0 000-18z' fill='%23818c99'></path></svg>");
 }
 .script__body > .script__text.settings__ input[type="radio"]:checked + label::before {
-	content: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='11 11 22 22'><path fill-rule='evenodd' clip-rule='evenodd' d='M22 11c6.075 0 11 4.925 11 11s-4.925 11-11 11-11-4.925-11-11 4.925-11 11-11zm0 2a9 9 0 100 18 9 9 0 000-18zm0 2a7 7 0 110 14 7 7 0 010-14z' fill='%233f8ae0'></path></svg>");
+	content: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='11 11 22 22'><path fill-rule='evenodd' clip-rule='evenodd' d='M22 11c6.075 0 11 4.925 11 11s-4.925 11-11 11-11-4.925-11-11 4.925-11 11-11zm0 2a9 9 0 100 18 9 9 0 000-18zm0 2a7 7 0 110 14 7 7 0 010-14z' fill='%233770b1'></path></svg>");
 }
 .script__body .separator__ {
 	height: 1px;
@@ -776,7 +776,7 @@ body[test] {
 	top: 0;
 	width: 100%;
 	border-radius: var(--script--border_radius);
-	box-shadow: inset 0 0 0 var(--thin-border) var(--input_border);
+	box-shadow: inset 0 0 0 var(--vkui--size_border--regular) var(--vkui--color_separator_primary);
 	z-index: 100;
 }
 .Profile__column .script__:not([friends]) .script__body,
@@ -796,19 +796,19 @@ body[test] {
 	border-radius: 0 0 var(--script--border_radius) var(--script--border_radius);
 }
 body[scheme="vkcom_light"] .script__ {
-	--background-main: var(--background_content);
-	--background-secondary: var(--content_tint_background);
-	--color-main: var(--text_primary);
-	--color-secondary: var(--text_subhead);
-	--color-extra: #3f8ae0;
+	--background-main: #ffffff;
+	--background-secondary: #f0f1f3;
+	--color-main: #000000;
+	--color-secondary: #626d7a;
+	--color-extra: #3770b1;
 	--gradient: linear-gradient(180deg,hsla(0,0%,96.1%,0),hsla(0,0%,96.1%,.02) 9%,hsla(0,0%,96.1%,.06) 19%,hsla(0,0%,96.1%,.12) 28%,hsla(0,0%,96.1%,.2) 38%,hsla(0,0%,96.1%,.29) 48%,hsla(0,0%,96.1%,.39) 57%,hsla(0,0%,96.1%,.5) 66%,hsla(0,0%,96.1%,.61) 74%,hsla(0,0%,96.1%,.71) 81%,hsla(0,0%,96.1%,.8) 88%,hsla(0,0%,96.1%,.88) 93%,hsla(0,0%,96.1%,.95) 97%,hsla(0,0%,96.1%,.98) 99%,#f5f5f5);
 }
 body[scheme="vkcom_dark"] .script__ {
-	--background-main: var(--background_content);
-	--background-secondary: var(--content_tint_background);
-	--color-main: var(--text_primary);
-	--color-secondary: var(--text_subhead);
-	--color-extra: #4da0ff;
+	--background-main: #222222;
+	--background-secondary: #333333;
+	--color-main: #e1e3e6;
+	--color-secondary: #939393;
+	--color-extra: #71aaeb;
 	--gradient: linear-gradient(0deg,#232324,rgba(30,30,31,.98),rgba(30,30,31,.94),rgba(30,30,31,.88),rgba(30,30,31,.8),rgba(30,30,31,.71),rgba(30,30,31,.61),rgba(30,30,31,.5),rgba(30,30,31,.39),rgba(30,30,31,.29),rgba(30,30,31,.2),rgba(30,30,31,.12),rgba(30,30,31,.06),rgba(30,30,31,.02),rgba(30,30,31,0));
 }
 body[scheme="vkcom_dark"] .script__:not([_3]) .script__body .__container > .__title::before {

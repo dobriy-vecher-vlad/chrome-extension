@@ -90,45 +90,28 @@ const ScriptLoad = async(type, name, text, version) => {
 						ScriptUpdateTabs(tab);
 						document.querySelector('.script__body').innerHTML = '<div class="script__text loader__"><br><br>Получаем номер игрока</div>';
 						tab.setAttribute('disabled', '');
-						let my_id = /id: (.*),/gim.exec(document.documentElement.innerHTML)[1];
-						let u_id = 0;
+						let from = 0;
+						let to = 0;
 						try {
-							u_id = Number(/(\d+)/gim.exec([...document.querySelector('.script__body').attributes].filter(attribute => attribute.name.includes('script__'))[0].name)[1]);
+							from = Number(/id: (\d+),/gim.exec(document.documentElement.innerHTML)[1]);
+						} catch (error) { }
+						try {
+							to = Number(document.querySelector('meta[property="og:url"][content]').getAttribute('content').replace(/\D/g, ''));
 						} catch (error) {
 							try {
-								if (isNew) {
-									try {
-										u_id = await (await fetch(window.location.href)).text();
-										try {
-											u_id = Number(/ProfileWrapper.*?data-exec.*?(\d+).*?hashes/gim.exec(u_id)[1]);
-										} catch (error) {
-											try {
-												u_id = Number(/ownerId":(\d+).*?,/gim.exec(u_id)[1]);
-											} catch (error) {
-												try {
-													u_id = Number(/user_id":(\d+).*?,"/gim.exec(u_id)[1]);
-												} catch (error) {
-													u_id = Number(/"loc":"\?id=(\d+).*?"/gim.exec(u_id)[1]);
-												}
-											}
-										}
-									} catch (error) {
-										u_id = document.querySelector('[data-task-click="ProfileAction/abuse"]').getAttribute('data-user_id');
-									}
-								} else u_id = document.querySelector('[data-task-click="ProfileAction/abuse"]').getAttribute('data-user_id');
+								to = Number(document.querySelector(`[data-task-click='ProfileAction/abuse']`).getAttribute('data-user_id'));
 							} catch (error) {
-								if (document.querySelector('.profile_deleted_text > br') !== null) {
+								if (document.querySelector('.profile_deleted_text > br')) {
 									try {
-										let vk = await getData('json', `https://api.vk.com/method/utils.resolveScreenName?screen_name=${location.pathname.slice(1)}&access_token=27af1df427af1df427af1df46e27c552ac227af27af1df47b67845e29d5bbda714938b8&v=5.131`);
-										u_id = vk.response.object_id;
-									} catch (error) {
-										u_id = my_id;
-									}
-								} else u_id = my_id;
+										to = Number((await getData(`https://api.vk.com/method/utils.resolveScreenName?screen_name=${location.pathname.slice(1)}&access_token=27af1df427af1df427af1df46e27c552ac227af27af1df47b67845e29d5bbda714938b8&v=5.131`)).response.object_id);
+									} catch (error) { }
+								}
 							}
 						}
-						document.querySelector('.script__body').setAttribute(`script__${u_id}`, '');
-						await ScriptProfileLoad(name, my_id, u_id);
+						if (!from && to) from = to;
+						if (!to && from) to = from;
+						document.querySelector('.script__body').setAttribute(`script__${to}`, '');
+						await ScriptProfileLoad(name, from, to);
 						tab.removeAttribute('disabled');
 					}
 				} catch (error) {

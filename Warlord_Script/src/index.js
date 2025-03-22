@@ -205,7 +205,7 @@ const ScriptRoot = (props) => {
 				from = Number(/id: (\d+),/gim.exec(document.documentElement.innerHTML)[1]);
 			} catch (error) { }
 			try {
-				to = Number(/initReactApplication.*?ownerId.*?(\d+)/gim.exec(await (await fetch(window.location.href)).text())[1]);
+				to = Number(document.querySelector('meta[property="og:url"][content]').getAttribute('content').replace(/\D/g, ''));
 			} catch (error) {
 				try {
 					to = Number(document.querySelector(`[data-task-click='ProfileAction/abuse']`).getAttribute('data-user_id'));
