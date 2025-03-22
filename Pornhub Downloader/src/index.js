@@ -65,7 +65,7 @@ const App = () => {
 		const open = async() => {
 			if (!chrome?.tabs) return setVideo(false);
 			const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-			if (tab?.url?.includes('.pornhub.com/view_video.php?viewkey=')) {
+			if (tab?.url?.includes('/view_video.php?viewkey=')) {
 				const video = {};
 				const documentElement = await chrome.scripting.executeScript({
 					target: { tabId: tab.id },

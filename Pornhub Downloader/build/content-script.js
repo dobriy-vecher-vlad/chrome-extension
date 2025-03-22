@@ -1,5 +1,5 @@
 (async() => {
-	if (!window.location.href.includes('.pornhub.com/view_video.php?viewkey=')) return;
+	if (!window.location.href.includes('/view_video.php?viewkey=')) return;
 	const getFormatFromBytes = (bytes, decimals = 2) => {
 		if (!+bytes) return '0 Bytes'
 		const k = 1024

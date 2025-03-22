@@ -16,7 +16,7 @@
 	},
 	"content_scripts": [
 		{
-			"matches": ["https://*.pornhub.com/*"],
+			"matches": ["https://*.pornhub.com/*", "https://*.pornhub.org/*"],
 			"js": ["content-script.js"],
 			"css": ["style.css"]
 		}
