@@ -166,7 +166,7 @@ body {
 	z-index: 1;
 }
 .Card {
-	--card-size-in-columns: 1;
+	--card-size-in-columns: 2;
 	border-radius: var(--column-radius);
 	grid-column-start: span var(--card-size-in-columns);
 	text-decoration: unset;
@@ -291,7 +291,7 @@ body {
 	width: 100%;
 }
 .Card--size-compact .CardHeader {
-	text-align: center;
+	display: none;
 }
 
 
