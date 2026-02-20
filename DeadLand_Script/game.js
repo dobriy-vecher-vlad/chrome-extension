@@ -1,6 +1,6 @@
 let ScriptName = "deadland";
 let ScriptTitle = "DeadLand";
-let ScriptVersion = "1.1.3";
+let ScriptVersion = "1.1.5";
 let isNew = false;
 ScriptRun('event');
 ScriptRun('load');

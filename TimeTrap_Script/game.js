@@ -1,6 +1,6 @@
 let ScriptName = "timetrap";
 let ScriptTitle = "TimeTrap";
-let ScriptVersion = "1.1.3";
+let ScriptVersion = "1.1.5";
 let isNew = false;
 ScriptRun('event');
 ScriptRun('load');

@@ -199,32 +199,19 @@ const ScriptRoot = (props) => {
 		};
 		const start = async() => {
 			setLoaded(false);
-			let from = 0;
-			let to = 0;
-			try {
-				from = Number(/id: (\d+),/gim.exec(document.documentElement.innerHTML)[1]);
-			} catch (error) { }
-			try {
-				to = Number(document.querySelector('meta[property="og:url"][content]').getAttribute('content').replace(/\D/g, ''));
-			} catch (error) {
+			const interval = setInterval(async() => {
 				try {
-					to = Number(document.querySelector(`[data-task-click='ProfileAction/abuse']`).getAttribute('data-user_id'));
+					window.ScriptRoot = {
+						...window.ScriptRoot,
+						from: Number(/window\.vk.*?id: (\d+),/gms.exec(document.documentElement.innerHTML)[1]),
+						to: Number(/window\.cur.*?\[\{"id":(\d+),/gms.exec(document.documentElement.innerHTML)[1]),
+					};
+					clearInterval(interval);
+					setLoaded(true);
 				} catch (error) {
-					if (document.querySelector('.profile_deleted_text > br')) {
-						try {
-							to = Number((await getData(`https://api.vk.com/method/utils.resolveScreenName?screen_name=${location.pathname.slice(1)}&access_token=27af1df427af1df427af1df46e27c552ac227af27af1df47b67845e29d5bbda714938b8&v=5.131`)).response.object_id);
-						} catch (error) { }
-					}
+					console.error(error);
 				}
-			}
-			if (!from && to) from = to;
-			if (!to && from) to = from;
-			window.ScriptRoot = {
-				...window.ScriptRoot,
-				from,
-				to,
-			};
-			setLoaded(true);
+			}, 1000);
 		};
 		start();
 	}, []);

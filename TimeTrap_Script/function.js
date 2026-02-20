@@ -91,29 +91,18 @@ const ScriptLoad = async(type, name, text, version) => {
 						ScriptUpdateTabs(tab);
 						document.querySelector('.script__body').innerHTML = '<div class="script__text loader__"><br><br>Получаем номер игрока</div>';
 						tab.setAttribute('disabled', '');
-						let from = 0;
-						let to = 0;
-						try {
-							from = Number(/id: (\d+),/gim.exec(document.documentElement.innerHTML)[1]);
-						} catch (error) { }
-						try {
-							to = Number(document.querySelector('meta[property="og:url"][content]').getAttribute('content').replace(/\D/g, ''));
-						} catch (error) {
+						const interval = setInterval(async() => {
 							try {
-								to = Number(document.querySelector(`[data-task-click='ProfileAction/abuse']`).getAttribute('data-user_id'));
+								let from = Number(/window\.vk.*?id: (\d+),/gms.exec(document.documentElement.innerHTML)[1]);
+								let to = Number(/window\.cur.*?\[\{"id":(\d+),/gms.exec(document.documentElement.innerHTML)[1]);
+								clearInterval(interval);
+								document.querySelector('.script__body').setAttribute(`script__${to}`, '');
+								await ScriptProfileLoad(name, from, to);
+								tab.removeAttribute('disabled');
 							} catch (error) {
-								if (document.querySelector('.profile_deleted_text > br')) {
-									try {
-										to = Number((await getData(`https://api.vk.com/method/utils.resolveScreenName?screen_name=${location.pathname.slice(1)}&access_token=27af1df427af1df427af1df46e27c552ac227af27af1df47b67845e29d5bbda714938b8&v=5.131`)).response.object_id);
-									} catch (error) { }
-								}
+								console.error(error);
 							}
-						}
-						if (!from && to) from = to;
-						if (!to && from) to = from;
-						document.querySelector('.script__body').setAttribute(`script__${to}`, '');
-						await ScriptProfileLoad(name, from, to);
-						tab.removeAttribute('disabled');
+						}, 1000);
 					}
 				} catch (error) {
 					log(error);
@@ -230,32 +219,39 @@ const ScriptLoad = async(type, name, text, version) => {
 	} else if (type == 'friends') {
 		for (let [x, item] of document.querySelectorAll('.friends_user_row').entries()) {
 			if (item.querySelector(`.friends_user_info > div[script__id__${name}]`) == null) {
-				let my_id = /id: (.*),/gim.exec(document.documentElement.innerHTML)[1];
-				let u_id = 0;
-				try {
-					u_id = /(\d{2,20})/.exec(item.querySelector('.friends_photo_wrap').getAttribute('onmouseover'))[1];
-				} catch (error) {
+				const interval = setInterval(async() => {
 					try {
-						u_id = /(\d{2,20})/.exec(item.querySelector('.friends_actions_menu .ui_actions_menu_item').getAttribute('href'))[1];
-					} catch (error) {
+						let my_id = Number(/window\.vk.*?id: (\d+),/gms.exec(document.documentElement.innerHTML)[1]);
+						let u_id = 0;
 						try {
-							u_id = /(\d{2,20})/.exec(item.querySelector('.friends_controls').getAttribute('id'))[1];
+							u_id = /(\d{2,20})/.exec(item.querySelector('.friends_photo_wrap').getAttribute('onmouseover'))[1];
 						} catch (error) {
-							console.log(item, error);
+							try {
+								u_id = /(\d{2,20})/.exec(item.querySelector('.friends_actions_menu .ui_actions_menu_item').getAttribute('href'))[1];
+							} catch (error) {
+								try {
+									u_id = /(\d{2,20})/.exec(item.querySelector('.friends_controls').getAttribute('id'))[1];
+								} catch (error) {
+									console.error(item, error);
+								}
+							}
 						}
+						clearInterval(interval);
+						if (document.querySelector(`.friends_user_row + .script__ [script__${u_id}]`) == null) item.insertAdjacentHTML('afterend', `<div class="script__" friends style="display: none;"><div class="script__body" script__${u_id}><div class="script__text loader__"><br><br>Получаем номер игрока</div></div></div>`);
+						item.querySelector('.friends_user_info > div').insertAdjacentHTML('afterend', `<div style="display: table-cell;" class="friends_lists clear_fix" script__id__${name}><span id="script__${name}__${u_id}" class="friends_lists_group group2" style="background-color: #faead8; color: #764f14">${text}</span></div>`);
+						document.querySelector(`#script__${name}__${u_id}`).addEventListener('click', async(event) => {
+							let tab = event.target.closest('.friends_lists_group');
+							if (tab.getAttribute('disabled') == null) {
+								tab.setAttribute('disabled', '');
+								document.querySelector(`[script__${u_id}]`).parentElement.removeAttribute('style');
+								await ScriptProfileLoad(name, my_id, u_id);
+								tab.removeAttribute('disabled');
+							}
+						}, false);
+					} catch (error) {
+						console.error(error);
 					}
-				}
-				if (document.querySelector(`.friends_user_row + .script__ [script__${u_id}]`) == null) item.insertAdjacentHTML('afterend', `<div class="script__" friends style="display: none;"><div class="script__body" script__${u_id}><div class="script__text loader__"><br><br>Получаем номер игрока</div></div></div>`);
-				item.querySelector('.friends_user_info > div').insertAdjacentHTML('afterend', `<div style="display: table-cell;" class="friends_lists clear_fix" script__id__${name}><span id="script__${name}__${u_id}" class="friends_lists_group group2" style="background-color: #faead8; color: #764f14">${text}</span></div>`);
-				document.querySelector(`#script__${name}__${u_id}`).addEventListener('click', async(event) => {
-					let tab = event.target.closest('.friends_lists_group');
-					if (tab.getAttribute('disabled') == null) {
-						tab.setAttribute('disabled', '');
-						document.querySelector(`[script__${u_id}]`).parentElement.removeAttribute('style');
-						await ScriptProfileLoad(name, my_id, u_id);
-						tab.removeAttribute('disabled');
-					}
-				}, false);
+				}, 1000);
 			}
 		}
 	}
