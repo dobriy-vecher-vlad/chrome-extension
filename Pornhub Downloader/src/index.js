@@ -24,12 +24,12 @@ import {  Icon16Done, Icon24CopyOutline, Icon24DownloadOutline, Icon56VideoOutli
 import '@vkontakte/vkui/dist/vkui.css';
 import './style.css';
 
-const saveFile = (url, filename = '') => {
-	if (!chrome?.downloads) return false;
-	chrome.downloads.download({
-		url,
-		filename,
-	})
+const saveFile = async(tab, url, filename = '') => {
+	chrome.tabs.sendMessage(tab.id, {
+		action: 'download',
+		link: url,
+		filename: filename,
+	});
 };
 const copyFile = (text) => {
 	const element = document.createElement('textarea');
@@ -55,6 +55,7 @@ const copyFile = (text) => {
 
 const App = () => {
 	const [isLoading, setIsLoading] = useState(true);
+	const [tab, setTab] = useState(undefined);
 	const [video, setVideo] = useState(undefined);
 	const [snackbar, setSnackbar] = useState(null);
 	const quality = {
@@ -65,6 +66,7 @@ const App = () => {
 		const open = async() => {
 			if (!chrome?.tabs) return setVideo(false);
 			const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+			setTab(tab);
 			if (tab?.url?.includes('/view_video.php?viewkey=')) {
 				const video = {};
 				const documentElement = await chrome.scripting.executeScript({
@@ -86,7 +88,7 @@ const App = () => {
 							resolve(event?.data || undefined);
 						};
 						window.addEventListener('message', getData);
-						const stringFunction = `var playerObjList = {};\n${documentElement.querySelector('#player >script:nth-child(2)')?.innerHTML || documentElement.querySelector('#player >script:nth-child(1)')?.innerHTML}`;
+						const stringFunction = `var playerObjList = {};\n${documentElement.querySelector('#player >script:nth-child(1)')?.innerHTML}`;
 						document.getElementById('sandbox').contentWindow.postMessage(stringFunction + `\neval(${stringFunction.match('flashvars_[0-9]{1,}')[0]});`, '*');
 					} catch (error) {
 						reject(undefined);
@@ -96,19 +98,31 @@ const App = () => {
 					video.id = data.playbackTracking.video_id;
 					video.title = data.video_title;
 					video.image = data.image_url;
-					video.duration = Math.floor(data.video_duration/60) + ':' + data.video_duration%60;
-					chrome.tabs.sendMessage(tab.id, data.mediaDefinitions.find(media => media.format == 'mp4').videoUrl, (links) => {
-						if (links?.length) {
-							video.links = links;
-							setVideo(video);
-							for (const link of video.links) {
-								chrome.tabs.sendMessage(tab.id, link, (size) => {
-									link.size = size;
-									setVideo({...video});
-								});
-							}
-						} else {
+					const durationSeconds = data.video_duration || 0;
+					const hours = Math.floor(durationSeconds / 3600);
+					const minutes = Math.floor((durationSeconds % 3600) / 60);
+					const seconds = durationSeconds % 60;
+					video.duration = String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+					chrome.tabs.sendMessage(tab.id, {
+						action: 'getLinks',
+						url: data.mediaDefinitions.find(media => media.format == 'mp4').videoUrl,
+					}, (response) => {
+						if (!response?.success) {
 							setVideo(true);
+							return;
+						}
+						video.links = response.data;
+						setVideo(video);
+						for (const link of video.links) {
+							chrome.tabs.sendMessage(tab.id, {
+								action: 'getSize',
+								link: link.link,
+							}, (response) => {
+								if (response?.success) {
+									link.size = response.data;
+									setVideo({...video});
+								}
+							});
 						}
 					});
 				} else {
@@ -174,14 +188,14 @@ const App = () => {
 													setSnackbar(<Snackbar onClose={() => setSnackbar(null)} before={<Avatar size={24} style={{ background: '#FF9000' }}><Icon16Done fill='#000' width={14} height={14}/></Avatar>}>Link copied</Snackbar>);
 												}}><Icon24CopyOutline/></IconButton>
 												<IconButton onClick={() => {
-													saveFile(link.link, `${video.author} (${video.id}).mp4`, 'mp4');
+													saveFile(tab, link.link, `${video.author.toLowerCase().replace(/\s+/g, '-').replace(/^-+|-+$/g, '').replace(/-+/g, '-')} (${video.id}).mp4`, 'mp4');
 													setSnackbar(<Snackbar onClose={() => setSnackbar(null)} before={<Avatar size={24} style={{ background: '#FF9000' }}><Icon16Done fill='#000' width={14} height={14}/></Avatar>}>Upload video started</Snackbar>);
 												}}><Icon24DownloadOutline/></IconButton>
 											</ButtonGroup>
 										</>}
 									>
 										<span>{link.quality}{Object.keys(quality).includes(String(link.quality)) && <Counter size='s' mode='prominent'>{quality[link.quality]}</Counter>}</span>
-										<span className="vkuiSimpleCell__text vkuiSimpleCell__subtitle vkuiFootnote">mp4</span>
+										<span className="vkuiSimpleCell__text vkuiSimpleCell__subtitle vkuiFootnote"></span>
 										<span className="vkuiSimpleCell__text vkuiSimpleCell__subtitle vkuiFootnote">{link.size ? link.size : <Spinner size='small'/>}</span>
 									</Cell>)}
 								</List>

@@ -1,7 +1,7 @@
 {
 	"manifest_version": 3,
 	"name": "Pornhub Downloader",
-	"version": "1.0.1",
+	"version": "1.0.3",
 	"description": "Save and copy any video from Pornhub.",
 	"action": {
 		"default_icon": "icon.png",
@@ -9,15 +9,26 @@
 		"default_popup": "index.html"
 	},
 	"permissions": [
-		"activeTab", "scripting", "downloads"
+		"downloads",
+		"tabs",
+		"activeTab",
+		"scripting"
+	],
+	"host_permissions": [
+		"https://*.pornhub.com/*",
+		"https://*.pornhub.org/*",
+		"https://*.phncdn.com/*"
 	],
 	"sandbox": {
 		"pages": ["sandbox.html"]
 	},
+	"background": {
+		"service_worker": "background.js"
+	},
 	"content_scripts": [
 		{
-			"matches": ["https://*.pornhub.com/*", "https://*.pornhub.org/*"],
-			"js": ["content-script.js"],
+			"matches": ["https://*.pornhub.com/*", "https://*.pornhub.org/*", "https://*.phncdn.com/*"],
+			"js": ["content.js"],
 			"css": ["style.css"]
 		}
 	],
