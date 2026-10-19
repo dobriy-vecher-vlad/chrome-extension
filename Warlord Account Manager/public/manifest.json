@@ -1,5 +1,6 @@
 {
 	"manifest_version": 3,
+	"minimum_chrome_version": "110",
 	"name": "Warlord Account Manager",
 	"version": "0.3.0",
 	"description": "Быстрое переключение между аккаунтами в игре Warlord (ВКонтакте).",
@@ -29,17 +30,14 @@
 			"js": [
 				"content.js"
 			],
-			"css": [
-				"page.css"
-			],
 			"run_at": "document_idle"
 		},
 		{
 			"matches": [
 				"https://warlord.geronimo.su/client/vk/*"
 			],
-			"css": [
-				"game-frame.css"
+			"js": [
+				"game-frame.js"
 			],
 			"all_frames": true,
 			"run_at": "document_start"

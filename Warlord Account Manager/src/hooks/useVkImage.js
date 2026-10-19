@@ -12,10 +12,13 @@ export function useVkImage(type, id, token) {
 
 	useEffect(() => {
 		let cancelled = false;
-		chrome.storage.local.get(cacheKey).then((stored) => {
-			const cached = stored?.[cacheKey];
-			if (!cancelled && cached) setImage(cached);
-		}).catch(() => {});
+		(async () => {
+			try {
+				const stored = await chrome.storage.local.get(cacheKey);
+				const cached = stored?.[cacheKey];
+				if (!cancelled && cached) setImage(cached);
+			} catch { /* расширение перезагружено */ }
+		})();
 		return () => { cancelled = true; };
 	}, [cacheKey]);
 

@@ -2,5 +2,5 @@
 // /app5536422_153968505 (query вроде ?ref=left_nav в path не входит). Другие приложения (app55364220, app5536423) не подходят.
 const GAME_PATH = /^\/app5536422(?:_\d+)?(?:\/|$)/;
 
-export const isGamePath = (pathname) => GAME_PATH.test(pathname);
+const isGamePath = (pathname) => GAME_PATH.test(pathname);
 export const isGamePage = () => isGamePath(location.pathname);

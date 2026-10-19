@@ -1,9 +1,10 @@
+import { watch as watchFiles } from 'node:fs';
 import { cp, mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { join, posix } from 'node:path';
-import { build, context } from 'esbuild';
+import { build, context, transform } from 'esbuild';
 import { zipSync } from 'fflate';
 
-const watch = process.argv.includes('--watch');
+const isWatch = process.argv.includes('--watch');
 const OUT = 'build';
 const ZIP = 'build.zip';
 
@@ -15,6 +16,17 @@ await mkdir(OUT, { recursive: true });
 // content.js собирается из src/
 await cp('public', OUT, { recursive: true });
 
+// Собственные CSS (src/*.css) перед вшиванием строкой сжимаем: в них много комментариев. vkui.css уже сжат
+const minifyOwnCss = {
+	name: 'minify-own-css',
+	setup(b) {
+		b.onLoad({ filter: /[\\/]src[\\/].*\.css$/ }, async ({ path }) => {
+			const { code } = await transform(await readFile(path, 'utf8'), { loader: 'css', minify: !isWatch, target: 'chrome110' });
+			return { contents: code, loader: 'text' };
+		});
+	},
+};
+
 const options = {
 	entryPoints: ['src/content.jsx'],
 	outfile: `${OUT}/content.js`,
@@ -24,9 +36,10 @@ const options = {
 	jsx: 'automatic',
 	// CSS подключаем строкой: стили живут в Shadow DOM, а не в странице ВК
 	loader: { '.css': 'text' },
-	define: { 'process.env.NODE_ENV': JSON.stringify(watch ? 'development' : 'production') },
-	minify: !watch,
-	sourcemap: watch ? 'inline' : false,
+	plugins: [minifyOwnCss],
+	define: { 'process.env.NODE_ENV': JSON.stringify(isWatch ? 'development' : 'production') },
+	minify: !isWatch,
+	sourcemap: isWatch ? 'inline' : false,
 	legalComments: 'none',
 	logLevel: 'info',
 };
@@ -43,9 +56,15 @@ async function collect(dir, prefix = '') {
 	return files;
 }
 
-if (watch) {
+if (isWatch) {
 	const ctx = await context(options);
 	await ctx.watch();
+	// правки в public/ (манифест, background.js, иконки) тоже подхватываем: копируем заново, content.js не трогаем
+	let timer;
+	watchFiles('public', { recursive: true }, () => {
+		clearTimeout(timer);
+		timer = setTimeout(() => cp('public', OUT, { recursive: true }).then(() => console.log('public/ скопирована')), 100);
+	});
 	console.log('watching…');
 } else {
 	await build(options);

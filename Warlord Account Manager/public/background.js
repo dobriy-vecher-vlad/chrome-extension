@@ -10,12 +10,23 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // Расширение работает только на странице игры. ВК — SPA: при переходе на неё без перезагрузки статический
 // content_scripts из manifest не срабатывает, поэтому подставляем скрипт сами. Повторная подстановка безопасна:
-// content.js не создаёт вторую копию, а только пробует смонтироваться (и сам проверяет адрес).
-// То же со стилями страницы (page.css): статичные из manifest при таком переходе тоже не подключаются.
-chrome.webNavigation.onHistoryStateUpdated.addListener(({ tabId, frameId }) => {
+// content.js не создаёт вторую копию, а только пробует смонтироваться (и сам проверяет адрес). Стили страницы (page.css)
+// он подключает и убирает сам, вместе с панелью.
+// История страницы меняется часто, а content.js тяжёлый (React и VKUI). Поэтому сначала спрашиваем уже загруженную копию
+// (она в том же изолированном мире, что и подставляемый скрипт) и подставляем файл, только если копии ещё нет.
+chrome.webNavigation.onHistoryStateUpdated.addListener(async ({ tabId, frameId }) => {
 	if (frameId !== 0) return;
-	chrome.scripting.insertCSS({ target: { tabId }, files: ['page.css'] }).catch(() => {});
-	chrome.scripting.executeScript({ target: { tabId }, files: ['content.js'] }).catch(() => {});
+	try {
+		const [{ result: loaded } = {}] = await chrome.scripting.executeScript({
+			target: { tabId },
+			func: () => {
+				if (!window.__wam) return false;
+				window.__wam.mount();
+				return true;
+			},
+		});
+		if (!loaded) await chrome.scripting.executeScript({ target: { tabId }, files: ['content.js'] });
+	} catch { /* вкладка закрыта или ушла со страницы игры */ }
 }, { url: [{ hostEquals: 'vk.ru', pathPrefix: '/app5536422' }] });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {

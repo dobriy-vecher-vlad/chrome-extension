@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { watchDom } from '../lib/domObserver.js';
 import { isGamePage } from '../lib/gamePage.js';
 
 const GAME_FRAME_SELECTOR = '#app_5536422_container iframe';
@@ -11,22 +12,13 @@ export const getGameFrame = () => document.querySelector(GAME_FRAME_SELECTOR);
 export function useGameFrame() {
 	const [state, setState] = useState({ present: false, src: '', expected: false });
 	useEffect(() => {
-		let scheduled = false;
 		const read = () => {
-			scheduled = false;
 			const frame = getGameFrame();
 			const next = { present: Boolean(frame), src: frame?.getAttribute('src') || '', expected: isGamePage() };
 			setState((prev) => (prev.present === next.present && prev.src === next.src && prev.expected === next.expected ? prev : next));
 		};
-		const schedule = () => {
-			if (scheduled) return;
-			scheduled = true;
-			setTimeout(read, 30); // не rAF: в фоновой вкладке он не вызывается
-		};
-		const observer = new MutationObserver(schedule);
-		observer.observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['src'] });
-		schedule();
-		return () => observer.disconnect();
+		read();
+		return watchDom(read);
 	}, []);
 	return state;
 }

@@ -1,11 +1,12 @@
 import { useEffect, useRef } from 'react';
+import { watchDom } from '../lib/domObserver.js';
 import { scanLegacyAccounts } from '../lib/legacy.js';
 
 const WATCH_MS = 30000;
 
 // Ищет на странице панель старого расширения Warlord Script и один раз передаёт найденные аккаунты в onFound.
 // Старый скрипт рисует панель с задержкой (около 5 секунд после загрузки), поэтому какое-то время следим за DOM.
-// Если за WATCH_MS панели не появилось, старого расширения нет, и наблюдатель отключается.
+// Если за WATCH_MS панели не появилось, старого расширения нет, и слежение отключается.
 export function useLegacyImport(enabled, onFound) {
 	const callback = useRef(onFound);
 	callback.current = onFound;
@@ -13,27 +14,21 @@ export function useLegacyImport(enabled, onFound) {
 	useEffect(() => {
 		if (!enabled) return undefined;
 		let done = false;
-		let scheduled = false;
-		const observer = new MutationObserver(() => {
-			if (scheduled) return;
-			scheduled = true;
-			setTimeout(read, 30); // не rAF: в фоновой вкладке он не вызывается
-		});
-		function read() {
-			scheduled = false;
+		let unwatch = () => {};
+		const stop = setTimeout(() => unwatch(), WATCH_MS);
+		const read = () => {
 			if (done) return;
 			const found = scanLegacyAccounts();
 			if (!found.length) return;
 			done = true;
-			observer.disconnect();
+			unwatch();
 			callback.current(found);
-		}
-		observer.observe(document.documentElement, { childList: true, subtree: true });
+		};
+		unwatch = watchDom(read);
 		read();
-		const stop = setTimeout(() => observer.disconnect(), WATCH_MS);
 		return () => {
 			done = true;
-			observer.disconnect();
+			unwatch();
 			clearTimeout(stop);
 		};
 	}, [enabled]);

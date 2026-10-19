@@ -23,7 +23,8 @@
 	overflow: visible !important;
 }
 
-/* модалка как у ВК: подложка 70% чёрного, поверх шапки страницы (у ВК z-index 1000) */
+/* слои внутри верхнего слоя (см. content.jsx): окно 1000 < подтверждение (Alert) 1050 < тосты 1100.
+   Подложка окна как у ВК: 70% чёрного. */
 .wam-theme .vkuiModalOutlet__host {
 	z-index: 1000;
 }
@@ -40,6 +41,10 @@
 	max-height: calc(100vh - var(--spa-layout-header-height) - 2 * var(--page-block-offset));
 	/* правое поле под шестерёнку */
 	padding-right: 20px;
+}
+/* Общее для панели и верхнего слоя (окна, подтверждения, уведомления) */
+.wam,
+.wam-layer {
 	color: var(--vkui--color_text_primary);
 	font-family: var(--vkui--font_family_base, -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', arial, sans-serif);
 	font-size: 13px;
@@ -47,7 +52,10 @@
 }
 .wam *,
 .wam *::before,
-.wam *::after {
+.wam *::after,
+.wam-layer *,
+.wam-layer *::before,
+.wam-layer *::after {
 	box-sizing: border-box;
 }
 
@@ -84,9 +92,7 @@
 	height: 30px;
 	padding: 0 6px;
 	border-radius: 4px;
-}
-/* строка-ссылка (<a>) без подчёркивания и синего цвета */
-.wam .wam-row.wam-row {
+	/* строка-ссылка (<a>) без подчёркивания и синего цвета */
 	color: inherit;
 	text-decoration: none;
 }
@@ -166,8 +172,7 @@
 	transition-delay: 0s;
 }
 
-
-/* краткая сводка: профиль ВК без подложки, игровые профили — карточками с серым фоном */
+/* краткая сводка (форма аккаунта): профиль ВК без подложки, игровые профили — карточками с серым фоном */
 .wam-preview {
 	margin: 8px 12px 4px;
 }
@@ -208,7 +213,7 @@
 	padding: 8px 12px 16px;
 }
 
-/* окно «Аккаунты»: действия в строках и подпись со счётчиком внизу */
+/* раздел «Аккаунты» окна настроек: действия в строках и подпись со счётчиком внизу */
 .wam-accounts__actions {
 	display: inline-flex;
 	align-items: center;
@@ -244,8 +249,8 @@
 /* кнопка «Изменить/Готово» в заголовке — синий текст, как у ссылок ВК (акцентный цвет VKUI в тёмной теме белый) */
 .wam-accounts__edit.wam-accounts__edit {
 	color: var(--vkui--color_text_link);
-	/* левый край кнопки на одной линии с остальным содержимым окна (12px), а не вплотную к краю */
-	margin-left: 8px;
+	/* правый край кнопки на одной линии с остальным содержимым окна (12px), а не вплотную к краю */
+	margin-right: 8px;
 }
 
 /* справка: короткие абзацы с воздухом между ними */
@@ -261,18 +266,87 @@
 	margin-top: 4px;
 	color: var(--vkui--color_text_secondary);
 }
-/* «Справка» справа в шапке: тот же синий текст, но без дополнительного левого отступа от кнопки «Изменить» */
-.wam-accounts__help.wam-accounts__help {
-	margin-left: 0;
-	margin-right: 8px;
+/* занятое место в разделе «Хранилище»: подпись над полосой */
+.wam-storage__usage {
+	display: block;
+	margin-bottom: 8px;
+	color: var(--vkui--color_text_secondary);
 }
 
-/* слои: окно «Аккаунты» 1000 < подтверждение (Alert) 1050 < тосты 1100. У VKUI popout по умолчанию 100, то есть позади окна */
+/* Свободный режим: панель не встроена в страницу, а плавает над ней, поэтому у неё своя подложка и тень.
+   Высоту задаёт сама панель (инлайном), список занимает всё свободное место и прокручивается.
+   Место под шестерёнку справа не резервируем: подложка общая, шестерёнка рисуется внутри строки аккаунта,
+   а текст строки уступает ей место. */
+.wam.wam--free {
+	max-height: none;
+	padding: 0 8px;
+	border: 1px solid var(--vkui--color_separator_primary);
+	border-radius: 12px;
+	background: var(--vkui--color_background_content);
+	box-shadow: var(--vkui--elevation3);
+}
+.wam--free .wam-list {
+	flex: 1 1 auto;
+	max-height: none;
+	margin-right: 0;
+	padding-right: 0;
+}
+.wam.wam--free .wam-settings.wam-settings {
+	right: 6px;
+}
+.wam--free .wam-item .wam-row__text {
+	padding-right: 16px;
+}
+/* верхняя полоска для перетаскивания и нижняя для изменения высоты: растянуты на всю ширину панели
+   (у панели по 8px отступа слева и справа, поэтому они заходят на него) */
+.wam-grip,
+.wam-resize {
+	flex: none;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: 0 -8px;
+	color: var(--vkui--color_icon_secondary);
+	touch-action: none;
+	user-select: none;
+}
+.wam-grip {
+	height: 18px;
+	margin-bottom: 4px;
+	cursor: grab;
+}
+.wam-grip:active {
+	cursor: grabbing;
+}
+.wam-resize {
+	height: 12px;
+	margin-top: 4px;
+	cursor: ns-resize;
+}
+/* на нижней полоске рисуем короткую черту, как «ручку» окна */
+.wam-resize::after {
+	content: '';
+	width: 32px;
+	height: 3px;
+	border-radius: 2px;
+	background: var(--vkui--color_separator_primary);
+}
+
+/* строки в окнах настроек (разделы, ячейки списка, кнопки-ячейки) без скруглений: во всю ширину окна, как у списков ВК.
+   Слой наведения только свой собственный (>): у кнопок внутри строки (изменить, удалить) скругление остаётся */
+.wam-theme .vkuiSimpleCell__host,
+.wam-theme .vkuiCellButton__host,
+.wam-theme .vkuiSimpleCell__host > .vkuiTappable__stateLayer,
+.wam-theme .vkuiCellButton__host > .vkuiTappable__stateLayer {
+	border-radius: 0;
+}
+
+/* У VKUI popout по умолчанию 100, то есть позади окна (1000): поднимаем подтверждение выше */
 .wam-theme .vkuiPopoutWrapper__host {
 	z-index: 1050 !important; /* VKUI выставляет z-index инлайном, иначе не перебить */
 }
 
-/* тосты: справа снизу, выше окна «Аккаунты» (1000) и подтверждения (1050) */
+/* тосты: справа снизу, выше окна (1000) и подтверждения (1050) */
 .wam-toasts {
 	position: fixed;
 	right: 12px;

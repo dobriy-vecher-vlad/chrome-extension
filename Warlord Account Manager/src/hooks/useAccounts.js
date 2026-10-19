@@ -186,8 +186,19 @@ export function useAccounts() {
 		commit(list.current.filter((a) => a.id !== id));
 	}, [commit]);
 
+	// Очистка всех данных расширения (аккаунты, настройки, кэш картинок). Аккаунт, под которым открыт сам ВК, остаётся:
+	// он берётся из адреса игры и появился бы снова при следующей загрузке страницы.
+	const clearAll = useCallback(async () => {
+		try {
+			await chrome.storage.local.clear();
+		} catch { /* расширение перезагружено */ }
+		const own = session.current;
+		commit(own ? [{ id: own.id, authKey: own.authKey }] : []);
+		refreshAll();
+	}, [commit, refreshAll]);
+
 	// Превью профиля для окна добавления и редактирования
 	const preview = useCallback((id) => loadPreview(id, session.current?.token || ''), []);
 
-	return { accounts, ready, loading: !refreshed, currentId, ownId, token, notice, onFrameSrc, switchTo, add, update, remove, reorder, importAccounts, preview };
+	return { accounts, ready, loading: !refreshed, currentId, ownId, token, notice, onFrameSrc, switchTo, add, update, remove, reorder, importAccounts, clearAll, preview };
 }

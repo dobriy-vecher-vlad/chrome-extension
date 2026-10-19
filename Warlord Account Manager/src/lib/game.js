@@ -17,7 +17,7 @@ function xmlToObj(el) {
 	return obj;
 }
 
-export function parseText(text) {
+function parseText(text) {
 	text = String(text).trim();
 	if (!text) return null;
 	if (text[0] === '{' || text[0] === '[') {
@@ -40,7 +40,7 @@ async function fetchObj(url) {
 
 // Игровые серверы (Эрмун, Антарес), на которых зарегистрирован игрок, выдаёт хаб.
 // undefined — хаб недоступен, пустой список — игрок нигде не зарегистрирован.
-export async function listServers(vkId) {
+async function listServers(vkId) {
 	const hub = await fetchObj(`${HUB_URL}?api_uid=${vkId}&api_type=vk`);
 	if (!hub) return undefined;
 	return asArray(hub.s)
@@ -56,14 +56,14 @@ export async function listServers(vkId) {
 }
 
 // Из списка берём основной сервер, иначе первый доступный.
-export function pickServer(servers) {
+function pickServer(servers) {
 	return servers.find((s) => s.id === PREFERRED_SERVER)
 		|| servers[0]
 		|| null;
 }
 
 // undefined — хаб недоступен, null — игрок нигде не зарегистрирован.
-export async function findServer(vkId) {
+async function findServer(vkId) {
 	const servers = await listServers(vkId);
 	if (servers === undefined) return undefined;
 	return pickServer(servers);
