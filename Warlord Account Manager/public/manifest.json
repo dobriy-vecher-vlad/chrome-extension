@@ -1,0 +1,48 @@
+{
+	"manifest_version": 3,
+	"name": "Warlord Account Manager",
+	"version": "0.3.0",
+	"description": "Быстрое переключение между аккаунтами в игре Warlord (ВКонтакте).",
+	"icons": {
+		"16": "icons/16.png",
+		"48": "icons/48.png",
+		"128": "icons/128.png"
+	},
+	"permissions": [
+		"storage",
+		"scripting",
+		"webNavigation"
+	],
+	"host_permissions": [
+		"https://vk.ru/app5536422*",
+		"https://api.vk.ru/*",
+		"https://*.geronimo.su/*"
+	],
+	"background": {
+		"service_worker": "background.js"
+	},
+	"content_scripts": [
+		{
+			"matches": [
+				"https://vk.ru/app5536422*"
+			],
+			"js": [
+				"content.js"
+			],
+			"css": [
+				"page.css"
+			],
+			"run_at": "document_idle"
+		},
+		{
+			"matches": [
+				"https://warlord.geronimo.su/client/vk/*"
+			],
+			"css": [
+				"game-frame.css"
+			],
+			"all_frames": true,
+			"run_at": "document_start"
+		}
+	]
+}

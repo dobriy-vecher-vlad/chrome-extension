@@ -1,0 +1,4 @@
+/* Внутри фрейма игры (warlord.geronimo.su): прячем первый блок страницы игры */
+body > div:first-of-type:not(#thegame):not(#custom_footer) {
+	display: none !important;
+}

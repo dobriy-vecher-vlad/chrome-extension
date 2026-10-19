@@ -1,0 +1,20 @@
+{
+	"name": "warlord-account-manager",
+	"version": "0.2.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"build": "node scripts/build.mjs",
+		"watch": "node scripts/build.mjs --watch"
+	},
+	"dependencies": {
+		"@vkontakte/icons": "^3.78.0",
+		"@vkontakte/vkui": "^8.4.2",
+		"react": "^19.3.1",
+		"react-dom": "^19.3.1"
+	},
+	"devDependencies": {
+		"esbuild": "^0.28.2",
+		"fflate": "^0.8.3"
+	}
+}
