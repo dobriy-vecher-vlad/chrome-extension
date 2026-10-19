@@ -1,9 +1,10 @@
 {
 	"manifest_version": 3,
 	"minimum_chrome_version": "110",
-	"name": "Warlord Account Manager",
-	"version": "0.3.0",
-	"description": "Быстрое переключение между аккаунтами в игре Warlord (ВКонтакте).",
+	"name": "Warlord Script & Account Manager",
+	"version": "4.0.0",
+	"description": "Характеристики игроков на их страницах и быстрое переключение между своими аккаунтами в игре Warlord.",
+	"homepage_url": "https://vk.ru/wiki.warlord",
 	"icons": {
 		"16": "icons/16.png",
 		"48": "icons/48.png",
@@ -15,9 +16,10 @@
 		"webNavigation"
 	],
 	"host_permissions": [
-		"https://vk.ru/app5536422*",
+		"https://vk.ru/*",
 		"https://api.vk.ru/*",
-		"https://*.geronimo.su/*"
+		"https://*.geronimo.su/*",
+		"https://dobriy-vecher-vlad.github.io/*"
 	],
 	"background": {
 		"service_worker": "background.js"
@@ -29,6 +31,15 @@
 			],
 			"js": [
 				"content.js"
+			],
+			"run_at": "document_idle"
+		},
+		{
+			"matches": [
+				"https://vk.ru/*"
+			],
+			"js": [
+				"probe.js"
 			],
 			"run_at": "document_idle"
 		},

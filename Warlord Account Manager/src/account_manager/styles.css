@@ -1,0 +1,339 @@
+/* Стили поверх VKUI. Размеры строки и кнопки удаления сняты с левого меню vk.ru:
+   строка — Tappable 30px, padding 0 6px, radius 4px, иконка 20px с отступом 10px;
+   кнопка — отдельный Tappable за правой границей строки, проявляется с задержкой 0.4s. */
+
+/* Панель живёт в Shadow DOM: селекторы и правила страницы ВК внутрь не проникают, поэтому уникальные имена классов
+   не нужны. Наследуемые свойства (шрифт, цвет, межстрочный интервал и т. п.) через границу всё же проходят,
+   их сбрасываем. Пользовательские переменные (--spa-layout-header-height и др.) all не трогает. */
+:host {
+	all: initial;
+	display: block;
+}
+/* атрибут hidden у хоста (его ставит панель, пока нечего показывать) иначе перебивается display: block выше */
+:host([hidden]) {
+	display: none;
+}
+
+/* панель живёт прямо на фоне страницы ВК: без своей подложки и без собственной прокрутки.
+   AppRoot в режиме embedded навешивает класс vkui__root на нашу обёртку, поэтому селектор без пробела */
+.WarlordAccountManager.vkui__root {
+	background: transparent;
+}
+.WarlordAccountManager .vkuiAppRoot__host {
+	overflow: visible !important;
+}
+
+/* слои внутри верхнего слоя (см. main.jsx): окно 1000 < подтверждение (Alert) 1050 < тосты 1100.
+   Подложка окна как у ВК: 70% чёрного. */
+.WarlordAccountManager .vkuiModalOutlet__host {
+	z-index: 1000;
+}
+.WarlordAccountManager .vkuiModalOverlay__host {
+	background-color: rgba(0, 0, 0, .7);
+}
+
+.WarlordAccountManagerPanel {
+	box-sizing: border-box;
+	/* Колонка начинается ниже шапки и отступа (см. main.jsx), а снизу оставляем только такой же отступ:
+	   высота окна минус шапка, минус отступ сверху и минус отступ снизу. */
+	display: flex;
+	flex-direction: column;
+	max-height: calc(100vh - var(--spa-layout-header-height) - 2 * var(--page-block-offset));
+	/* правое поле под шестерёнку */
+	padding-right: 20px;
+}
+/* Общее для панели и верхнего слоя (окна, подтверждения, уведомления) */
+.WarlordAccountManagerPanel,
+.WarlordAccountManagerLayer {
+	color: var(--vkui--color_text_primary);
+	font-family: var(--vkui--font_family_base, -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', arial, sans-serif);
+	font-size: 13px;
+	line-height: 16px;
+}
+.WarlordAccountManagerPanel *,
+.WarlordAccountManagerPanel *::before,
+.WarlordAccountManagerPanel *::after,
+.WarlordAccountManagerLayer *,
+.WarlordAccountManagerLayer *::before,
+.WarlordAccountManagerLayer *::after {
+	box-sizing: border-box;
+}
+
+.WarlordAccountManagerPanel__list {
+	margin: 0 -20px 0 0;
+	padding: 0 20px 0 0;
+	list-style: none;
+	/* прокручивается только список, а «Добавить аккаунт» и ссылки остаются на виду */
+	flex: 0 1 auto;
+	min-height: 0;
+	/* Высота списка аккаунтов кратна высоте строки (30px), чтобы последняя видимая строка не обрезалась пополам.
+	   Доступно: колонка (окно минус шапка и отступы) минус то, что стоит под списком: разделитель (1 + 2 × 9px)
+	   и три строки по 30px («Настройки», группа, приложение). Первая декларация — запасная для браузеров без round(). */
+	max-height: calc(100vh - var(--spa-layout-header-height) - 2 * var(--page-block-offset) - (19px + 3 * 30px));
+	max-height: round(down, calc(100vh - var(--spa-layout-header-height) - 2 * var(--page-block-offset) - (19px + 3 * 30px)), 30px);
+	overflow-y: auto;
+	scrollbar-width: none;
+}
+.WarlordAccountManagerPanel > :not(.WarlordAccountManagerPanel__list) {
+	flex: none;
+}
+.WarlordAccountManagerPanel__list::-webkit-scrollbar {
+	width: 0;
+}
+.WarlordAccountManagerPanel__item {
+	position: relative;
+	list-style: none;
+}
+
+.WarlordAccountManagerPanel .WarlordAccountManagerPanel__row.WarlordAccountManagerPanel__row {
+	display: flex;
+	align-items: center;
+	width: 100%;
+	height: 30px;
+	padding: 0 6px;
+	border-radius: 4px;
+	/* строка-ссылка (<a>) без подчёркивания и синего цвета */
+	color: inherit;
+	text-decoration: none;
+}
+/* разделитель как в левом меню ВК: 1px, отступ слева выровнен по тексту строк (6 + 20 + 10) */
+.WarlordAccountManagerPanel__separator {
+	height: 1px;
+	margin: 9px 8px 9px 36px;
+	background: var(--vkui--color_separator_primary);
+}
+.WarlordAccountManagerPanel__rowIcon {
+	flex: none;
+	display: flex;
+	align-items: center;
+	margin-right: 10px;
+	color: var(--vkui--color_icon_accent);
+}
+.WarlordAccountManagerPanel__rowText {
+	display: flex;
+	flex: 1;
+	align-items: center;
+	gap: 8px;
+	min-width: 0;
+}
+.WarlordAccountManagerPanel__rowName,
+.WarlordAccountManagerPanel__rowNickname {
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+.WarlordAccountManagerPanel__rowName {
+	flex: 0 1 auto;
+}
+/* ник прижат к правому краю строки */
+.WarlordAccountManagerPanel__rowNickname {
+	flex: 0 0 auto;
+	max-width: 45%;
+	margin-left: auto;
+	font-size: 12px;
+	color: var(--vkui--color_text_secondary);
+}
+
+/* Шестерёнка настроек: как в левом меню — скрыта, появляется через 0.4s после наведения на строку */
+.WarlordAccountManagerPanel .WarlordAccountManagerPanel__settingsButton.WarlordAccountManagerPanel__settingsButton {
+	position: absolute;
+	top: 0;
+	right: -20px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 16px;
+	height: 30px;
+	padding: 0;
+	border-radius: 8px;
+	color: #b2b2b2;
+	opacity: 0;
+	transition: opacity .2s cubic-bezier(.3, .3, .5, 1), color .2s cubic-bezier(.3, .3, .5, 1);
+}
+/* у шестерёнки ВК нет подложки при наведении и нажатии: прячем слой состояний VKUI */
+.WarlordAccountManagerPanel__settingsButton .vkuiTappable__stateLayer {
+	display: none;
+}
+.WarlordAccountManagerPanel .WarlordAccountManagerPanel__item:hover .WarlordAccountManagerPanel__settingsButton {
+	opacity: .52;
+	transition-delay: .4s;
+}
+.WarlordAccountManagerPanel .WarlordAccountManagerPanel__item .WarlordAccountManagerPanel__settingsButton:hover,
+.WarlordAccountManagerPanel .WarlordAccountManagerPanel__item .WarlordAccountManagerPanel__settingsButton:focus-visible {
+	opacity: 1;
+	transition-delay: 0s;
+}
+
+/* краткая сводка (форма аккаунта): профиль ВК без подложки, игровые профили — карточками с серым фоном */
+.WarlordAccountManagerProfilePreview {
+	margin: 8px 12px 4px;
+}
+.WarlordAccountManagerProfilePreview__games {
+	margin-top: 4px;
+	border-radius: 12px;
+	background: var(--vkui--color_background_secondary_alpha);
+}
+/* разделитель между серверами внутри карточки */
+.WarlordAccountManagerProfilePreview__separator {
+	margin: 0 12px;
+}
+/* на серой подложке штатный цвет разделителя почти не виден, берём полупрозрачный */
+.WarlordAccountManagerProfilePreview__separator .vkuiSeparator__in {
+	background: var(--vkui--color_separator_primary_alpha);
+}
+/* номер сервера того же размера, что был у аватара (36px) */
+.WarlordAccountManagerProfilePreview__serverNumber {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	height: 36px;
+	border-radius: 50%;
+	background: var(--vkui--color_background_secondary_alpha);
+	color: var(--vkui--color_text_secondary);
+	font-size: 16px;
+	font-weight: 500;
+}
+.WarlordAccountManagerForm__deleteButton {
+	margin-right: auto;
+}
+.WarlordAccountManagerForm__footer {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+	/* боковые отступы такие же, как у полей формы, чтобы края кнопок и полей совпадали */
+	padding: 8px 12px 16px;
+}
+
+/* раздел «Аккаунты» окна настроек: действия в строках и подпись со счётчиком внизу */
+.WarlordAccountManagerAccountsView__actions {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+}
+.WarlordAccountManagerSettingsModal__accountCount {
+	display: block;
+	padding: 12px 24px 16px;
+	text-align: center;
+	color: var(--vkui--color_text_secondary);
+}
+
+/* иконка удаления красная, как кнопка «Удалить?» */
+.WarlordAccountManagerAccountsView__deleteButton {
+	color: var(--vkui--color_icon_negative);
+}
+
+/* Режим перестановки: ручка перетаскивания (на ios VKUI ставит её справа) стоит слева, как у остальных платформ.
+   Блок after у VKUI position: relative, поэтому снимаем это, и ручка привязывается к самой ячейке. */
+.WarlordAccountManagerAccountsView__cell--reordering .vkuiCell__content {
+	padding-left: 44px;
+}
+.WarlordAccountManagerAccountsView__cell--reordering .vkuiSimpleCell__after {
+	position: static;
+}
+.WarlordAccountManagerAccountsView__cell--reordering .vkuiCell__dragger {
+	position: absolute;
+	top: 50%;
+	left: 4px;
+	transform: translateY(-50%);
+}
+
+/* кнопка «Изменить/Готово» в заголовке — синий текст, как у ссылок ВК (акцентный цвет VKUI в тёмной теме белый) */
+.WarlordAccountManagerSettingsModal__editButton.WarlordAccountManagerSettingsModal__editButton {
+	color: var(--vkui--color_text_link);
+	/* правый край кнопки на одной линии с остальным содержимым окна (12px), а не вплотную к краю */
+	margin-right: 8px;
+}
+
+/* справка: короткие абзацы с воздухом между ними */
+.WarlordAccountManagerHelpView__section + .WarlordAccountManagerHelpView__section {
+	margin-top: 16px;
+}
+/* заголовок (Headline, 14px) чуть крупнее текста (Footnote, 13px) */
+.WarlordAccountManagerHelpView__section .vkuiHeadline__level1 {
+	display: block;
+}
+.WarlordAccountManagerHelpView__text {
+	display: block;
+	margin-top: 4px;
+	color: var(--vkui--color_text_secondary);
+}
+/* занятое место в разделе «Хранилище»: подпись над полосой */
+.WarlordAccountManagerStorageView__usage {
+	display: block;
+	margin-bottom: 8px;
+	color: var(--vkui--color_text_secondary);
+}
+
+/* Свободный режим: панель не встроена в страницу, а плавает над ней, поэтому у неё своя подложка и тень.
+   Высоту задаёт сама панель (инлайном), список занимает всё свободное место и прокручивается.
+   Место под шестерёнку справа не резервируем: подложка общая, шестерёнка рисуется внутри строки аккаунта,
+   а текст строки уступает ей место. */
+.WarlordAccountManagerPanel.WarlordAccountManagerPanel--free {
+	max-height: none;
+	padding: 0 8px;
+	border: 1px solid var(--vkui--color_separator_primary);
+	border-radius: 12px;
+	background: var(--vkui--color_background_content);
+	box-shadow: var(--vkui--elevation3);
+}
+.WarlordAccountManagerPanel--free .WarlordAccountManagerPanel__list {
+	flex: 1 1 auto;
+	max-height: none;
+	margin-right: 0;
+	padding-right: 0;
+}
+.WarlordAccountManagerPanel.WarlordAccountManagerPanel--free .WarlordAccountManagerPanel__settingsButton.WarlordAccountManagerPanel__settingsButton {
+	right: 6px;
+}
+.WarlordAccountManagerPanel--free .WarlordAccountManagerPanel__item .WarlordAccountManagerPanel__rowText {
+	padding-right: 16px;
+}
+/* верхняя полоска для перетаскивания и нижняя для изменения высоты: растянуты на всю ширину панели
+   (у панели по 8px отступа слева и справа, поэтому они заходят на него) */
+.WarlordAccountManagerPanel__dragHandle,
+.WarlordAccountManagerPanel__resizeHandle {
+	flex: none;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: 0 -8px;
+	color: var(--vkui--color_icon_secondary);
+	touch-action: none;
+	user-select: none;
+}
+.WarlordAccountManagerPanel__dragHandle {
+	height: 18px;
+	margin-bottom: 4px;
+	cursor: grab;
+}
+.WarlordAccountManagerPanel__dragHandle:active {
+	cursor: grabbing;
+}
+.WarlordAccountManagerPanel__resizeHandle {
+	height: 12px;
+	margin-top: 4px;
+	cursor: ns-resize;
+}
+/* на нижней полоске рисуем короткую черту, как «ручку» окна */
+.WarlordAccountManagerPanel__resizeHandle::after {
+	content: '';
+	width: 32px;
+	height: 3px;
+	border-radius: 2px;
+	background: var(--vkui--color_separator_primary);
+}
+
+/* строки в окнах настроек (разделы, ячейки списка, кнопки-ячейки) без скруглений: во всю ширину окна, как у списков ВК.
+   Слой наведения только свой собственный (>): у кнопок внутри строки (изменить, удалить) скругление остаётся */
+.WarlordAccountManager .vkuiSimpleCell__host,
+.WarlordAccountManager .vkuiCellButton__host,
+.WarlordAccountManager .vkuiSimpleCell__host > .vkuiTappable__stateLayer,
+.WarlordAccountManager .vkuiCellButton__host > .vkuiTappable__stateLayer {
+	border-radius: 0;
+}
+
+/* У VKUI popout по умолчанию 100, то есть позади окна (1000): поднимаем подтверждение выше */
+.WarlordAccountManager .vkuiPopoutWrapper__host {
+	z-index: 1050 !important; /* VKUI выставляет z-index инлайном, иначе не перебить */
+}

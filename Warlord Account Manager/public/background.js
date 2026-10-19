@@ -20,8 +20,8 @@ chrome.webNavigation.onHistoryStateUpdated.addListener(async ({ tabId, frameId }
 		const [{ result: loaded } = {}] = await chrome.scripting.executeScript({
 			target: { tabId },
 			func: () => {
-				if (!window.__wam) return false;
-				window.__wam.mount();
+				if (!window.__warlordAccountManager) return false;
+				window.__warlordAccountManager.mount();
 				return true;
 			},
 		});
@@ -31,12 +31,15 @@ chrome.webNavigation.onHistoryStateUpdated.addListener(async ({ tabId, frameId }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 	if (sender.id !== chrome.runtime.id) return false;
-	handle(message).then(sendResponse, (error) => sendResponse({ ok: false, error: String(error) }));
+	handle(message, sender).then(sendResponse, (error) => sendResponse({ ok: false, error: String(error) }));
 	return true;
 });
 
-async function handle(message) {
+async function handle(message, sender) {
 	switch (message && message.type) {
+		case 'script-inject': return scriptInject(sender);
+		case 'script-ids': return scriptIds(sender);
+		case 'vk-wiki': return vkWiki(message, sender);
 		case 'vk-users': return vkUsers(message);
 		case 'vk-group': return vkGroup(message);
 		case 'vk-app': return vkApp(message);
@@ -84,11 +87,58 @@ async function vkApp({ id, token }) {
 	return { ok: true, name: app.title, image: app.icon_139 || app.icon_150 || app.icon_75 };
 }
 
-// Запросы к серверам игры (хаб, udata.php, game.php), только https и только *.geronimo.su.
+// Warlord Script (script.js) тяжёлый, поэтому в страницы ВК он не вставляется заранее: лёгкий probe.js следит
+// за страницей и просит вставить блок, когда на ней появляется профиль. Вставляем только с vk.ru.
+const isVkSender = (sender) => {
+	try {
+		return Boolean(sender.tab) && new URL(sender.url).origin === 'https://vk.ru';
+	} catch {
+		return false;
+	}
+};
+
+async function scriptInject(sender) {
+	if (!isVkSender(sender)) return { ok: false, error: 'bad sender' };
+	await chrome.scripting.executeScript({ target: { tabId: sender.tab.id }, files: ['script.js'] });
+	return { ok: true };
+}
+
+// Номера профилей лежат в переменных самой страницы ВК (window.vk.id — кто смотрит, window.cur.oid — чей профиль),
+// из изолированного мира расширения они не видны, поэтому читаем их в мире страницы.
+async function scriptIds(sender) {
+	if (!isVkSender(sender)) return { ok: false, error: 'bad sender' };
+	const [{ result }] = await chrome.scripting.executeScript({
+		target: { tabId: sender.tab.id },
+		world: 'MAIN',
+		func: () => ({ from: Number(window.vk && window.vk.id) || 0, to: Number(window.cur && window.cur.oid) || 0 }),
+	});
+	return { ok: true, from: result.from, to: result.to };
+}
+
+// Запись ВК (?w=wall…) из блока: ссылка внутри Shadow DOM не доходит до обработчика кликов страницы, поэтому открываем
+// её тем же вызовом, что делает сама страница (showWiki), без перехода на другую страницу.
+async function vkWiki({ w }, sender) {
+	if (!isVkSender(sender) || !/^[\w-]{1,64}$/.test(String(w))) return { ok: false, error: 'bad params' };
+	const [{ result }] = await chrome.scripting.executeScript({
+		target: { tabId: sender.tab.id },
+		world: 'MAIN',
+		args: [String(w)],
+		func: (id) => {
+			if (typeof window.showWiki !== 'function') return false;
+			window.showWiki({ w: id }, false, null);
+			return true;
+		},
+	});
+	return { ok: Boolean(result) };
+}
+
+// Запросы к серверам игры (хаб, udata.php, game.php) и к файлу статусов игроков, только https и только свои адреса.
+const GAME_HOSTS = ['geronimo.su', 'dobriy-vecher-vlad.github.io'];
+const isGameHost = (hostname) => GAME_HOSTS.some((host) => hostname === host || hostname.endsWith(`.${host}`));
 async function fetchGame({ url }) {
 	let parsed;
 	try { parsed = new URL(url); } catch { return { ok: false, error: 'bad url' }; }
-	if (parsed.protocol !== 'https:' || !(parsed.hostname === 'geronimo.su' || parsed.hostname.endsWith('.geronimo.su'))) {
+	if (parsed.protocol !== 'https:' || !isGameHost(parsed.hostname)) {
 		return { ok: false, error: 'host not allowed' };
 	}
 	// Сервер пускает не чаще 1 запроса в секунду

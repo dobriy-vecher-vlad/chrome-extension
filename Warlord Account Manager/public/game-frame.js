@@ -3,7 +3,7 @@
 // Сначала прячем сразу, не дожидаясь хранилища, чтобы блок не мелькал, и снимаем скрытие, если настройка выключена.
 
 const KEY = 'settings';
-const STYLE_ID = 'wam-frame-style';
+const STYLE_ID = 'warlord-account-manager-frame-style';
 const CSS = 'body > div:first-of-type:not(#thegame):not(#custom_footer) { display: none !important; }';
 
 function apply(hide) {

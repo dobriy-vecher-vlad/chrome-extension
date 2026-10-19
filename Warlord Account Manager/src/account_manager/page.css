@@ -1,0 +1,13 @@
+/* Страница игры во ВКонтакте: высота фрейма игры и его контейнера (ВК выставляет 832px инлайном, поэтому !important).
+   Только при включённой настройке «Скрыть рекламный блок» (атрибут на <html> ставит панель, см. App.jsx). */
+html[data-warlord-account-manager-compact-game-page] #apps_test_id .app_container,
+html[data-warlord-account-manager-compact-game-page] #apps_test_id .app_container iframe {
+	height: 710px !important;
+}
+
+/* Панель старого расширения Warlord Script (её заменяет это расширение): не рисуем. Сами кнопки остаются в DOM,
+   из них расширение забирает аккаунты при первом запуске. */
+[class*="LayoutWrapper__body"] > .helper,
+[class*="LayoutWrapper__body"] > .hidden_helper {
+	display: none !important;
+}

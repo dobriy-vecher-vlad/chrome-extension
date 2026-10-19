@@ -3,6 +3,7 @@ import { cp, mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promi
 import { join, posix } from 'node:path';
 import { build, context, transform } from 'esbuild';
 import { zipSync } from 'fflate';
+import { purgeVkuiCss } from './purgeCss.mjs';
 
 const isWatch = process.argv.includes('--watch');
 const OUT = 'build';
@@ -27,16 +28,31 @@ const minifyOwnCss = {
 	},
 };
 
+// vkui.css — стили всех компонентов VKUI, расширению нужна небольшая часть. Пока purgeSource (собранный JS) не известен, файл
+// отдаётся целиком, а после первой сборки из него вырезаются правила классов, которых в JS нет (см. purgeCss.mjs)
+let purgeSource = null;
+const vkuiCss = {
+	name: 'vkui-css',
+	setup(b) {
+		b.onLoad({ filter: /vkui[\\/]dist[\\/]vkui\.css$/ }, async ({ path }) => {
+			const css = await readFile(path, 'utf8');
+			return { contents: purgeSource === null ? css : purgeVkuiCss(css, purgeSource), loader: 'text' };
+		});
+	},
+};
+
 const options = {
-	entryPoints: ['src/content.jsx'],
-	outfile: `${OUT}/content.js`,
+	// content.js — Warlord Account Manager на странице игры, script.js — Warlord Script на профилях (его вставляет
+	// background, когда probe.js видит профиль), probe.js — лёгкий наблюдатель за страницами vk.ru
+	entryPoints: { content: 'src/account_manager/main.jsx', script: 'src/script/main.jsx', probe: 'src/script/probe.js' },
+	outdir: OUT,
 	bundle: true,
 	format: 'iife',
 	target: 'chrome110',
 	jsx: 'automatic',
 	// CSS подключаем строкой: стили живут в Shadow DOM, а не в странице ВК
 	loader: { '.css': 'text' },
-	plugins: [minifyOwnCss],
+	plugins: [minifyOwnCss, vkuiCss],
 	define: { 'process.env.NODE_ENV': JSON.stringify(isWatch ? 'development' : 'production') },
 	minify: !isWatch,
 	sourcemap: isWatch ? 'inline' : false,
@@ -67,6 +83,10 @@ if (isWatch) {
 	});
 	console.log('watching…');
 } else {
+	// Сначала пробная сборка без стилей VKUI: по ней видно, какие классы компонентов используются на самом деле
+	purgeSource = '';
+	const trial = await build({ ...options, minify: false, write: false, logLevel: 'silent' });
+	purgeSource = trial.outputFiles.map((file) => file.text).join('\n');
 	await build(options);
 
 	// 3. Архив для публикации: внутри сами файлы расширения, без родительской папки build. Лежит в build/
