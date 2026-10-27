@@ -6,7 +6,7 @@ import pageCss from './page.css';
 import { App } from './App.jsx';
 import { watchDom } from '../shared/lib/domObserver.js';
 import { isGamePage } from './lib/gamePage.js';
-import { EMBEDDED_STYLE, LAYER_STYLE, placeHost } from './lib/panelHost.js';
+import { embeddedStyle, LAYER_STYLE, placeHost } from './lib/panelHost.js';
 
 // Расширение работает только на странице игры vk.ru/app5536422 и больше нигде.
 // manifest подключает скрипт при обычной загрузке этой страницы, а background.js подставляет его заново, когда внутри ВК
@@ -56,7 +56,7 @@ function mount() {
 	const host = document.createElement('div');
 	host.id = 'warlord-account-manager-host';
 	host.hidden = true;
-	host.style.cssText = EMBEDDED_STYLE; // в свободном режиме положение задаёт сама панель (см. usePanelBox)
+	host.style.cssText = embeddedStyle(); // положение и ширину потом задаёт сама панель (см. usePanelBox)
 
 	// Стили общие для панели и верхнего слоя: одна таблица на оба Shadow DOM, см. getSheet
 	const sheet = getSheet();

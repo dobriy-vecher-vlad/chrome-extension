@@ -1,12 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { checkCredentials, loadGameStats, loadPreview, loadVkProfiles } from '../lib/gameApi.js';
 import { SCRIPT_SETTINGS_KEY } from '../../shared/lib/storageKeys.js';
-import { loadAccounts, onAccountsChanged, saveAccounts, toStored } from '../lib/storage.js';
+import { isSeparator, loadAccounts, newSeparator, onAccountsChanged, saveAccounts, toStored } from '../lib/storage.js';
 import { parseSrc, patchSrc } from '../lib/gameFrameSrc.js';
 import { getGameFrame } from './useGameFrame.js';
 
 // Список аккаунтов, текущий аккаунт и все действия над ними.
-export function useAccounts() {
+// nicknames / avatars — показываются ли ники и аватарки в строках (см. настройки оформления). Что не показывается, то и не
+// запрашивается: без ников не нужны данные игры (по запросу на каждый сервер), без аватарок в ответе ВК нет фото, а имена
+// запрашиваются только у аккаунтов без собственного названия.
+export function useAccounts({ nicknames = true, avatars = true } = {}) {
 	const [accounts, setAccounts] = useState([]);
 	const [ready, setReady] = useState(false);
 	const [currentId, setCurrentId] = useState(null);
@@ -19,6 +22,8 @@ export function useAccounts() {
 	const list = useRef([]); // актуальный список для асинхронных операций
 	const session = useRef(null); // { id, authKey, token } родного аккаунта, живёт только в памяти
 	const appliedSrc = useRef(null); // src, выставленный нами, чтобы отличать его от родного
+	const options = useRef({ nicknames, avatars });
+	options.current = { nicknames, avatars };
 	const refreshing = useRef(false);
 	const refreshAgain = useRef(false);
 
@@ -55,7 +60,7 @@ export function useAccounts() {
 			return;
 		}
 		const current = session.current;
-		if (!current || !list.current.length) {
+		if (!current || !list.current.some((a) => !isSeparator(a))) {
 			setRefreshed(true);
 			return;
 		}
@@ -63,13 +68,19 @@ export function useAccounts() {
 		try {
 			do {
 				refreshAgain.current = false;
-				const ids = list.current.map((a) => a.id);
+				const { nicknames: wantNicknames, avatars: wantAvatars } = options.current;
+				const ids = list.current.filter((a) => !isSeparator(a)).map((a) => a.id);
+				// ВК: аватарки нужны всем, имена только тем, у кого нет своего названия
+				const vkIds = wantAvatars ? ids : list.current.filter((a) => !isSeparator(a) && !a.label).map((a) => a.id);
 				// ВК и игра отвечают независимо: каждый результат применяем, как только он пришёл, а не ждём обоих
-				const vkDone = loadVkProfiles(ids, current.token).then((users) => {
-					const vk = new Map(users.map((u) => [u.id, { name: `${u.first_name} ${u.last_name}`.trim(), photo: u.photo_100 }]));
+				const vkDone = !vkIds.length ? Promise.resolve() : loadVkProfiles(vkIds, current.token, wantAvatars).then((users) => {
+					const vk = new Map(users.map((u) => {
+						const name = `${u.first_name} ${u.last_name}`.trim();
+						return [u.id, wantAvatars ? { name, photo: u.photo_100 } : { name }];
+					}));
 					commit(list.current.map((account) => (vk.has(account.id) ? { ...account, ...vk.get(account.id) } : account)));
 				});
-				const gameDone = loadGameStats(current, ids).then((stats) => {
+				const gameDone = !wantNicknames ? Promise.resolve() : loadGameStats(current, ids).then((stats) => {
 					if (!stats) return;
 					commit(list.current.map((account) => {
 						const game = stats.found.get(account.id);
@@ -86,6 +97,16 @@ export function useAccounts() {
 			setRefreshed(true);
 		}
 	}, [commit]);
+
+	// Ники или аватарки включили: недостающие данные подгружаем сразу, не дожидаясь следующей загрузки страницы
+	const firstOptions = useRef(true);
+	useEffect(() => {
+		if (firstOptions.current) {
+			firstOptions.current = false;
+			return;
+		}
+		refreshAll();
+	}, [nicknames, avatars, refreshAll]);
 
 	// запасной выход: если данные так и не пришли (нет сессии, сеть), скелетон не висит вечно
 	useEffect(() => {
@@ -112,8 +133,14 @@ export function useAccounts() {
 
 	const switchTo = useCallback((account) => {
 		const frame = getGameFrame();
-		if (!frame || account.id === currentId) return false;
+		if (!frame) return false;
 		const src = frame.getAttribute('src') || '';
+		// нажатие на текущий аккаунт обновляет игру: тот же адрес назначается фрейму заново, и он загружается ещё раз
+		if (account.id === currentId) {
+			if (!src) return false;
+			frame.setAttribute('src', src);
+			return 'reloaded';
+		}
 		const params = parseSrc(src);
 		if (!('auth_key' in params) || !('viewer_id' in params)) {
 			setNotice('Не удалось сменить аккаунт: в адресе игры нет нужных параметров');
@@ -126,7 +153,7 @@ export function useAccounts() {
 		setNotice('');
 		setCurrentId(account.id);
 		frame.setAttribute('src', next);
-		return true; // true — аккаунт сменён (игра перезагружается), панель покажет уведомление
+		return true; // true — аккаунт сменён (игра перезагружается), 'reloaded' — игра обновлена под тем же аккаунтом
 	}, [currentId]);
 
 	// Возвращает текст ошибки или null, если аккаунт добавлен. server — сервер, уже найденный окном (чтобы не спрашивать хаб ещё раз).
@@ -154,25 +181,47 @@ export function useAccounts() {
 
 	// Импорт списком (файл или старое расширение). Новые аккаунты добавляются в конец, у уже имеющихся при пустом
 	// названии подставляется название из импорта; ключи существующих не трогаем (их проверили раньше).
+	// Разделитель из файла (item.separator) добавляется, только если перед ним в этом импорте добавлен новый аккаунт:
+	// в пустой список приходит весь порядок, а в уже заполненный разделители не дублируются.
 	// Ключи при импорте не проверяются запросом к серверу: ключ постоянный, а пачка запросов упёрлась бы в лимит игры.
 	const importAccounts = useCallback((items) => {
 		const next = [...list.current];
 		let added = 0;
+		let existing = 0;
 		let changed = false;
-		for (const { id, authKey, label } of items) {
+		let afterNew = false; // предыдущая строка импорта добавила новый аккаунт
+		for (const item of items) {
+			if (item.separator) {
+				if (afterNew && !isSeparator(next[next.length - 1])) {
+					next.push(newSeparator());
+					changed = true;
+				}
+				afterNew = false;
+				continue;
+			}
+			const { id, authKey, label } = item;
 			const index = next.findIndex((a) => a.id === id);
 			if (index < 0) {
 				next.push({ id, authKey, label: label || undefined });
 				added += 1;
-			} else if (label && !next[index].label) {
-				next[index] = { ...next[index], label };
-				changed = true;
+				afterNew = true;
+			} else {
+				existing += 1;
+				afterNew = false;
+				if (label && !next[index].label) {
+					next[index] = { ...next[index], label };
+					changed = true;
+				}
 			}
 		}
 		if (added || changed) commit(next);
 		if (added) refreshAll();
-		return { added, existing: items.length - added };
+		return { added, existing };
 	}, [commit, refreshAll]);
+
+	const addSeparator = useCallback(() => {
+		commit([...list.current, newSeparator()]);
+	}, [commit]);
 
 	// Перестановка (перетаскивание в окне настроек): порядок хранится и применяется в колонке сразу
 	const reorder = useCallback((from, to) => {
@@ -203,5 +252,5 @@ export function useAccounts() {
 	// Превью профиля для окна добавления и редактирования
 	const preview = useCallback((id) => loadPreview(id, session.current?.token || ''), []);
 
-	return { accounts, ready, loading: !refreshed, currentId, ownId, token, notice, onFrameSrc, switchTo, add, update, remove, reorder, importAccounts, clearAll, preview };
+	return { accounts, ready, loading: !refreshed, currentId, ownId, token, notice, onFrameSrc, switchTo, add, update, remove, reorder, importAccounts, addSeparator, clearAll, preview };
 }

@@ -48,16 +48,16 @@ async function handle(message, sender) {
 	}
 }
 
-async function vkUsers({ ids, token }) {
+async function vkUsers({ ids, token, photos = true }) {
 	if (!token || !Array.isArray(ids) || !ids.length || !ids.every(isId)) {
 		return { ok: false, error: 'bad params' };
 	}
 	const params = new URLSearchParams({
 		user_ids: ids.join(','),
-		fields: 'photo_100',
 		access_token: token,
 		v: '5.131'
 	});
+	if (photos !== false) params.set('fields', 'photo_100'); // без аватарок поле не запрашиваем: ответ короче
 	const response = await fetch(`${VK_API_URL}?${params}`);
 	const data = await response.json();
 	if (!data || !Array.isArray(data.response)) return { ok: false, error: 'vk api error' };

@@ -40,7 +40,7 @@ function previewFromAccount(account, loading) {
 // содержимое, само окно не пересоздаётся, поэтому ничего не мигает. Свою шапку и кнопки форма рисует сама.
 // standalone — форма открыта сразу (шестерёнкой из колонки), без списка: возвращаться некуда, «назад» закрывает окно.
 export function AccountForm({ mode, accountId, standalone, onDone }) {
-	const { manager, confirmRemove, notify } = useManagerContext();
+	const { manager, confirmRemove, notify, appearance } = useManagerContext();
 	const editing = mode === 'edit';
 
 	// Аккаунт читаем из актуального списка, но запоминаем последнюю версию: после удаления форма ещё закрывается
@@ -63,7 +63,14 @@ export function AccountForm({ mode, accountId, standalone, onDone }) {
 	const [serverError, setServerError] = useState('');
 	// превью при добавлении — живое (человек вводит новый номер); при правке оно строится из уже собранных данных
 	const [addPreview, setAddPreview] = useState({ status: 'idle' });
-	const preview = editing ? previewFromAccount(account, manager.loading) : addPreview;
+	// Ники выключены — данные игры для списка на старте не загружались, поэтому сводку при правке подгружаем здесь, один раз
+	const lazyNeeded = editing && !appearance.settings.showNicknames && !account.servers;
+	const [lazyPreview, setLazyPreview] = useState(null);
+	const preview = !editing
+		? addPreview
+		: lazyNeeded
+			? lazyPreview || { status: 'loading', vk: account.name ? { name: account.name, photo: account.photo } : null, servers: [], server: null }
+			: previewFromAccount(account, manager.loading);
 
 	const trimmedId = id.trim();
 	const trimmedKey = authKey.trim();
@@ -74,6 +81,16 @@ export function AccountForm({ mode, accountId, standalone, onDone }) {
 	const hasKeyField = !(editing && own); // ключ родного аккаунта выдаёт сам ВК
 	const valid = idValid && (keyValid || !hasKeyField);
 	const { preview: loadPreview } = manager;
+
+	useEffect(() => {
+		if (!lazyNeeded) return undefined;
+		let cancelled = false;
+		loadPreview(account.id).then((result) => {
+			if (!cancelled) setLazyPreview({ status: 'ready', ...result });
+		});
+		return () => { cancelled = true; };
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [lazyNeeded, account?.id, loadPreview]);
 
 	// Фокус в первое поле при открытии формы (не autoFocus: он ломает CSS-анимацию открытия окна)
 	useEffect(() => {

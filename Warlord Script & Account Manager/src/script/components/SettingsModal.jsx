@@ -16,7 +16,7 @@ import { StorageView } from './StorageView.jsx';
 import { useProfileSettings } from '../lib/ScriptSettingsContext.js';
 
 const SECTIONS = [
-	{ name: 'general', title: 'Общие настройки', subtitle: 'Версия расширения', icon: <Icon28SettingsOutline />, view: <GeneralView /> },
+	{ name: 'general', title: 'Общие настройки', subtitle: 'Версия расширения и панель аккаунтов', icon: <Icon28SettingsOutline />, view: <GeneralView /> },
 	{ name: 'blocks', title: 'Отображаемые блоки', subtitle: 'Какие разделы показывать', icon: <Icon28ListBulletSquareOutline />, view: <BlocksView /> },
 	{ name: 'sorting', title: 'Сортировка состава', subtitle: 'Порядок игроков в составе гильдии', icon: <Icon28SortOutline />, view: <ChoiceView name="sorting" /> },
 	{ name: 'server', title: 'Сервер игры', subtitle: 'Чьи данные показывать по умолчанию', icon: <Icon28GlobeOutline />, view: <ChoiceView name="server" /> },

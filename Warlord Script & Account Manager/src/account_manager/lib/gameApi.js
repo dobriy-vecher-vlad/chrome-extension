@@ -186,7 +186,8 @@ export async function checkCredentials(id, authKey, knownServer) {
 	return { server };
 }
 
-export async function loadVkProfiles(ids, token) {
-	const result = await send({ type: 'vk-users', ids, token });
+// photos: false — только имена, без ссылок на аватарки
+export async function loadVkProfiles(ids, token, photos = true) {
+	const result = await send({ type: 'vk-users', ids, token, photos });
 	return result.ok ? result.users : [];
 }

@@ -1,13 +1,48 @@
 /* Страница игры во ВКонтакте: высота фрейма игры и его контейнера (ВК выставляет 832px инлайном, поэтому !important).
-   Только при включённой настройке «Скрыть рекламный блок» (атрибут на <html> ставит панель, см. App.jsx). */
-html[data-warlord-account-manager-compact-game-page] #apps_test_id .app_container,
-html[data-warlord-account-manager-compact-game-page] #apps_test_id .app_container iframe {
-	height: 710px !important;
+   Окно ниже на столько, сколько убрано внутри игры: рекламный блок над игрой («Скрыть рекламный блок») 122px,
+   строка с ID под игрой («Скрыть ID под игрой») 36px; когда включены обе правки, вычитаются вместе.
+   Атрибуты на <html> ставит панель, см. App.jsx. */
+html[data-warlord-account-manager-compact-game-page] {
+	--warlord-account-manager-ads-cut: 122px;
+}
+html[data-warlord-account-manager-hide-game-id] {
+	--warlord-account-manager-id-cut: 36px;
+}
+html:is([data-warlord-account-manager-compact-game-page], [data-warlord-account-manager-hide-game-id]) #apps_test_id .app_container,
+html:is([data-warlord-account-manager-compact-game-page], [data-warlord-account-manager-hide-game-id]) #apps_test_id .app_container iframe {
+	height: calc(832px - var(--warlord-account-manager-ads-cut, 0px) - var(--warlord-account-manager-id-cut, 0px)) !important;
 }
 
 /* Панель старого расширения Warlord Script (её заменяет это расширение): не рисуем. Сами кнопки остаются в DOM,
-   из них расширение забирает аккаунты при первом запуске. */
-[class*="LayoutWrapper__body"] > .helper,
-[class*="LayoutWrapper__body"] > .hidden_helper {
+   из них расширение забирает аккаунты при первом запуске. У переписанных копий другие классы: тогда расширение
+   само помечает контейнер с кнопками (см. markLegacyPanel). Только пока панель аккаунтов включена (атрибут active). */
+html[data-warlord-account-manager-active] [class*="LayoutWrapper__body"] > .helper,
+html[data-warlord-account-manager-active] [class*="LayoutWrapper__body"] > .hidden_helper,
+html[data-warlord-account-manager-active] [data-warlord-account-manager-legacy-panel] {
 	display: none !important;
+}
+
+/* Блок «Игры для вас» под игрой. Атрибут на <html> ставит панель по настройке «Скрыть «Игры для вас»». */
+html[data-warlord-account-manager-hide-similar-apps] .apps_similarApps {
+	display: none !important;
+}
+
+/* Подвал под игрой: прячем, а нижние углы блока игры и самой игры скругляем, раз ниже ничего нет */
+html[data-warlord-account-manager-hide-footer] #footer {
+	display: none !important;
+}
+html[data-warlord-account-manager-hide-footer] #apps,
+html[data-warlord-account-manager-hide-footer] #apps_test_id .app_container iframe {
+	border-bottom-left-radius: var(--vkui--size_border_radius_paper--regular);
+	border-bottom-right-radius: var(--vkui--size_border_radius_paper--regular);
+}
+
+/* Шапка над игрой: прячем, а верхние углы блока игры и самой игры скругляем */
+html[data-warlord-account-manager-hide-options-bar] .apps_options_bar {
+	display: none !important;
+}
+html[data-warlord-account-manager-hide-options-bar] .apps_main,
+html[data-warlord-account-manager-hide-options-bar] #apps_test_id .app_container iframe {
+	border-top-left-radius: var(--vkui--size_border_radius_paper--regular);
+	border-top-right-radius: var(--vkui--size_border_radius_paper--regular);
 }

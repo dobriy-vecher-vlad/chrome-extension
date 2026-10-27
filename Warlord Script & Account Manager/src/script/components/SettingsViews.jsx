@@ -1,4 +1,6 @@
+import { useEffect, useState } from 'react';
 import { SimpleCell, Switch } from '@vkontakte/vkui';
+import { loadPanelHidden, savePanelHidden } from '../../shared/lib/panelVisibility.js';
 import { SETTINGS_FORM } from '../lib/settings.js';
 import { useProfileSettings } from '../lib/ScriptSettingsContext.js';
 
@@ -19,13 +21,33 @@ function SwitchRow({ title, description, checked, onChange }) {
 // Раздел «Общие настройки»
 export function GeneralView() {
 	const { settings, change } = useProfileSettings();
+	// панель аккаунтов на странице игры (Warlord Account Manager): здесь её можно вернуть, если скрыли в её настройках
+	const [panelHidden, setPanelHidden] = useState(null);
+	useEffect(() => {
+		let alive = true;
+		loadPanelHidden().then((hidden) => alive && setPanelHidden(hidden));
+		return () => { alive = false; };
+	}, []);
 	return (
-		<SwitchRow
-			title="Версия расширения"
-			description="Отображение версии рядом с названием"
-			checked={settings.showVersion}
-			onChange={(value) => change({ showVersion: value })}
-		/>
+		<>
+			<SwitchRow
+				title="Версия расширения"
+				description="Отображение версии рядом с названием"
+				checked={settings.showVersion}
+				onChange={(value) => change({ showVersion: value })}
+			/>
+			{panelHidden !== null && (
+				<SwitchRow
+					title="Панель аккаунтов на странице игры"
+					description="Warlord Account Manager: список аккаунтов справа от игры и правки страницы игры. Если выключить её в настройках панели, вернуть можно только здесь"
+					checked={!panelHidden}
+					onChange={(value) => {
+						setPanelHidden(!value);
+						savePanelHidden(!value);
+					}}
+				/>
+			)}
+		</>
 	);
 }
 

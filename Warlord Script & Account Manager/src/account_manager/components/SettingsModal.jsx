@@ -147,7 +147,7 @@ export function SettingsModal({ modalProps, close, initial }) {
 			size={420}
 			aria-label="Настройки"
 			header={header}
-			footer={view.name === 'accounts' ? <Footnote className="WarlordAccountManagerSettingsModal__accountCount">{accountsCount(manager.accounts.length)}</Footnote> : undefined}
+			footer={view.name === 'accounts' ? <Footnote className="WarlordAccountManagerSettingsModal__accountCount">{accountsCount(manager.accounts.filter((account) => !account.separator).length)}</Footnote> : undefined}
 		>
 			{content}
 		</ModalPage>

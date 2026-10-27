@@ -2,7 +2,7 @@
 	"manifest_version": 3,
 	"minimum_chrome_version": "110",
 	"name": "Warlord Script & Account Manager",
-	"version": "4.0.0",
+	"version": "4.1.0",
 	"description": "Характеристики игроков на их страницах и быстрое переключение между своими аккаунтами в игре Warlord.",
 	"homepage_url": "https://vk.ru/wiki.warlord",
 	"icons": {
@@ -12,6 +12,7 @@
 	},
 	"permissions": [
 		"storage",
+		"declarativeNetRequest",
 		"scripting",
 		"webNavigation"
 	],
@@ -20,6 +21,25 @@
 		"https://api.vk.ru/*",
 		"https://*.geronimo.su/*",
 		"https://dobriy-vecher-vlad.github.io/*"
+	],
+	"declarative_net_request": {
+		"rule_resources": [
+			{
+				"id": "game",
+				"enabled": true,
+				"path": "rules.json"
+			}
+		]
+	},
+	"web_accessible_resources": [
+		{
+			"resources": [
+				"game/Game.js"
+			],
+			"matches": [
+				"https://warlord.geronimo.su/*"
+			]
+		}
 	],
 	"background": {
 		"service_worker": "background.js"

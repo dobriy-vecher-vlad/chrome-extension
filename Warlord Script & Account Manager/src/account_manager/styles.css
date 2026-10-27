@@ -265,29 +265,105 @@
 	color: var(--vkui--color_text_secondary);
 }
 
-/* Свободный режим: панель не встроена в страницу, а плавает над ней, поэтому у неё своя подложка и тень.
-   Высоту задаёт сама панель (инлайном), список занимает всё свободное место и прокручивается.
+/* Карточка: панель со своей подложкой и тенью. Так она рисуется в свободном режиме (плавает над страницей) и когда задан фон.
    Место под шестерёнку справа не резервируем: подложка общая, шестерёнка рисуется внутри строки аккаунта,
-   а текст строки уступает ей место. */
+   а текст строки уступает ей место. --card-extra — сколько высоты съедают отступы и обводка карточки: список аккаунтов
+   на столько ниже, чтобы вся панель по-прежнему помещалась в окно. */
+.WarlordAccountManagerPanel.WarlordAccountManagerPanel--card {
+	--warlord-account-manager-card-extra: 18px;
+	position: relative;
+	isolation: isolate;
+	padding: 8px;
+	border: 1px solid var(--vkui--color_separator_primary_alpha);
+	border-radius: 12px;
+	background: var(--vkui--color_background_content);
+	/* собственный фон панели не заходит под обводку: цвет обводки не зависит от цвета фона */
+	background-clip: padding-box;
+	box-shadow: var(--vkui--elevation3);
+}
+/* Линии карточки (обводка, разделители, полоска высоты) рисуем полупрозрачными токенами: они тёмные в светлой схеме и
+   светлые в тёмной, а значит читаются на любом фоне; сплошной цвет VKUI рассчитан на фон страницы */
+.WarlordAccountManagerPanel--card {
+	border-color: var(--vkui--color_separator_primary_alpha);
+}
+.WarlordAccountManagerPanel--card .WarlordAccountManagerPanel__separator {
+	background: var(--vkui--color_separator_primary_alpha);
+}
+.WarlordAccountManagerPanel--card .WarlordAccountManagerPanel__resizeHandle::after {
+	background: var(--vkui--color_separator_primary_alpha);
+}
+/* без тени */
+.WarlordAccountManagerPanel.WarlordAccountManagerPanel--shadowless {
+	box-shadow: none;
+}
+/* без обводки: сама обводка и её 2px толщины пропадают */
+.WarlordAccountManagerPanel.WarlordAccountManagerPanel--borderless {
+	--warlord-account-manager-card-extra: 16px;
+	border-width: 0;
+}
+.WarlordAccountManagerPanel--card .WarlordAccountManagerPanel__list {
+	margin-right: 0;
+	padding-right: 0;
+	max-height: calc(100vh - var(--spa-layout-header-height) - 2 * var(--page-block-offset) - (19px + 3 * 30px) - var(--warlord-account-manager-card-extra));
+	max-height: round(down, calc(100vh - var(--spa-layout-header-height) - 2 * var(--page-block-offset) - (19px + 3 * 30px) - var(--warlord-account-manager-card-extra)), 30px);
+}
+/* Свободный режим: высоту задаёт сама панель (инлайном), список занимает всё свободное место и прокручивается;
+   вертикальные отступы даёт верхняя и нижняя полоски */
 .WarlordAccountManagerPanel.WarlordAccountManagerPanel--free {
 	max-height: none;
 	padding: 0 8px;
-	border: 1px solid var(--vkui--color_separator_primary);
-	border-radius: 12px;
-	background: var(--vkui--color_background_content);
-	box-shadow: var(--vkui--elevation3);
 }
 .WarlordAccountManagerPanel--free .WarlordAccountManagerPanel__list {
 	flex: 1 1 auto;
 	max-height: none;
-	margin-right: 0;
-	padding-right: 0;
 }
-.WarlordAccountManagerPanel.WarlordAccountManagerPanel--free .WarlordAccountManagerPanel__settingsButton.WarlordAccountManagerPanel__settingsButton {
-	right: 6px;
+
+/* Фон панели: картинка с обработкой и затемнение лежат под содержимым (z-index -1 внутри isolation панели).
+   Картинка шире панели на 24px с каждой стороны: размытие иначе светлило бы края */
+.WarlordAccountManagerPanel__background {
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	overflow: hidden;
+	border-radius: inherit;
+	pointer-events: none;
 }
-.WarlordAccountManagerPanel--free .WarlordAccountManagerPanel__item .WarlordAccountManagerPanel__rowText {
-	padding-right: 16px;
+.WarlordAccountManagerPanel__backgroundImage {
+	position: absolute;
+	inset: -24px;
+	background-position: center;
+	background-size: cover;
+}
+.WarlordAccountManagerPanel__backgroundDim {
+	position: absolute;
+	inset: 0;
+}
+
+/* в окне настроек разделитель — круглая плашка с чертой на месте аватара */
+.WarlordAccountManagerAccountsView__separatorIcon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	height: 36px;
+	border-radius: 50%;
+	background: var(--vkui--color_background_secondary_alpha);
+	color: var(--vkui--color_icon_secondary);
+}
+
+
+.WarlordAccountManagerAppearanceView__imageActions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+.WarlordAccountManagerAppearanceView__preview {
+	width: 100%;
+	height: 96px;
+	margin-bottom: 8px;
+	border-radius: 8px;
+	background-position: center;
+	background-size: cover;
 }
 /* верхняя полоска для перетаскивания и нижняя для изменения высоты: растянуты на всю ширину панели
    (у панели по 8px отступа слева и справа, поэтому они заходят на него) */
@@ -336,4 +412,117 @@
 /* У VKUI popout по умолчанию 100, то есть позади окна (1000): поднимаем подтверждение выше */
 .WarlordAccountManager .vkuiPopoutWrapper__host {
 	z-index: 1050 !important; /* VKUI выставляет z-index инлайном, иначе не перебить */
+}
+
+.WarlordAccountManagerAppearanceView__hint {
+	display: block;
+	padding: 4px var(--warlord-account-manager-modal-gutter, 12px) 12px;
+	color: var(--vkui--color_text_secondary);
+}
+
+/* Свой выбор цвета (см. ColorPicker.jsx): всё на токенах VKUI, поэтому подстраивается под тёмную и светлую тему */
+.WarlordAccountManagerColorPicker {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+.WarlordAccountManagerColorPicker__swatch {
+	flex: none;
+	width: 28px;
+	height: 28px;
+	border: 1px solid var(--vkui--color_separator_primary_alpha);
+	border-radius: 8px;
+}
+/* цвет не задан: пустой кружок, перечёркнутый наискосок */
+/* окно выбора лежит в Popover VKUI: фон, скругление и тень ему даёт сам Popover */
+.WarlordAccountManagerColorPicker__popup {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	width: 264px;
+	padding: 12px;
+}
+.WarlordAccountManagerColorPicker__area {
+	position: relative;
+	height: 128px;
+	border-radius: 8px;
+	overflow: hidden;
+	cursor: crosshair;
+	touch-action: none;
+}
+/* насыщенность растёт вправо (белый → цвет оттенка), яркость вверх (чёрный → прозрачный) */
+.WarlordAccountManagerColorPicker__areaBase {
+	position: absolute;
+	inset: 0;
+}
+.WarlordAccountManagerColorPicker__areaBase::before,
+.WarlordAccountManagerColorPicker__areaBase::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+}
+.WarlordAccountManagerColorPicker__areaBase::before {
+	background: linear-gradient(to right, #fff, rgba(255, 255, 255, 0));
+}
+.WarlordAccountManagerColorPicker__areaBase::after {
+	background: linear-gradient(to top, #000, rgba(0, 0, 0, 0));
+}
+.WarlordAccountManagerColorPicker__hue {
+	position: relative;
+	height: 12px;
+	border-radius: 6px;
+	background: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
+	cursor: pointer;
+	touch-action: none;
+}
+.WarlordAccountManagerColorPicker__thumb {
+	position: absolute;
+	width: 16px;
+	height: 16px;
+	border: 2px solid #fff;
+	border-radius: 50%;
+	box-shadow: 0 0 0 1px rgba(0, 0, 0, .32), 0 1px 4px rgba(0, 0, 0, .4);
+	transform: translate(-50%, -50%);
+	pointer-events: none;
+}
+.WarlordAccountManagerColorPicker__presets {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+.WarlordAccountManagerColorPicker__preset {
+	width: 24px;
+	height: 24px;
+	padding: 0;
+	border: 2px solid var(--vkui--color_separator_primary_alpha);
+	border-radius: 50%;
+	cursor: pointer;
+}
+
+/* поля разделителя не схлопываются через <li>: строка занимает свои 19px (1px линия и по 9px сверху и снизу) */
+.WarlordAccountManagerPanel__item[role="separator"] {
+	display: flow-root;
+}
+
+/* Список аккаунтов прокручивается от границы к границе элементов: сверху всегда целый элемент (высоту списка подгоняет App.jsx) */
+.WarlordAccountManagerPanel__list {
+	scroll-snap-type: y proximity;
+}
+.WarlordAccountManagerPanel__list > .WarlordAccountManagerPanel__item {
+	scroll-snap-align: start;
+}
+
+/* Картинка без своего цвета: панель прозрачная, сквозь картинку (и её непрозрачность) видна страница */
+.WarlordAccountManagerPanel.WarlordAccountManagerPanel--card.WarlordAccountManagerPanel--glass {
+	background: transparent;
+}
+/* Без аватарок текст строки начинается у левого края, линия разделителя тоже */
+.WarlordAccountManagerPanel--noAvatars .WarlordAccountManagerPanel__separator {
+	margin-left: 8px;
+}
+
+/* Пока открыто окно настроек, колонка остаётся поверх затемнения: в подложке окна вырезана «дырка» по её рамке (путь
+   считает App.jsx), поэтому панель видна без затемнения и её можно настраивать, глядя на результат */
+.WarlordAccountManager .vkuiModalOverlay__host {
+	clip-path: var(--warlord-account-manager-hole, none);
 }

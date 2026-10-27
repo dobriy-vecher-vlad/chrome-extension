@@ -1,0 +1,14 @@
+[
+	{
+		"id": 1,
+		"priority": 1,
+		"action": {
+			"type": "redirect",
+			"redirect": { "extensionPath": "/game/Game.js" }
+		},
+		"condition": {
+			"urlFilter": "|https://warlord.geronimo.su/client/vk/20221228_1/Game.js",
+			"resourceTypes": ["script"]
+		}
+	}
+]

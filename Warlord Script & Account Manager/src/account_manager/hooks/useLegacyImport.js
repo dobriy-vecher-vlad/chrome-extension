@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { watchDom } from '../../shared/lib/domObserver.js';
-import { scanLegacyAccounts } from '../lib/legacyPanel.js';
+import { markLegacyPanel, scanLegacyAccounts } from '../lib/legacyPanel.js';
 
 const WATCH_MS = 30000;
 
@@ -22,6 +22,7 @@ export function useLegacyImport(enabled, onFound) {
 			if (!found.length) return;
 			done = true;
 			unwatch();
+			markLegacyPanel();
 			callback.current(found);
 		};
 		unwatch = watchDom(read);

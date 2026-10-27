@@ -1,22 +1,22 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { clampBox, clampPosition, defaultBox, fitBox, MIN_HEIGHT, EMBEDDED_STYLE, freeStyle, placeHost } from '../lib/panelHost.js';
+import { clampBox, clampPosition, defaultBox, embeddedStyle, fitBox, MIN_HEIGHT, freeStyle, placeHost } from '../lib/panelHost.js';
 
 // Положение и высота панели. Во встроенном режиме хост стоит справа от игры (стиль задаёт main.jsx), в свободном
 // фиксирован в окне: тянем за верхнюю полоску, высоту меняем за нижнюю. Результат сохраняем, когда отпустили кнопку мыши.
 // saved — сохранённые { x, y, height } или null; save(box) — запись в настройки; snap(height) — подгонка высоты панели
-// под сетку (чтобы список аккаунтов вмещал целое число строк).
+// под сетку (чтобы список аккаунтов вмещал целое число строк); width — ширина панели в пикселях.
 //
 // Положение вычисляется прямо при отрисовке из сохранённого значения (своего состояния нет, оно только на время
 // перетаскивания), а стиль хоста выставляется до первой отрисовки браузером (useLayoutEffect). Поэтому панель сразу
 // появляется там, где её оставили, а не прыгает со стандартного места.
-export function usePanelBox(host, enabled, saved, save, snap) {
+export function usePanelBox(host, enabled, saved, save, snap, width) {
 	const [drag, setDrag] = useState(null); // положение, пока панель тянут
 	const [, setViewport] = useState(0); // размер окна изменился: положение нужно пересчитать
 	const snapRef = useRef(snap);
 	snapRef.current = snap;
 	// высота не больше, чем осталось до нижнего края окна, и подогнана под сетку
 	const snapBox = (b) => ({ ...b, height: snapRef.current(Math.min(b.height, Math.max(MIN_HEIGHT, window.innerHeight - b.y))) });
-	const box = snapBox(drag || fitBox(saved || defaultBox()));
+	const box = snapBox(drag || fitBox(saved || defaultBox(width), width));
 	const boxRef = useRef(box);
 	boxRef.current = box;
 	const saveRef = useRef(save);
@@ -26,13 +26,13 @@ export function usePanelBox(host, enabled, saved, save, snap) {
 	useLayoutEffect(() => {
 		if (enabled) {
 			host.dataset.free = '1';
-			host.style.cssText = freeStyle(box);
+			host.style.cssText = freeStyle(box, width);
 		} else {
 			delete host.dataset.free;
-			host.style.cssText = EMBEDDED_STYLE;
+			host.style.cssText = embeddedStyle(width);
 		}
 		placeHost(host);
-	}, [host, enabled, box.x, box.y]);
+	}, [host, enabled, box.x, box.y, width]);
 
 	// окно сузили: панель не должна остаться за его краем
 	useEffect(() => {
@@ -53,8 +53,8 @@ export function usePanelBox(host, enabled, saved, save, snap) {
 			const dx = e.clientX - start.x;
 			const dy = e.clientY - start.y;
 			latest = mode === 'move'
-				? { ...clampPosition({ x: start.box.x + dx, y: start.box.y + dy }), height: start.box.height }
-				: snapBox(clampBox({ ...start.box, height: start.box.height + dy }));
+				? { ...clampPosition({ x: start.box.x + dx, y: start.box.y + dy }, width), height: start.box.height }
+				: snapBox(clampBox({ ...start.box, height: start.box.height + dy }, width));
 			setDrag(latest);
 		};
 		const end = () => {
