@@ -2,14 +2,14 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AdaptivityProvider, Alert, AppRoot, ConfigProvider, Tappable, useModalManager } from '@vkontakte/vkui';
 import { Icon20Add, Icon20MoreHorizontal, Icon28SettingsOutline } from '@vkontakte/icons';
-import { ErrorBoundary } from './components/ErrorBoundary.jsx';
+import { ErrorBoundary } from '../shared/components/ErrorBoundary.jsx';
 import { AccountRow, AccountSkeletonRow, accountTitle, SeparatorRow } from './components/AccountRow.jsx';
 import { SettingsModal } from './components/SettingsModal.jsx';
 import { Toasts } from '../shared/components/Toasts.jsx';
 import { ManagerContext } from './ManagerContext.js';
 import { useAccounts } from './hooks/useAccounts.js';
 import { useColorScheme } from '../shared/hooks/useColorScheme.js';
-import { useGameFrame } from './hooks/useGameFrame.js';
+import { getGameFrame, useGameFrame } from './hooks/useGameFrame.js';
 import { useLegacyImport } from './hooks/useLegacyImport.js';
 import { usePanelBox } from './hooks/usePanelBox.js';
 import { useSettings } from './hooks/useSettings.js';
@@ -244,7 +244,32 @@ function Manager({ host, layer, settingsApi, pageScheme }) {
 	useLegacyImport(ready, onLegacyFound);
 
 	// Очистка всех данных: аккаунты, настройки и кэш. Подтверждение, как и удаление аккаунта, показываем на уровне панели.
-	const confirmClear = () => {
+	const CLEAR_KINDS = {
+		accounts: {
+			title: 'Очистить аккаунты?',
+			description: 'Список аккаунтов, названия, порядок и разделители будут удалены. Останется только аккаунт, под которым вы сейчас в ВК. Игровые аккаунты при этом не удаляются: их можно добавить снова. Оформление не затрагивается.',
+			message: 'Аккаунты очищены',
+			run: async () => manager.clearAccounts(),
+		},
+		appearance: {
+			title: 'Очистить оформление?',
+			description: 'Настройки страницы игры, панели и фона вернутся к стандартным, картинка фона будет удалена. Аккаунты не затрагиваются.',
+			message: 'Оформление очищено',
+			run: () => settingsApi.clear(),
+		},
+		all: {
+			title: 'Очистить все данные?',
+			description: 'Список аккаунтов, названия, порядок и настройки панели будут удалены. Останется только аккаунт, под которым вы сейчас в ВК. Игровые аккаунты при этом не удаляются: их можно добавить снова. Данные Warlord Script не затрагиваются.',
+			message: 'Данные очищены',
+			run: async () => {
+				await manager.clearAll();
+				resetSettings();
+			},
+		},
+	};
+	// kind: 'accounts' | 'appearance' | 'all'
+	const confirmClear = (kind) => {
+		const config = CLEAR_KINDS[kind];
 		showAlert((onClosed, key) => (
 			<Alert
 				key={key}
@@ -256,14 +281,40 @@ function Manager({ host, layer, settingsApi, pageScheme }) {
 						title: 'Очистить',
 						mode: 'destructive',
 						action: async () => {
-							await manager.clearAll();
-							resetSettings();
-							notify('Данные очищены');
+							await config.run();
+							notify(config.message);
 						},
 					},
 				]}
-				title="Очистить все данные?"
-				description="Список аккаунтов, названия, порядок и настройки панели будут удалены. Останется только аккаунт, под которым вы сейчас в ВК. Игровые аккаунты при этом не удаляются: их можно добавить снова. Данные Warlord Script не затрагиваются."
+				title={config.title}
+				description={config.description}
+			/>
+		));
+	};
+
+	// Смена подмены Game.js действует на следующую загрузку игры: предлагаем обновить игру сразу. Обновляется только фрейм игры
+	// (тот же адрес назначается ему заново, как при нажатии на текущий аккаунт), а если фрейма нет, вся страница.
+	// enabled — подмена только что включена или выключена. Правило включает background.js по смене настройки, к нажатию оно успевает.
+	const reloadGame = () => {
+		const frame = getGameFrame();
+		const src = frame?.getAttribute('src');
+		if (frame && src) frame.setAttribute('src', src);
+		else window.location.reload();
+	};
+	const confirmReload = (enabled) => {
+		showAlert((onClosed, key) => (
+			<Alert
+				key={key}
+				onClosed={onClosed}
+				dismissLabel="Позже"
+				actions={[
+					{ title: 'Позже', mode: 'cancel' },
+					{ title: 'Обновить', mode: 'default', action: reloadGame },
+				]}
+				title="Обновить игру?"
+				description={enabled
+					? 'Исправленный Game.js подключится после обновления игры.'
+					: 'Оригинальный Game.js вернётся после обновления игры.'}
 			/>
 		));
 	};
@@ -275,10 +326,10 @@ function Manager({ host, layer, settingsApi, pageScheme }) {
 		notify(message);
 	};
 
-	// Импорт оформления из файла: настройки подставляются целиком, кроме скрытия панели и положения панели в окне
-	// (они остаются как есть: файл с чужого экрана не должен спрятать панель или унести её за край окна)
+	// Импорт оформления из файла: настройки подставляются целиком, кроме общих (скрытие панели, подмена Game.js) и положения панели
+	// в окне (они остаются как есть: файл с чужого экрана не должен спрятать панель, включить подмену или унести панель за край окна)
 	const importAppearance = ({ settings: next, image: nextImage }) => {
-		updateSettings({ ...next, panelHidden: settings.panelHidden, panel: settings.panel });
+		updateSettings({ ...next, panelHidden: settings.panelHidden, replaceGame: settings.replaceGame, panel: settings.panel });
 		setImage(nextImage);
 	};
 
@@ -358,7 +409,7 @@ function Manager({ host, layer, settingsApi, pageScheme }) {
 	};
 
 	return (
-		<ManagerContext.Provider value={{ manager, confirmRemove, confirmClear, alertOpen: Boolean(alert), notify, appearance: { settings, image, update: updateSettings, updateBackground, setImage, setFreeMode, confirmHidePanel, resetGroup, importAppearance } }}>
+		<ManagerContext.Provider value={{ manager, confirmRemove, confirmClear, confirmReload, alertOpen: Boolean(alert), notify, appearance: { settings, image, update: updateSettings, updateBackground, setImage, setFreeMode, confirmHidePanel, resetGroup, importAppearance } }}>
 			<div
 				ref={panelRef}
 				className={panelClassName}
@@ -432,6 +483,21 @@ function Manager({ host, layer, settingsApi, pageScheme }) {
 	);
 }
 
+// Вместо панели при ошибке отрисовки: строка в том же месте, по нажатию панель пробует нарисоваться снова
+// (сама ошибка выводится в консоль, см. ErrorBoundary)
+function PanelError({ host, retry }) {
+	useLayoutEffect(() => {
+		host.hidden = false; // хост мог остаться скрытым: панель упала раньше, чем показала его
+	}, [host]);
+	return (
+		<div className="WarlordAccountManagerPanel">
+			<Tappable className="WarlordAccountManagerPanel__row" onClick={retry}>
+				<span className="WarlordAccountManagerPanel__rowText"><span className="WarlordAccountManagerPanel__rowName">Ошибка панели. Повторить</span></span>
+			</Tappable>
+		</div>
+	);
+}
+
 export function App({ host, layer }) {
 	const colorScheme = useColorScheme();
 	// Настройки читает сама оболочка: панель монтируется, только когда они загружены и она не скрыта. Скрытая панель ничего не
@@ -453,7 +519,7 @@ export function App({ host, layer }) {
 					{/* scroll="contain": пока открыто окно, VKUI блокирует прокрутку. По умолчанию он делает это на <html> самой страницы ВК
 						(position: fixed + top), что ломает шапку и раскладку ВК. С contain блокировка касается только нашего контейнера. */}
 					<AppRoot mode="embedded" scroll="contain" portalRoot={layer} disableParentTransformForPositionFixedElements>
-						<ErrorBoundary>
+						<ErrorBoundary part="Warlord Account Manager" fallback={({ retry }) => <PanelError host={host} retry={retry} />}>
 							{!hidden && <Manager host={host} layer={layer} settingsApi={settingsApi} pageScheme={colorScheme} />}
 						</ErrorBoundary>
 					</AppRoot>

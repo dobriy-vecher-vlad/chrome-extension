@@ -1,0 +1,102 @@
+/* Блок-заглушка на странице профиля ВК. Живёт в Shadow DOM, цвета и размеры берёт у страницы ВК (--vkui--color_* и др.
+   наследуются через границу Shadow DOM), а компоненты рисует VKUI. Внешний вид тот же, что у блока Warlord Script. */
+
+/* сброс унаследованного от страницы */
+:host {
+	all: initial;
+	display: block;
+}
+/* блок на странице профиля: во всю ширину колонки, нижний отступ как у остальных блоков страницы */
+:host(#warlord-script-placeholder-host) {
+	width: 100%;
+	margin-bottom: var(--page-block-offset, 15px);
+}
+/* VKUI в режиме embedded красит обёртку своим фоном страницы; фон блока задаёт сам блок */
+.WarlordScript.vkui__root {
+	background: transparent;
+}
+
+.WarlordScript {
+	--warlord-script-skeleton-background: rgba(174, 183, 194, .4);
+	color: var(--vkui--color_text_primary);
+	font-family: var(--vkui--font_family_base, -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', arial, sans-serif);
+	font-size: 13px;
+	line-height: 16px;
+}
+/* на светлой теме обычный цвет скелетона почти не виден на белом, поэтому там он плотнее, чем на тёмной */
+.WarlordScript--dark {
+	--warlord-script-skeleton-background: rgba(93, 95, 97, .12);
+}
+.WarlordScript *,
+.WarlordScript *::before,
+.WarlordScript *::after {
+	box-sizing: border-box;
+}
+
+/* сам блок: как карточки страницы ВК */
+.WarlordScript .vkuiAppRoot__host {
+	position: relative;
+	overflow: hidden;
+	border-radius: var(--vkui--size_border_radius_paper--regular, 12px);
+	background-color: var(--vkui--color_background_content);
+}
+/* обводка, как у остальных блоков страницы */
+.WarlordScript .vkuiAppRoot__host::after {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
+	border-radius: inherit;
+	box-shadow: inset 0 0 0 var(--vkui--size_border--regular) var(--vkui--color_separator_primary);
+	z-index: 100;
+}
+
+/* макет данных из заглушек и кнопка поверх него */
+.WarlordScriptSkeleton {
+	position: relative;
+	flex-shrink: 0;
+	overflow: hidden;
+	border-radius: 10px;
+	background-color: var(--warlord-script-skeleton-background);
+}
+.WarlordScriptPreview {
+	position: relative;
+	height: 168px;
+}
+.WarlordScriptPreview__mock {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	height: 100%;
+	padding: 16px 12px 12px;
+	overflow: hidden;
+	opacity: .7;
+	-webkit-mask-image: linear-gradient(180deg, #000 55%, transparent 100%);
+	mask-image: linear-gradient(180deg, #000 55%, transparent 100%);
+	pointer-events: none;
+}
+.WarlordScriptPreview__row {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+.WarlordScriptPreview__lines {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+.WarlordScriptPreview__grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 8px;
+}
+.WarlordScriptPreview__action {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}

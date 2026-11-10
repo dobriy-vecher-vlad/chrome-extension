@@ -85,9 +85,9 @@ const BOSS_RAID_NAMES = {
 };
 
 const memberSorters = [
-	(a, b) => a.rang - b.rang,
-	(a, b) => b.dmg - a.dmg,
-	(a, b) => b.hp - a.hp,
+	(a, b) => (a.rang || 0) - (b.rang || 0),
+	(a, b) => (b.dmg || 0) - (a.dmg || 0),
+	(a, b) => (b.hp || 0) - (a.hp || 0),
 ];
 
 function PlayerSections({ data, settings, open, onToggle }) {
@@ -306,7 +306,7 @@ function PersonnelSection({ clan, sorting, open, onToggle }) {
 	if (!members.length) {
 		body = <Footer>нет участников в составе</Footer>;
 	} else {
-		const total = (key, factor = 1) => members.map((member) => member[key] * factor).reduce((x, y) => x + y);
+		const total = (key, factor = 1) => members.map((member) => (member[key] || 0) * factor).reduce((x, y) => x + y);
 		const maxLvl = total('lvl');
 		const maxDmg = total('dmg');
 		const maxHp = total('hp', 15);
@@ -332,7 +332,7 @@ function PersonnelSection({ clan, sorting, open, onToggle }) {
 								{ title: member.name },
 								{ title: RANGS[member.rang - 1]?.title?.toLowerCase() },
 								{ title: `${numberSpaces(member.dmg, ' ')} DMG` },
-								{ title: `${numberSpaces(member.hp * 15, ' ')} HP` },
+								{ title: `${numberSpaces((member.hp || 0) * 15, ' ')} HP` },
 							]}
 							tooltip={<UserCard user={member} />}
 						/>

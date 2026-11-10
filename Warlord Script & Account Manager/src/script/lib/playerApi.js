@@ -8,7 +8,7 @@ import BOSSES from '../data/bosses.json';
 // Формат ответов и поля разбираются так же, как в исходном Warlord Script: от этого зависит всё, что показывает блок.
 
 export const STATUSES_URL = 'https://dobriy-vecher-vlad.github.io/warlord/wl_status.json';
-export const PATH_IMAGES = 'https://dobriy-vecher-vlad.github.io/warlord-helper/media/images/';
+export const PATH_IMAGES = 'https://warlord-helper.website.yandexcloud.net/media/images/';
 const BAD_NAME = 'Я - Клоун';
 const RATE_LIMIT_RETRIES = 10;
 
@@ -214,7 +214,7 @@ function parseClanWar(war = {}, statuses = false) {
 		name: war.en, // название
 		involved: attackers, // количество людей в набеге
 		treasury: [Number(war.l1), Number(war.l3)], // казна
-		reward: [Math.floor(Number(war.l1) / attackers), Math.floor(Number(war.l3) / attackers)], // награда на одного участника
+		reward: attackers ? [Math.floor(Number(war.l1) / attackers), Math.floor(Number(war.l3) / attackers)] : [0, 0], // награда на одного участника
 		members, // участники
 	};
 }

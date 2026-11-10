@@ -1,6 +1,6 @@
-import { normalizeSettings } from './settings.js';
+import { IMAGE_DATA_URL, normalizeSettings } from './settings.js';
 
-// Файлы экспорта оформления и «всего вместе». Аккаунты отдельно лежат в текстовом файле (см. transfer.js); в «всё вместе» их
+// Файлы экспорта оформления и «всех данных». Аккаунты отдельно лежат в текстовом файле (см. transfer.js); в «всё вместе» их
 // текст вложен как есть, поэтому читается тем же разбором.
 export const APPEARANCE_FILE_NAME = 'warlord-account-manager-appearance.json';
 export const BACKUP_FILE_NAME = 'warlord-account-manager-backup.json';
@@ -9,9 +9,10 @@ const APPEARANCE_TYPE = 'warlord-account-manager-appearance';
 const BACKUP_TYPE = 'warlord-account-manager-backup';
 const MAX_IMAGE_LENGTH = 8 * 1024 * 1024; // символов в data:-адресе картинки
 
-// В файл не идут скрытие панели и её положение в окне: первое выключило бы панель при импорте, второе зависит от экрана
+// В файл не идут скрытие панели, подмена Game.js и положение панели в окне: первое выключило бы панель при импорте, второе меняло
+// бы загрузку игры, третье зависит от экрана
 function appearancePart(settings, image) {
-	const { panelHidden, panel, ...rest } = settings; // eslint-disable-line no-unused-vars
+	const { panelHidden, replaceGame, panel, ...rest } = settings; // eslint-disable-line no-unused-vars
 	return { settings: rest, backgroundImage: image || null };
 }
 
@@ -33,7 +34,7 @@ function readJson(text) {
 }
 
 const validImage = (image) => (
-	image && typeof image.data === 'string' && image.data.startsWith('data:image/') && image.data.length <= MAX_IMAGE_LENGTH && Number.isFinite(image.luminance)
+	image && typeof image.data === 'string' && image.data.length <= MAX_IMAGE_LENGTH && IMAGE_DATA_URL.test(image.data) && Number.isFinite(image.luminance)
 		? { data: image.data, luminance: Math.min(1, Math.max(0, image.luminance)) }
 		: null
 );
@@ -44,7 +45,7 @@ function appearanceFrom(part) {
 	return { settings: normalizeSettings(part.settings), image: validImage(part.backgroundImage) };
 }
 
-// Файл оформления (подходит и файл «всё вместе»: берётся его оформление)
+// Файл оформления (подходит и файл «все данные»: берётся его оформление)
 export function parseAppearance(text) {
 	const data = readJson(text);
 	if (!data) return null;
@@ -53,7 +54,7 @@ export function parseAppearance(text) {
 	return null;
 }
 
-// Файл «всё вместе»: { accountsText, appearance } или null
+// Файл «все данные»: { accountsText, appearance } или null
 export function parseBackup(text) {
 	const data = readJson(text);
 	if (!data || data.type !== BACKUP_TYPE) return null;

@@ -12,6 +12,7 @@ function validateId(value) {
 	if (!value) return '';
 	if (!/^\d+$/.test(value)) return 'Номер профиля состоит только из цифр';
 	if (value.length > 12) return 'Номер профиля не длиннее 12 цифр';
+	if (!Number(value)) return 'Номер профиля должен быть больше нуля';
 	return '';
 }
 
@@ -76,7 +77,7 @@ export function AccountForm({ mode, accountId, standalone, onDone }) {
 	const trimmedKey = authKey.trim();
 	const idError = validateId(trimmedId);
 	const keyError = validateKey(trimmedKey, keyTouched);
-	const idValid = /^\d{1,12}$/.test(trimmedId);
+	const idValid = /^\d{1,12}$/.test(trimmedId) && Number(trimmedId) > 0;
 	const keyValid = isAuthKey(trimmedKey);
 	const hasKeyField = !(editing && own); // ключ родного аккаунта выдаёт сам ВК
 	const valid = idValid && (keyValid || !hasKeyField);

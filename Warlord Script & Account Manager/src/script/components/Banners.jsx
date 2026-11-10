@@ -4,6 +4,9 @@ import { send } from '../../shared/lib/messaging.js';
 
 const noop = () => {};
 
+// Строка внутри CSS url("..."): кавычка, обратная косая и перевод строки записываются кодом, иначе адрес с ними ломает значение
+const cssString = (value) => String(value).replace(/["\\\n\r]/g, (char) => `\\${char.charCodeAt(0).toString(16)} `);
+
 // hover — подсвечивать ли баннер при наведении (у объявлений да, у баннеров игрока в галерее нет)
 function BannerItem({ banner, hover = false }) {
 	// ссылки из файла статусов могут вести на vk.com, а мы работаем на vk.ru
@@ -15,7 +18,7 @@ function BannerItem({ banner, hover = false }) {
 			title={banner.header || ' '}
 			subtitle={banner.subheader || ' '}
 			after={link?.length && !banner.image?.length ? 'chevron' : undefined}
-			background={banner.image?.length ? <div style={{ backgroundColor: '#000', backgroundImage: `url(${banner.image})`, backgroundPosition: 'center', backgroundSize: 'cover' }} /> : undefined}
+			background={banner.image?.length ? <div style={{ backgroundColor: '#000', backgroundImage: `url("${cssString(banner.image)}")`, backgroundPosition: 'center', backgroundSize: 'cover' }} /> : undefined}
 		/>
 	);
 	// Ссылки вида «?w=wall…» (записи ВК) открываем внутри ВК, как это делает сама страница. Если не получилось, переходим по ссылке
@@ -43,7 +46,7 @@ export const Actions = ({ actions }) => (
 
 // Баннеры и статусы игрока: галерея
 export const Banners = ({ banners }) => (
-	<Gallery className="WarlordScriptBannerGallery" align="center" showArrows slideWidth="100%">
+	<Gallery className="WarlordScriptStatusGallery" align="center" showArrows slideWidth="100%">
 		{banners.map((banner, key) => <BannerItem key={key} banner={banner} />)}
 	</Gallery>
 );

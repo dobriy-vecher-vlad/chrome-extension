@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { Button, Footnote, ModalPage, ModalPageHeader, PanelHeaderBack, SimpleCell } from '@vkontakte/vkui';
-import { Icon28FolderOutline, Icon28HelpCircleOutline, Icon28KeyOutline, Icon28PaletteOutline, Icon28Users3Outline } from '@vkontakte/icons';
+import { Icon28FolderOutline, Icon28HelpCircleOutline, Icon28KeyOutline, Icon28PaletteOutline, Icon28SettingsOutline, Icon28Users3Outline } from '@vkontakte/icons';
 import { useManagerContext } from '../ManagerContext.js';
 import { AccountForm } from './AccountForm.jsx';
 import { AccountsView } from './AccountsView.jsx';
 import { AppearanceView } from './AppearanceView.jsx';
+import { GeneralView } from './GeneralView.jsx';
 import { HelpView } from './HelpView.jsx';
 import { ProjectLinks } from '../../shared/components/ProjectLinks.jsx';
 import { MyDataView } from './MyDataView.jsx';
@@ -19,6 +20,7 @@ function accountsCount(n) {
 }
 
 const SECTIONS = [
+	{ name: 'general', title: 'Общие настройки', subtitle: 'Панель аккаунтов и подмена файла игры', icon: <Icon28SettingsOutline /> },
 	{ name: 'accounts', title: 'Аккаунты', subtitle: 'Список, порядок, добавление и правка', icon: <Icon28Users3Outline /> },
 	{ name: 'storage', title: 'Хранилище', subtitle: 'Импорт, экспорт и очистка данных', icon: <Icon28FolderOutline /> },
 	{ name: 'appearance', title: 'Оформление', subtitle: 'Вид страницы игры и панели', icon: <Icon28PaletteOutline /> },
@@ -81,6 +83,7 @@ export function SettingsModal({ modalProps, close, initial }) {
 	const back = <PanelHeaderBack label="Назад" onClick={goBack} />;
 	const header = {
 		menu: <ModalPageHeader>Настройки</ModalPageHeader>,
+		general: <ModalPageHeader before={back}>Общие настройки</ModalPageHeader>,
 		accounts: (
 			<ModalPageHeader
 				before={back}
@@ -112,6 +115,9 @@ export function SettingsModal({ modalProps, close, initial }) {
 					<ProjectLinks token={manager.token} />
 				</>
 			);
+			break;
+		case 'general':
+			content = <GeneralView />;
 			break;
 		case 'accounts':
 			content = <AccountsView reorder={reorder} onForm={(form) => go({ name: 'form', ...form })} />;

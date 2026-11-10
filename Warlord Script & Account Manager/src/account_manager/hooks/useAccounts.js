@@ -24,6 +24,7 @@ export function useAccounts({ nicknames = true, avatars = true } = {}) {
 	const appliedSrc = useRef(null); // src, выставленный нами, чтобы отличать его от родного
 	const options = useRef({ nicknames, avatars });
 	options.current = { nicknames, avatars };
+	const clearing = useRef(false);
 	const refreshing = useRef(false);
 	const refreshAgain = useRef(false);
 
@@ -48,6 +49,7 @@ export function useAccounts({ nicknames = true, avatars = true } = {}) {
 		// Своя же запись возвращается событием, и перечитывать её нельзя: между двумя быстрыми записями это откатило бы
 		// список к промежуточному виду, и следующая запись затёрла бы свежие данные. Перечитываем только чужие изменения.
 		return onAccountsChanged((value) => {
+			if (clearing.current) return; // идёт очистка: промежуточное «пусто» из хранилища не должно затереть оставленный аккаунт
 			if (JSON.stringify(value) !== JSON.stringify(list.current.map(toStored))) reload();
 		});
 	}, [reload]);
@@ -236,21 +238,31 @@ export function useAccounts({ nicknames = true, avatars = true } = {}) {
 		commit(list.current.filter((a) => a.id !== id));
 	}, [commit]);
 
+	// Очистка только списка аккаунтов (название, порядок, разделители). Аккаунт, под которым открыт сам ВК, остаётся по той же
+	// причине, что и в clearAll
+	const clearAccounts = useCallback(() => {
+		const own = session.current;
+		commit(own ? [{ id: own.id, authKey: own.authKey }] : []);
+		refreshAll();
+	}, [commit, refreshAll]);
+
 	// Очистка данных панели аккаунтов (аккаунты, её настройки, кэш картинок). Настройки Warlord Script
 	// (SCRIPT_SETTINGS_KEY) не трогаем: это отдельная часть расширения. Аккаунт, под которым открыт сам ВК, остаётся:
 	// он берётся из адреса игры и появился бы снова при следующей загрузке страницы.
 	const clearAll = useCallback(async () => {
+		clearing.current = true;
 		try {
 			const keys = Object.keys(await chrome.storage.local.get(null)).filter((key) => key !== SCRIPT_SETTINGS_KEY);
 			await chrome.storage.local.remove(keys);
 		} catch { /* расширение перезагружено */ }
 		const own = session.current;
 		commit(own ? [{ id: own.id, authKey: own.authKey }] : []);
+		setTimeout(() => { clearing.current = false; }, 300); // события хранилища о самой очистке придут чуть позже
 		refreshAll();
 	}, [commit, refreshAll]);
 
 	// Превью профиля для окна добавления и редактирования
 	const preview = useCallback((id) => loadPreview(id, session.current?.token || ''), []);
 
-	return { accounts, ready, loading: !refreshed, currentId, ownId, token, notice, onFrameSrc, switchTo, add, update, remove, reorder, importAccounts, addSeparator, clearAll, preview };
+	return { accounts, ready, loading: !refreshed, currentId, ownId, token, notice, onFrameSrc, switchTo, add, update, remove, reorder, importAccounts, addSeparator, clearAccounts, clearAll, preview };
 }

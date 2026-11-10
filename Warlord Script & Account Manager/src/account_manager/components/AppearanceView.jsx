@@ -36,7 +36,7 @@ function ResetButton({ children, onClick }) {
 
 export function AppearanceView() {
 	const { appearance, notify } = useManagerContext();
-	const { settings, image, update, updateBackground, setImage, setFreeMode, confirmHidePanel, resetGroup } = appearance;
+	const { settings, image, update, updateBackground, setImage, setFreeMode, resetGroup } = appearance;
 	const { background } = settings;
 	const fileInput = useRef(null);
 	// обводка и тень есть только у панели-карточки: она рисуется так в свободном режиме и когда задан фон
@@ -178,14 +178,6 @@ export function AppearanceView() {
 				<Footnote className="WarlordAccountManagerAppearanceView__hint">Пока фон не задан, панель прозрачная и лежит прямо на странице.</Footnote>
 			)}
 			<ResetButton onClick={() => resetGroup('background', 'Настройки фона панели сброшены')}>Сбросить настройки фона панели</ResetButton>
-
-			<Header>Скрытие</Header>
-			<Option
-				title="Скрыть панель аккаунтов"
-				description="Убирает панель и отключает все правки страницы игры. Вернуть можно в настройках Warlord Script"
-				checked={false}
-				onChange={confirmHidePanel}
-			/>
 		</>
 	);
 }

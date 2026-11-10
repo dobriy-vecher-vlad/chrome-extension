@@ -20,14 +20,14 @@ function FileActions({ accept, exportDisabled, onFile, onExport }) {
 	};
 	return (
 		<>
-			<CellButton before={<Icon28UploadOutline />} onClick={() => input.current?.click()}>Импортировать из файла</CellButton>
-			<CellButton before={<Icon28DownloadOutline />} disabled={exportDisabled} onClick={onExport}>Экспортировать в файл</CellButton>
+			<CellButton before={<Icon28UploadOutline />} onClick={() => input.current?.click()}>Импортировать данные из файла</CellButton>
+			<CellButton before={<Icon28DownloadOutline />} disabled={exportDisabled} onClick={onExport}>Экспортировать данные в файл</CellButton>
 			<input ref={input} type="file" accept={accept} hidden onChange={pick} />
 		</>
 	);
 }
 
-// Раздел «Хранилище»: занятое место, экспорт и импорт (аккаунты, оформление, всё вместе), очистка данных
+// Раздел «Хранилище»: занятое место, экспорт и импорт (аккаунты, оформление, все данные) и очистка каждого пункта
 export function StorageView() {
 	const { manager, appearance, notify, confirmClear } = useManagerContext();
 	const { accounts } = manager;
@@ -75,7 +75,7 @@ export function StorageView() {
 	const importAllFile = (text) => {
 		const parsed = parseBackup(text);
 		if (!parsed) {
-			notify('Это не файл «всё вместе»', 'error');
+			notify('Это не файл «все данные»', 'error');
 			return;
 		}
 		appearance.importAppearance(parsed.appearance);
@@ -101,15 +101,15 @@ export function StorageView() {
 
 			<Header>Аккаунты</Header>
 			<FileActions accept=".txt,text/plain" exportDisabled={!accounts.some((account) => !account.separator)} onFile={importAccountsFile} onExport={exportAccounts} />
+			<CellButton before={<Icon28DeleteOutline />} appearance="negative" onClick={() => confirmClear('accounts')}>Очистить данные</CellButton>
 
 			<Header>Оформление</Header>
 			<FileActions accept=".json,application/json" onFile={importAppearanceFile} onExport={exportAppearance} />
+			<CellButton before={<Icon28DeleteOutline />} appearance="negative" onClick={() => confirmClear('appearance')}>Очистить данные</CellButton>
 
-			<Header>Всё вместе</Header>
+			<Header>Все данные</Header>
 			<FileActions accept=".json,application/json" onFile={importAllFile} onExport={exportAll} />
-
-			<Header>Очистка</Header>
-			<CellButton before={<Icon28DeleteOutline />} appearance="negative" onClick={confirmClear}>Очистить все данные</CellButton>
+			<CellButton before={<Icon28DeleteOutline />} appearance="negative" onClick={() => confirmClear('all')}>Очистить данные</CellButton>
 		</>
 	);
 }

@@ -13,7 +13,7 @@ function legacyElements() {
 		const match = CALL.exec(element.getAttribute('onclick') || '');
 		if (!match) continue;
 		const id = Number(match[2]);
-		if (seen.has(id)) continue;
+		if (!id || seen.has(id)) continue;
 		seen.add(id);
 		found.push({ element, id, authKey: match[1].toLowerCase() });
 	}

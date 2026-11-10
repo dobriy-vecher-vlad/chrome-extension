@@ -2,6 +2,7 @@ import { createRoot } from 'react-dom/client';
 import { watchDom } from '../shared/lib/domObserver.js';
 import { ScriptBlock } from './components/ScriptBlock.jsx';
 import { createLayer, getStyles, readTokens } from './lib/pageHost.js';
+import { reportError } from '../shared/components/ErrorBoundary.jsx';
 
 // Warlord Script: блок характеристик игрока на странице профиля vk.ru. Скрипт подставляет background, когда probe.js увидел профиль.
 // ВК — SPA: колонка профиля может исчезнуть и появиться снова (другой профиль), поэтому блок следит за страницей:
@@ -44,6 +45,14 @@ function mount(column) {
 }
 
 function sync() {
+	try {
+		syncUnsafe();
+	} catch (error) {
+		reportError('Warlord Script', error);
+	}
+}
+
+function syncUnsafe() {
 	const column = findColumn();
 	if (!column) {
 		unmount();

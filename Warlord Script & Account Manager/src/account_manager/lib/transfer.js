@@ -29,7 +29,7 @@ export function parseAccounts(text) {
 			continue;
 		}
 		const match = LINE.exec(line);
-		if (!match || !isAuthKey(match[2])) {
+		if (!match || !isAuthKey(match[2]) || !Number(match[3])) {
 			bad += 1;
 			continue;
 		}

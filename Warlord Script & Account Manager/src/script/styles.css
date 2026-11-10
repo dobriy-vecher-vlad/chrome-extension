@@ -96,7 +96,7 @@
 	z-index: 100;
 }
 
-/* шапка: вкладка слева, кнопка справа. Размеры сняты с живого исходного расширения: шапка 58 px, вкладка 44 px,
+/* шапка: заголовок слева, кнопки справа. Размеры сняты с живого исходного расширения: шапка 58 px, заголовок 44 px,
    кнопка 32×32 */
 .WarlordScriptHeader__row {
 	display: flex;
@@ -121,40 +121,24 @@
 	min-width: 0;
 	overflow: hidden;
 }
-.WarlordScriptTabs .vkuiTabs__in {
-	gap: 4px;
-}
-.WarlordScriptTabs .vkuiTabsItem__host {
-	min-width: unset;
-	padding: 10px 16px;
-	border-radius: 10px;
-}
-.WarlordScriptTabs .vkuiTabsItem__label {
-	color: var(--vkui--color_text_primary);
-	font-size: 15px;
-	font-weight: 500;
-	line-height: 20px;
-}
 .WarlordScriptTabs__version {
 	font-size: 13px;
 	font-weight: 500;
 	line-height: 16px;
 	color: var(--warlord-script-muted);
 }
-/* метка сервера у вкладки: в тёмной теме белая, как в исходном расширении */
-.WarlordScriptTabs .vkuiCounter__host {
-	height: 18px;
-	min-width: 0;
-	padding: 0 5px;
-	border-radius: 9px;
-	font-size: 12px;
-	line-height: 14px;
+/* заголовок: название и версия */
+.WarlordScriptTitle {
+	align-items: center;
+	gap: 6px;
+	padding: 10px 16px;
 }
-.WarlordScript--dark .WarlordScriptTabs .vkuiCounter__host {
-	background: #fff;
-	color: #222;
+.WarlordScriptTitle__name {
+	color: var(--vkui--color_text_primary);
+	font-size: 15px;
+	font-weight: 500;
+	line-height: 20px;
 }
-
 /* аватары «приложения»: квадрат со скруглением, как в исходном расширении */
 .WarlordScriptAppAvatar,
 .WarlordScriptAppAvatar img {
@@ -470,60 +454,60 @@
 	display: block;
 	text-decoration: none;
 }
-.WarlordScriptAnnouncementList .vkuiBanner__host {
+.WarlordScriptAnnouncementList .vkuiNotice__host {
 	margin: 0;
 	padding: 12px 12px 12px 16px;
 	border-radius: 0;
 	background-color: transparent;
 }
-.WarlordScriptAnnouncementList > *:first-child .vkuiBanner__host {
+.WarlordScriptAnnouncementList > *:first-child .vkuiNotice__host {
 	border-radius: 10px 10px 0 0;
 }
-.WarlordScriptAnnouncementList > *:last-child .vkuiBanner__host {
+.WarlordScriptAnnouncementList > *:last-child .vkuiNotice__host {
 	border-radius: 0 0 10px 10px;
 }
-.WarlordScriptAnnouncementList .vkuiBanner__host::before,
-.WarlordScriptBannerGallery .vkuiBanner__host::before {
+.WarlordScriptAnnouncementList .vkuiNotice__host::before,
+.WarlordScriptStatusGallery .vkuiNotice__host::before {
 	display: none;
 }
-.WarlordScriptAnnouncementList .vkuiBanner__content > :first-child,
-.WarlordScriptBannerGallery .vkuiBanner__content > :first-child {
+.WarlordScriptAnnouncementList .vkuiNotice__content > :first-child,
+.WarlordScriptStatusGallery .vkuiNotice__content > :first-child {
 	font-size: 15px;
 	line-height: 20px;
 	font-weight: 500;
 }
-.WarlordScriptAnnouncementList .vkuiBanner__subtitle,
-.WarlordScriptBannerGallery .vkuiBanner__subtitle {
+.WarlordScriptAnnouncementList .vkuiNotice__subtitle,
+.WarlordScriptStatusGallery .vkuiNotice__subtitle {
 	margin-top: 2px;
 	font-size: 13px;
 	line-height: 16px;
 	opacity: 1;
 	color: var(--warlord-script-announcement-subtitle);
 }
-.WarlordScriptAnnouncementList .vkuiBanner__after {
+.WarlordScriptAnnouncementList .vkuiNotice__after {
 	color: var(--warlord-script-muted);
 }
-.WarlordScriptBannerGallery {
+.WarlordScriptStatusGallery {
 	margin: 0;
 	padding: 0;
 	background: var(--vkui--color_background_secondary);
 }
-.WarlordScript--dark .WarlordScriptBannerGallery {
+.WarlordScript--dark .WarlordScriptStatusGallery {
 	background: #19191a;
 }
-.WarlordScriptBannerGallery .vkuiCarouselBase__layer {
+.WarlordScriptStatusGallery .vkuiCarouselBase__layer {
 	min-height: fit-content;
 }
-.WarlordScriptBannerGallery .vkuiCarouselBase__slide > * {
+.WarlordScriptStatusGallery .vkuiCarouselBase__slide > * {
 	display: block;
 	text-decoration: none;
 }
-.WarlordScriptBannerGallery .vkuiBanner__host {
+.WarlordScriptStatusGallery .vkuiNotice__host {
 	margin: 0;
 	padding: 12px 16px;
 	border-radius: 0;
 }
-.WarlordScriptBannerGallery .vkuiBanner__content > * {
+.WarlordScriptStatusGallery .vkuiNotice__content > * {
 	text-align: center;
 }
 
@@ -865,6 +849,7 @@
 	margin-bottom: 8px;
 	color: var(--vkui--color_text_secondary);
 }
+
 /* справка: короткие абзацы с воздухом между ними */
 .WarlordScriptHelpList__item + .WarlordScriptHelpList__item {
 	margin-top: 16px;
@@ -876,4 +861,64 @@
 	display: block;
 	margin-top: 4px;
 	color: var(--vkui--color_text_secondary);
+}
+
+/* Стартовый вид блока: макет данных из заглушек и кнопка загрузки поверх него */
+.WarlordScriptStartPreview {
+	position: relative;
+	height: 136px;
+	/* на светлой теме обычный цвет скелетона почти не виден на белом: в макете он плотнее */
+	--warlord-script-skeleton-background: rgba(174, 183, 194, .4);
+}
+.WarlordScriptStartPreview__mock {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	padding: 8px 12px 12px;
+	box-sizing: border-box;
+	height: 100%;
+	overflow: hidden;
+	opacity: .7;
+	-webkit-mask-image: linear-gradient(180deg, #000 55%, transparent 100%);
+	mask-image: linear-gradient(180deg, #000 55%, transparent 100%);
+	pointer-events: none;
+}
+.WarlordScriptStartPreview__row {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+.WarlordScriptStartPreview__lines {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+.WarlordScriptStartPreview__grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 8px;
+}
+.WarlordScriptStartPreview__action {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+.WarlordScriptStartPreview .WarlordScriptSkeleton::after {
+	display: none;
+}
+.WarlordScript--dark .WarlordScriptStartPreview {
+	--warlord-script-skeleton-background: rgba(93, 95, 97, .12);
+}
+/* кнопка «Обновить данные»: значок делает один оборот. Крутится сам контур вокруг центра окружности: в исходном значке он
+   стоит не по центру рамки 20x20, а в точке (10, 11), и поворот всего значка получался бы с биением */
+.WarlordScriptRefreshIcon--spin path {
+	transform-box: view-box;
+	transform-origin: 10px 11px;
+	animation: warlord-script-refresh-spin .6s ease-in-out;
+}
+@keyframes warlord-script-refresh-spin {
+	to { transform: rotate(360deg); }
 }

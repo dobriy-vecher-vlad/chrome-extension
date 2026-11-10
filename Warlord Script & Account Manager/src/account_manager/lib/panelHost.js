@@ -48,6 +48,9 @@ function hostParent(host) {
 
 // Ставит хост на своё место, если он оказался не там (ВК перерисовал страницу или сменился режим)
 export function placeHost(host) {
+	// Вызывается на каждую пачку изменений страницы (ВК перерисовывает её постоянно): если встроенный хост уже стоит в нужном
+	// блоке, искать этот блок по всей странице (селектор по подстроке класса) не нужно
+	if (!host.dataset.free && host.isConnected && String(host.parentElement?.className).includes('LayoutWrapper__body')) return;
 	const parent = hostParent(host);
 	if (parent && host.parentElement !== parent) parent.append(host);
 }

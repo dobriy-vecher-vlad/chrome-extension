@@ -39,7 +39,7 @@ export function GeneralView() {
 			{panelHidden !== null && (
 				<SwitchRow
 					title="Панель аккаунтов на странице игры"
-					description="Warlord Account Manager: список аккаунтов справа от игры и правки страницы игры. Если выключить её в настройках панели, вернуть можно только здесь"
+					description="Список аккаунтов справа от игры и правки страницы игры"
 					checked={!panelHidden}
 					onChange={(value) => {
 						setPanelHidden(!value);

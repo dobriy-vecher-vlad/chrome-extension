@@ -29,6 +29,7 @@ export const DEFAULT_SETTINGS = {
 	fixLayoutWidth: true, // исправить нечётную --layout-width ВК (см. layoutWidth.js)
 	freeMode: false, // панель не встроена справа от игры, а перетаскивается и меняет высоту
 	panelHidden: false, // панель и все правки страницы выключены (вернуть можно только из настроек Warlord Script)
+	replaceGame: true, // подмена Game.js на исправленную копию из расширения (правило declarativeNetRequest включает background.js)
 	panelWidth: WIDTH_DEFAULT,
 	panelBorder: true, // обводка вокруг панели, когда она нарисована карточкой (свободный режим или фон)
 	panelShadow: true, // тень под панелью-карточкой
@@ -64,6 +65,7 @@ export function normalizeSettings(stored) {
 		fixLayoutWidth: bool(source.fixLayoutWidth, DEFAULT_SETTINGS.fixLayoutWidth),
 		freeMode: bool(source.freeMode, DEFAULT_SETTINGS.freeMode),
 		panelHidden: bool(source.panelHidden, DEFAULT_SETTINGS.panelHidden),
+		replaceGame: bool(source.replaceGame, DEFAULT_SETTINGS.replaceGame),
 		panelWidth: clamp(source.panelWidth, [WIDTH_MIN, WIDTH_MAX], WIDTH_DEFAULT),
 		panelBorder: bool(source.panelBorder, DEFAULT_SETTINGS.panelBorder),
 		panelShadow: bool(source.panelShadow, DEFAULT_SETTINGS.panelShadow),
@@ -127,8 +129,12 @@ export function isSeeThrough(background, hasImage) {
 }
 
 // Картинка фона { data (data:-адрес), luminance (средняя яркость 0..1, по ней выбирается светлый или тёмный текст) } или null
+// Адрес подставляется в CSS url("..."), поэтому допускается только base64 растровых форматов: кавычка или скобка внутри
+// дали бы дополнительный слой фона с чужим адресом
+export const IMAGE_DATA_URL = /^data:image\/(?:png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$/;
+
 const validImage = (image) => (
-	image && typeof image.data === 'string' && image.data.startsWith('data:image/') && Number.isFinite(image.luminance)
+	image && typeof image.data === 'string' && IMAGE_DATA_URL.test(image.data) && Number.isFinite(image.luminance)
 		? { data: image.data, luminance: Math.min(1, Math.max(0, image.luminance)) }
 		: null
 );

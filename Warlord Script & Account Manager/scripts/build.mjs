@@ -1,6 +1,6 @@
 import { watch as watchFiles } from 'node:fs';
 import { cp, mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
-import { join, posix } from 'node:path';
+import { dirname, join, posix } from 'node:path';
 import { build, context, transform } from 'esbuild';
 import { zipSync } from 'fflate';
 import { purgeVkuiCss } from './purgeCss.mjs';
@@ -30,14 +30,22 @@ const minifyOwnCss = {
 
 // vkui.css — стили всех компонентов VKUI, расширению нужна небольшая часть. Пока purgeSource (собранный JS) не известен, файл
 // отдаётся целиком, а после первой сборки из него вырезаются правила классов, которых в JS нет (см. purgeCss.mjs)
+// Блокировщики рекламы прячут элементы, в названии класса которых есть «banner». Классы компонента Banner переименованы
+// (vkuiBanner__host -> vkuiNotice__host) и в CSS VKUI, и в его JS, и в наших стилях, поэтому плашки не попадают под фильтры
+const renameBanner = (text) => text.replaceAll('vkuiBanner', 'vkuiNotice');
+
 let purgeSource = null;
 const vkuiCss = {
 	name: 'vkui-css',
 	setup(b) {
 		b.onLoad({ filter: /vkui[\\/]dist[\\/]vkui\.css$/ }, async ({ path }) => {
-			const css = await readFile(path, 'utf8');
+			const css = renameBanner(await readFile(path, 'utf8'));
 			return { contents: purgeSource === null ? css : purgeVkuiCss(css, purgeSource), loader: 'text' };
 		});
+		// классы Banner в JS компонента: те же строки, что в CSS (см. renameBanner)
+		b.onLoad({ filter: /vkui[\\/]dist[\\/]components[\\/]Banner[\\/]Banner\.js$/ }, async ({ path }) => (
+			{ contents: renameBanner(await readFile(path, 'utf8')), loader: 'js', resolveDir: dirname(path) }
+		));
 	},
 };
 

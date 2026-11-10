@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-	DEFAULT_SETTINGS, loadBackgroundImage, loadSettings, onBackgroundImageChanged, onSettingsChanged, saveBackgroundImage, saveSettings,
+	DEFAULT_SETTINGS, loadBackgroundImage, loadSettings, normalizeSettings, onBackgroundImageChanged, onSettingsChanged, saveBackgroundImage, saveSettings,
 } from '../lib/settings.js';
 
 // Настройки расширения: читаются из хранилища при старте, меняются через update(поля) и сразу пишутся обратно.
@@ -11,6 +11,7 @@ export function useSettings() {
 	const [ready, setReady] = useState(false);
 	const current = useRef(DEFAULT_SETTINGS); // актуальное значение для обработчиков, которые не ждут перерисовки
 	const currentImage = useRef(null);
+	const written = useRef([]); // что мы сами записали и ещё не получили обратно событием хранилища
 
 	const apply = useCallback((next) => {
 		current.current = next;
@@ -27,9 +28,18 @@ export function useSettings() {
 			applyImage(loadedImage);
 			setReady(true);
 		});
-		// своя же запись возвращается событием: сверяем, чтобы не откатить более свежее значение
+		// Своя же запись возвращается событием. При частых записях (движок ползунка) событие старой записи приходит, когда
+		// в панели уже новое значение: сверка только с текущим откатила бы его на кадр назад. Поэтому свои записи помним
+		// и пропускаем; с текущим значением сравниваем только то, что записали не мы.
 		const offSettings = onSettingsChanged((value) => {
-			if (JSON.stringify(value) !== JSON.stringify(current.current)) apply(value);
+			const json = JSON.stringify(value);
+			const own = written.current.indexOf(json);
+			if (own >= 0) {
+				written.current.splice(own, 1); // убираем только вернувшуюся запись: порядок событий не гарантирован
+				return;
+			}
+			written.current = [];
+			if (json !== JSON.stringify(current.current)) apply(value);
 		});
 		const offImage = onBackgroundImageChanged((value) => {
 			if (JSON.stringify(value) !== JSON.stringify(currentImage.current)) applyImage(value);
@@ -43,6 +53,7 @@ export function useSettings() {
 	const update = useCallback((fields) => {
 		const next = { ...current.current, ...fields };
 		apply(next);
+		written.current = [...written.current, JSON.stringify(normalizeSettings(next))].slice(-50);
 		saveSettings(next);
 	}, [apply]);
 
@@ -61,5 +72,13 @@ export function useSettings() {
 		applyImage(null);
 	}, [apply, applyImage]);
 
-	return { settings, image, ready, update, updateBackground, setImage, reset };
+	// Очистка оформления: значения по умолчанию и в панели, и в хранилище (reset выше меняет только панель). Общие настройки
+	// (скрытие панели, подмена Game.js) не оформление и остаются как были
+	const clear = useCallback(() => {
+		const { panelHidden, replaceGame } = current.current;
+		update({ ...DEFAULT_SETTINGS, panelHidden, replaceGame });
+		setImage(null);
+	}, [update, setImage]);
+
+	return { settings, image, ready, update, updateBackground, setImage, reset, clear };
 }

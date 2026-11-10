@@ -9,7 +9,13 @@ let scheduled = false;
 
 function flush() {
 	scheduled = false;
-	for (const callback of [...subscribers]) callback();
+	for (const callback of [...subscribers]) {
+		try {
+			callback();
+		} catch (error) {
+			console.error(error); // остальные подписчики всё равно получают свой вызов
+		}
+	}
 }
 
 function onMutation() {

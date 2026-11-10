@@ -2,7 +2,7 @@
 	"manifest_version": 3,
 	"minimum_chrome_version": "110",
 	"name": "Warlord Script & Account Manager",
-	"version": "4.1.0",
+	"version": "4.0.2",
 	"description": "Характеристики игроков на их страницах и быстрое переключение между своими аккаунтами в игре Warlord.",
 	"homepage_url": "https://vk.ru/wiki.warlord",
 	"icons": {
@@ -47,7 +47,8 @@
 	"content_scripts": [
 		{
 			"matches": [
-				"https://vk.ru/app5536422*"
+				"https://vk.ru/app5536422*",
+				"https://vk.ru/games/app5536422*"
 			],
 			"js": [
 				"content.js"

@@ -7,6 +7,8 @@ import { send } from '../lib/messaging.js';
 // Уже полученные картинки держим и в памяти: меню настроек создаётся заново при каждом возврате из вложенного раздела,
 // и без этого аватар сначала пропадал и появлялся снова после чтения из хранилища.
 const memory = new Map();
+const failedAt = new Map(); // ключ -> когда запрос не удался: 10 минут его не повторяем
+const FAILED_PAUSE = 10 * 60 * 1000;
 const refreshed = new Set(); // ключи, которые уже обновили из API за эту загрузку страницы: повторно не запрашиваем
 
 export function useVkImage(type, id, token) {
@@ -32,9 +34,10 @@ export function useVkImage(type, id, token) {
 	}, [cacheKey]);
 
 	useEffect(() => {
-		if (!token || refreshed.has(cacheKey)) return undefined;
+		if (!token || refreshed.has(cacheKey) || Date.now() - (failedAt.get(cacheKey) || 0) < FAILED_PAUSE) return undefined;
 		let cancelled = false;
 		send({ type, id, token }).then(async (result) => {
+			if (!result.ok || !result.image) failedAt.set(cacheKey, Date.now());
 			if (cancelled || !result.ok || !result.image) return;
 			refreshed.add(cacheKey);
 			setImage(result.image);

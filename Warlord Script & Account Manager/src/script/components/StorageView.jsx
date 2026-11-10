@@ -50,10 +50,10 @@ export function StorageView() {
 				</Footnote>
 				{usage && <Progress value={Math.max(1, (usage.used / usage.quota) * 100)} />}
 			</Div>
-			<CellButton before={<Icon28UploadOutline />} onClick={() => fileInput.current?.click()}>Импортировать из файла</CellButton>
-			<CellButton before={<Icon28DownloadOutline />} onClick={exportFile}>Экспортировать в файл</CellButton>
+			<CellButton before={<Icon28UploadOutline />} onClick={() => fileInput.current?.click()}>Импортировать данные из файла</CellButton>
+			<CellButton before={<Icon28DownloadOutline />} onClick={exportFile}>Экспортировать данные в файл</CellButton>
 			<input ref={fileInput} type="file" accept=".json,application/json" hidden onChange={importFile} />
-			<CellButton before={<Icon28DeleteOutline />} appearance="negative" onClick={() => setConfirming(true)}>Очистить все данные</CellButton>
+			<CellButton before={<Icon28DeleteOutline />} appearance="negative" onClick={() => setConfirming(true)}>Очистить данные</CellButton>
 			{confirming && (
 				<Alert
 					onClosed={() => setConfirming(false)}
