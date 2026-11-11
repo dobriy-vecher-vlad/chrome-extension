@@ -130,9 +130,10 @@ function Manager({ host, layer, settingsApi, pageScheme }) {
 	}, []);
 
 	useEffect(() => {
-		if (!settings.fixLayoutWidth) return undefined;
+		// в новом интерфейсе чёрной полосы нет, страницу не трогаем
+		if (!settings.fixLayoutWidth || frame.newInterface) return undefined;
 		return fixLayoutWidth();
-	}, [settings.fixLayoutWidth]);
+	}, [settings.fixLayoutWidth, frame.newInterface]);
 
 	// Включая свободный режим, панель остаётся там, где стояла: положение берём у встроенной колонки
 	const setFreeMode = (on) => {
@@ -409,7 +410,7 @@ function Manager({ host, layer, settingsApi, pageScheme }) {
 	};
 
 	return (
-		<ManagerContext.Provider value={{ manager, confirmRemove, confirmClear, confirmReload, alertOpen: Boolean(alert), notify, appearance: { settings, image, update: updateSettings, updateBackground, setImage, setFreeMode, confirmHidePanel, resetGroup, importAppearance } }}>
+		<ManagerContext.Provider value={{ manager, confirmRemove, confirmClear, confirmReload, alertOpen: Boolean(alert), notify, appearance: { settings, image, newInterface: frame.newInterface, update: updateSettings, updateBackground, setImage, setFreeMode, confirmHidePanel, resetGroup, importAppearance } }}>
 			<div
 				ref={panelRef}
 				className={panelClassName}

@@ -9,8 +9,16 @@ html[data-warlord-account-manager-hide-game-id] {
 	--warlord-account-manager-id-cut: 36px;
 }
 html:is([data-warlord-account-manager-compact-game-page], [data-warlord-account-manager-hide-game-id]) #apps_test_id .app_container,
-html:is([data-warlord-account-manager-compact-game-page], [data-warlord-account-manager-hide-game-id]) #apps_test_id .app_container iframe {
+html:is([data-warlord-account-manager-compact-game-page], [data-warlord-account-manager-hide-game-id]) #apps_test_id .app_container iframe,
+html:is([data-warlord-account-manager-compact-game-page], [data-warlord-account-manager-hide-game-id]) #app_5536422_container,
+html:is([data-warlord-account-manager-compact-game-page], [data-warlord-account-manager-hide-game-id]) #app_5536422_container iframe {
 	height: calc(832px - var(--warlord-account-manager-ads-cut, 0px) - var(--warlord-account-manager-id-cut, 0px)) !important;
+}
+/* Новый интерфейс (/games/app5536422_<id>, A/B-тест ВК): ВК задаёт ещё max-height и --app-container-min-height инлайном */
+html:is([data-warlord-account-manager-compact-game-page], [data-warlord-account-manager-hide-game-id]) #app_5536422_container {
+	--app-container-min-height: calc(832px - var(--warlord-account-manager-ads-cut, 0px) - var(--warlord-account-manager-id-cut, 0px)) !important;
+	min-height: calc(832px - var(--warlord-account-manager-ads-cut, 0px) - var(--warlord-account-manager-id-cut, 0px)) !important;
+	max-height: calc(832px - var(--warlord-account-manager-ads-cut, 0px) - var(--warlord-account-manager-id-cut, 0px)) !important;
 }
 
 /* Панель старого расширения Warlord Script (её заменяет это расширение): не рисуем. Сами кнопки остаются в DOM,
@@ -31,8 +39,15 @@ html[data-warlord-account-manager-hide-similar-apps] .apps_similarApps {
 html[data-warlord-account-manager-hide-footer] #footer {
 	display: none !important;
 }
+/* Новый интерфейс: подвал — панель управления под игрой и разделитель перед ней (у разделителя класс хешированный,
+   поэтому берём его по соседству с панелью) */
+html[data-warlord-account-manager-hide-footer] [data-testid="app_control_panel"],
+html[data-warlord-account-manager-hide-footer] :has(> hr):has(+ [data-testid="app_control_panel"]) {
+	display: none !important;
+}
 html[data-warlord-account-manager-hide-footer] #apps,
-html[data-warlord-account-manager-hide-footer] #apps_test_id .app_container iframe {
+html[data-warlord-account-manager-hide-footer] #apps_test_id .app_container iframe,
+html[data-warlord-account-manager-hide-footer] #app_5536422_container iframe {
 	border-bottom-left-radius: var(--vkui--size_border_radius_paper--regular);
 	border-bottom-right-radius: var(--vkui--size_border_radius_paper--regular);
 }
@@ -42,7 +57,8 @@ html[data-warlord-account-manager-hide-options-bar] .apps_options_bar {
 	display: none !important;
 }
 html[data-warlord-account-manager-hide-options-bar] .apps_main,
-html[data-warlord-account-manager-hide-options-bar] #apps_test_id .app_container iframe {
+html[data-warlord-account-manager-hide-options-bar] #apps_test_id .app_container iframe,
+html[data-warlord-account-manager-hide-options-bar] #app_5536422_container iframe {
 	border-top-left-radius: var(--vkui--size_border_radius_paper--regular);
 	border-top-right-radius: var(--vkui--size_border_radius_paper--regular);
 }

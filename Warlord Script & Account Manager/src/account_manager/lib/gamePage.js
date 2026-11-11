@@ -5,3 +5,7 @@ const GAME_PATH = /^(?:\/games)?\/app5536422(?:_\d+)?(?:\/|$)/;
 
 const isGamePath = (pathname) => GAME_PATH.test(pathname);
 export const isGamePage = () => isGamePath(location.pathname);
+
+// Новый интерфейс страницы игры (его ВК включает по A/B-тесту): контейнер игры с data-testid, нет #apps_test_id со старой вёрсткой.
+// В нём нет «Игр для вас», шапки над игрой и чёрной полосы справа, а подвал собран из других элементов (см. page.css).
+export const isNewGameInterface = () => Boolean(document.querySelector('#app_5536422_container[data-testid="app_container"]'));

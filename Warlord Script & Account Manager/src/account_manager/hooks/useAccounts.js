@@ -3,6 +3,7 @@ import { checkCredentials, loadGameStats, loadPreview, loadVkProfiles } from '..
 import { SCRIPT_SETTINGS_KEY } from '../../shared/lib/storageKeys.js';
 import { isSeparator, loadAccounts, newSeparator, onAccountsChanged, saveAccounts, toStored } from '../lib/storage.js';
 import { parseSrc, patchSrc } from '../lib/gameFrameSrc.js';
+import { readProfileHash, writeProfileHash } from '../lib/profileHash.js';
 import { getGameFrame } from './useGameFrame.js';
 
 // Список аккаунтов, текущий аккаунт и все действия над ними.
@@ -24,6 +25,11 @@ export function useAccounts({ nicknames = true, avatars = true } = {}) {
 	const appliedSrc = useRef(null); // src, выставленный нами, чтобы отличать его от родного
 	const options = useRef({ nicknames, avatars });
 	options.current = { nicknames, avatars };
+	const restored = useRef(false); // восстановление аккаунта из #profile= после загрузки страницы уже выполнено
+	const restoreId = useRef(null); // аккаунт из адреса, который нужно удерживать, пока идёт окно восстановления
+	const restoreUntil = useRef(0);
+	const restoring = useRef(false); // переключение сделано самим восстановлением, а не пользователем
+	const [nativeTick, setNativeTick] = useState(0); // растёт, когда ВК выставил фрейму родной адрес в окне восстановления
 	const clearing = useRef(false);
 	const refreshing = useRef(false);
 	const refreshAgain = useRef(false);
@@ -123,6 +129,11 @@ export function useAccounts({ nicknames = true, avatars = true } = {}) {
 		const id = Number(params.viewer_id);
 		setCurrentId(id);
 		if (src === appliedSrc.current) return; // это наша подмена, а не родной адрес
+		// Игра загрузилась под своим аккаунтом: в адресе выбранного нет. Исключение — окно восстановления после загрузки страницы:
+		// ВК в первые секунды может пересоздать фрейм уже после нашей подмены, тогда подмену нужно применить ещё раз.
+		const inRestoreWindow = restoreId.current !== null && Date.now() < restoreUntil.current;
+		if (inRestoreWindow) setNativeTick((tick) => tick + 1);
+		else if (restored.current) writeProfileHash(null);
 		session.current = { id, authKey: params.auth_key, token: params.access_token || '' };
 		setOwnId(id);
 		setToken(session.current.token);
@@ -143,6 +154,7 @@ export function useAccounts({ nicknames = true, avatars = true } = {}) {
 			frame.setAttribute('src', src);
 			return 'reloaded';
 		}
+		if (!restoring.current) restoreId.current = null; // пользователь выбрал сам: восстановление больше не нужно
 		const params = parseSrc(src);
 		if (!('auth_key' in params) || !('viewer_id' in params)) {
 			setNotice('Не удалось сменить аккаунт: в адресе игры нет нужных параметров');
@@ -155,8 +167,38 @@ export function useAccounts({ nicknames = true, avatars = true } = {}) {
 		setNotice('');
 		setCurrentId(account.id);
 		frame.setAttribute('src', next);
+		writeProfileHash(account.id === session.current?.id ? null : account.id);
 		return true; // true — аккаунт сменён (игра перезагружается), 'reloaded' — игра обновлена под тем же аккаунтом
 	}, [currentId]);
+
+	// После загрузки страницы: если в адресе есть #profile=<id> и такой аккаунт в списке, сразу включаем его.
+	// Игра при этом сначала загрузится под своим аккаунтом, потом перезагрузится под выбранным.
+	useEffect(() => {
+		if (ownId === null || restored.current) return;
+		restored.current = true;
+		const id = readProfileHash();
+		if (id === null) return;
+		const account = list.current.find((a) => !isSeparator(a) && a.id === id);
+		if (!account || id === ownId) {
+			writeProfileHash(null);
+			return;
+		}
+		restoreId.current = id;
+		restoreUntil.current = Date.now() + 15000;
+		restoring.current = true;
+		switchTo(account);
+		restoring.current = false;
+	}, [ownId, switchTo]);
+
+	// ВК пересоздал фрейм с родным адресом в окне восстановления: включаем нужный аккаунт ещё раз
+	useEffect(() => {
+		if (!nativeTick || restoreId.current === null || Date.now() >= restoreUntil.current) return;
+		const account = list.current.find((a) => !isSeparator(a) && a.id === restoreId.current);
+		if (!account || account.id === ownId) return;
+		restoring.current = true;
+		switchTo(account);
+		restoring.current = false;
+	}, [nativeTick, ownId, switchTo]);
 
 	// Возвращает текст ошибки или null, если аккаунт добавлен. server — сервер, уже найденный окном (чтобы не спрашивать хаб ещё раз).
 	const add = useCallback(async ({ id, authKey, label, server }) => {

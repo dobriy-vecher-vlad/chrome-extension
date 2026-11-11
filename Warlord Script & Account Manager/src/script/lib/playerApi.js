@@ -233,7 +233,8 @@ export async function loadPlayer({ from, to, server: serverId, settings, onHint 
 	const fail = (message) => { throw new LoadError(message, otherServers); };
 	onHint('Получаем номер профиля');
 	if (!from && to) from = to;
-	if (!to && from) to = from;
+	// Номер просматриваемого профиля (to) нельзя подменять номером того, кто смотрит: если ВК его не отдал, блок покажет
+	// характеристики самого зрителя вместо владельца профиля. Лучше ошибка, чем чужие данные.
 	if (!from || !to) fail('Ошибка при получении номера профиля');
 	// файл статусов (github.io) и список серверов (сервер игры) не зависят друг от друга: запрашиваем одновременно
 	onHint('Получаем статусы и сервер');

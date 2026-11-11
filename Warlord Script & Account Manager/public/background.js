@@ -282,7 +282,16 @@ async function scriptIds(sender) {
 	const [{ result }] = await chrome.scripting.executeScript({
 		target: { tabId: sender.tab.id },
 		world: 'MAIN',
-		func: () => ({ from: Number(window.vk && window.vk.id) || 0, to: Number(window.cur && window.cur.oid) || 0 }),
+		// to: cur.oid ВК после возврата по истории браузера теряет, а cur.options.owner.id / user_id остаются; сообщества (отрицательные) не берём
+		func: () => {
+			const cur = window.cur || {};
+			const options = cur.options || {};
+			const positive = (value) => (Number(value) > 0 ? Number(value) : 0);
+			return {
+				from: positive(window.vk && window.vk.id),
+				to: positive(options.owner && options.owner.id) || positive(options.user_id) || positive(cur.oid),
+			};
+		},
 	});
 	return { ok: true, from: result.from, to: result.to };
 }

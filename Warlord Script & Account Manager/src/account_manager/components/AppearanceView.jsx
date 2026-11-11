@@ -8,7 +8,8 @@ import { BACKGROUND_RANGES, isSeeThrough, WIDTH_MAX, WIDTH_MIN } from '../lib/se
 
 // Раздел «Оформление»: переключатели и ползунки, которые меняют вид страницы игры и самой панели.
 // В конце каждого блока кнопка, которая возвращает значения этого блока к стандартным.
-function Option({ title, description, checked, onChange }) {
+function Option({ title, description, checked, onChange, hidden }) {
+	if (hidden) return null; // пункт не относится к этому интерфейсу страницы; значение в настройках остаётся
 	return (
 		<SimpleCell
 			Component="label"
@@ -36,7 +37,7 @@ function ResetButton({ children, onClick }) {
 
 export function AppearanceView() {
 	const { appearance, notify } = useManagerContext();
-	const { settings, image, update, updateBackground, setImage, setFreeMode, resetGroup } = appearance;
+	const { settings, image, newInterface, update, updateBackground, setImage, setFreeMode, resetGroup } = appearance;
 	const { background } = settings;
 	const fileInput = useRef(null);
 	// обводка и тень есть только у панели-карточки: она рисуется так в свободном режиме и когда задан фон
@@ -68,7 +69,8 @@ export function AppearanceView() {
 			<Option
 				title="Скрыть «Игры для вас»"
 				description="Убирает блок с рекомендованными играми под игрой"
-				checked={settings.hideSimilarApps}
+				hidden={newInterface}
+					checked={settings.hideSimilarApps}
 				onChange={(value) => update({ hideSimilarApps: value })}
 			/>
 			<Option
@@ -86,13 +88,15 @@ export function AppearanceView() {
 			<Option
 				title="Скрыть шапку над игрой"
 				description="Убирает панель над игрой, верхние углы игры скругляются"
-				checked={settings.hideOptionsBar}
+				hidden={newInterface}
+					checked={settings.hideOptionsBar}
 				onChange={(value) => update({ hideOptionsBar: value })}
 			/>
 			<Option
 				title="Исправить чёрную полосу справа от игры"
 				description="Убирает чёрную полосу справа от игры, которая появляется из-за ошибки ВКонтакте"
-				checked={settings.fixLayoutWidth}
+				hidden={newInterface}
+					checked={settings.fixLayoutWidth}
 				onChange={(value) => update({ fixLayoutWidth: value })}
 			/>
 			<ResetButton onClick={() => resetGroup('page', 'Настройки страницы игры сброшены')}>Сбросить настройки страницы игры</ResetButton>
